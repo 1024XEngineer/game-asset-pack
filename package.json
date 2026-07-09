@@ -1,0 +1,15 @@
+{
+  "name": "game-asset-pack",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "demo": "bun run src/demo.ts",
+    "typecheck": "tsc --noEmit",
+    "assetgraph": "bun run src/cli.ts"
+  }
+}
