@@ -1,0 +1,266 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Asset 资产管理 API",
+    "description": "基于 Elasticsearch 的资产管理服务，支持资产的存储与全文搜索。",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api",
+      "description": "本地开发环境"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Asset",
+      "description": "资产管理相关接口"
+    }
+  ],
+  "paths": {
+    "/assets": {
+      "post": {
+        "tags": ["Asset"],
+        "summary": "存储资产",
+        "description": "将资产信息（项目名称、标签、用户输入）以空格拼接后存储到 Elasticsearch 的 asset_index 索引中。",
+        "operationId": "storeAsset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetStoreRequest"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "存储一个后端认证模块资产",
+                  "value": {
+                    "project_name": "my-project",
+                    "tag": "backend",
+                    "user_input": "user authentication module"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "资产存储成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetStoreResponse"
+                },
+                "example": {
+                  "id": "abc123def456",
+                  "message": "Asset stored successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误（ES 写入失败）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/search": {
+      "get": {
+        "tags": ["Asset"],
+        "summary": "搜索资产",
+        "description": "根据项目名称、标签、用户输入进行全文匹配搜索。搜索条件以空格拼接后对 content 字段做 match 查询，按相关度降序返回前 5 条结果。",
+        "operationId": "searchAssets",
+        "parameters": [
+          {
+            "name": "project_name",
+            "in": "query",
+            "description": "项目名称（可选）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-project"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "标签（可选）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "backend"
+          },
+          {
+            "name": "user_input",
+            "in": "query",
+            "description": "用户输入关键词（可选）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "搜索成功，返回匹配的资产列表（最多 5 条）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetSearchResponse"
+                },
+                "example": {
+                  "total": 2,
+                  "results": [
+                    {
+                      "project_name": "my-project",
+                      "tag": "backend",
+                      "user_input": "user authentication module",
+                      "content": "my-project backend user authentication module"
+                    },
+                    {
+                      "project_name": "my-project",
+                      "tag": "backend",
+                      "user_input": "OAuth2 login flow",
+                      "content": "my-project backend OAuth2 login flow"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误（至少需要一个搜索条件）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误（ES 查询失败）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssetStoreRequest": {
+        "type": "object",
+        "required": ["project_name", "tag", "user_input"],
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "项目名称",
+            "example": "my-project"
+          },
+          "tag": {
+            "type": "string",
+            "description": "资产标签",
+            "example": "backend"
+          },
+          "user_input": {
+            "type": "string",
+            "description": "用户输入的描述信息",
+            "example": "user authentication module"
+          }
+        }
+      },
+      "AssetStoreResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ES 中生成的文档 ID"
+          },
+          "message": {
+            "type": "string",
+            "description": "操作结果描述"
+          }
+        }
+      },
+      "AssetSearchResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "匹配结果总数"
+          },
+          "results": {
+            "type": "array",
+            "description": "资产列表（按相关度降序，最多 5 条）",
+            "items": {
+              "$ref": "#/components/schemas/AssetItem"
+            }
+          }
+        }
+      },
+      "AssetItem": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "项目名称"
+          },
+          "tag": {
+            "type": "string",
+            "description": "资产标签"
+          },
+          "user_input": {
+            "type": "string",
+            "description": "用户输入的描述信息"
+          },
+          "content": {
+            "type": "string",
+            "description": "project_name + tag + user_input 空格拼接的全文搜索字段"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "HTTP 状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "错误描述信息"
+          }
+        }
+      }
+    }
+  }
+}
