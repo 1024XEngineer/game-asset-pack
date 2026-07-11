@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "useTabs": false,
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": false,
+  "sortImports": true,
+  "sortPackageJson": true,
+  "ignorePatterns": [".next/**", "out/**", "build/**", "next-env.d.ts", "public/**"]
+}
