@@ -1,0 +1,38 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - govet
+    - errcheck
+    - ineffassign
+    - unused
+    - staticcheck
+    - revive
+    - misspell
+    - rowserrcheck
+    - gosec
+    - noctx
+    - wrapcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  # 忽略 vendor
+  exclude-dirs:
+    - vendor
+
+  # 忽略生成代码
+  exclude-files:
+    - ".*\\.pb\\.go"
+    - ".*_generated\\.go"
+    - "mock_.*\\.go"
