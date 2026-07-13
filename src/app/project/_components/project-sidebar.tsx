@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronDown, ChevronLeft, ChevronRight, CircleDot, Folder, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Folder, Plus } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,9 @@ import type { ProjectSummary } from "../_data/project-demo-data";
 
 export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
   const [isOpen, setIsOpen] = useState(true);
-  const [expandedProjectIds, setExpandedProjectIds] = useState<string[]>([projects[0]?.id ?? ""]);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedProjectId = searchParams.get("project");
 
   return (
     <aside
@@ -43,28 +46,31 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
 
         {isOpen ? (
           <ScrollArea className="min-h-0 flex-1 px-3 py-4">
-            <Button className="mb-4 w-full justify-start">
+            <Button
+              render={<Link href="/project/new" />}
+              nativeButton={false}
+              className="mb-4 w-full justify-start"
+            >
               <Plus data-icon="inline-start" />
               New Project
             </Button>
             <div className="space-y-2">
-              {projects.map((project) => (
-                <Collapsible
-                  key={project.id}
-                  open={expandedProjectIds.includes(project.id)}
-                  onOpenChange={(nextOpen) => {
-                    setExpandedProjectIds((current) =>
-                      nextOpen
-                        ? [...current, project.id]
-                        : current.filter((item) => item !== project.id),
-                    );
-                  }}
-                  className={cn(
-                    "rounded-lg border bg-card",
-                    project.isActive ? "border-foreground shadow-sm" : "border-border",
-                  )}
-                >
-                  <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-3 text-left">
+              {projects.map((project) => {
+                const isSelected =
+                  pathname.startsWith("/project") &&
+                  pathname !== "/project/new" &&
+                  project.id === selectedProjectId;
+
+                return (
+                  <Link
+                    key={project.id}
+                    href={`/project?project=${project.id}`}
+                    aria-current={isSelected ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg border bg-card px-3 py-3 transition-colors hover:bg-muted",
+                      isSelected ? "border-foreground shadow-sm" : "border-border",
+                    )}
+                  >
                     <Folder className="size-4 text-muted-foreground" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{project.name}</span>
@@ -73,31 +79,9 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
                       </span>
                     </span>
                     <span className="text-xs text-muted-foreground">{project.assetCount}</span>
-                    <ChevronDown
-                      className={cn(
-                        "size-4 text-muted-foreground transition-transform",
-                        expandedProjectIds.includes(project.id) && "rotate-180",
-                      )}
-                    />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <Separator />
-                    <div className="px-3 py-2">
-                      {project.sections.map((section) => (
-                        <Button
-                          key={section}
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start text-muted-foreground"
-                        >
-                          <CircleDot data-icon="inline-start" className="size-3" />
-                          {section}
-                        </Button>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </ScrollArea>
         ) : (
@@ -105,8 +89,16 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
             {projects.map((project) => (
               <Button
                 key={project.id}
+                render={<Link href={`/project?project=${project.id}`} />}
+                nativeButton={false}
                 aria-label={project.name}
-                variant={project.isActive ? "default" : "outline"}
+                variant={
+                  pathname.startsWith("/project") &&
+                  pathname !== "/project/new" &&
+                  project.id === selectedProjectId
+                    ? "default"
+                    : "outline"
+                }
                 size="icon-lg"
               >
                 <Folder />

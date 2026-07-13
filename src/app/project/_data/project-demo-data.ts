@@ -5,7 +5,6 @@ export type ProjectAsset = {
   name: string;
   description: string;
   version: string;
-  status: "Ready" | "Review" | "Draft";
 };
 
 export type AssetGroup = {
@@ -20,8 +19,6 @@ export type ProjectSummary = {
   name: string;
   style: string;
   assetCount: number;
-  isActive: boolean;
-  sections: string[];
 };
 
 export const projectSummaries: ProjectSummary[] = [
@@ -30,24 +27,18 @@ export const projectSummaries: ProjectSummary[] = [
     name: "Moonlit Orchard",
     style: "Cozy pixel RPG",
     assetCount: 24,
-    isActive: true,
-    sections: ["Characters", "Objects", "Tiles"],
   },
   {
     id: "iron-harbor",
     name: "Iron Harbor",
     style: "Industrial platformer",
     assetCount: 18,
-    isActive: false,
-    sections: ["Characters", "Objects", "Tiles"],
   },
   {
     id: "mushroom-courier",
     name: "Mushroom Courier",
     style: "Tiny adventure demo",
     assetCount: 31,
-    isActive: false,
-    sections: ["Characters", "Objects", "Tiles"],
   },
 ];
 
@@ -64,21 +55,18 @@ export const assetGroups: AssetGroup[] = [
         name: "Forager Hero",
         description: "Idle, walk, harvest",
         version: "v4",
-        status: "Ready",
       },
       {
         id: "lantern-merchant",
         name: "Lantern Merchant",
         description: "Front view draft",
         version: "v2",
-        status: "Review",
       },
       {
         id: "moss-slime",
         name: "Moss Slime",
         description: "Bounce animation",
         version: "v6",
-        status: "Ready",
       },
     ],
   },
@@ -92,21 +80,18 @@ export const assetGroups: AssetGroup[] = [
         name: "Copper Watering Can",
         description: "32x32 item sprite",
         version: "v3",
-        status: "Ready",
       },
       {
         id: "blueberry-crate",
         name: "Blueberry Crate",
         description: "4 color variants",
         version: "v1",
-        status: "Draft",
       },
       {
         id: "weathered-signpost",
         name: "Weathered Signpost",
         description: "Directional prop",
         version: "v5",
-        status: "Ready",
       },
     ],
   },
@@ -120,21 +105,18 @@ export const assetGroups: AssetGroup[] = [
         name: "Orchard Ground Set",
         description: "Grass, dirt, path edges",
         version: "v7",
-        status: "Ready",
       },
       {
         id: "stone-wall-corners",
         name: "Stone Wall Corners",
         description: "Autotile pieces",
         version: "v2",
-        status: "Review",
       },
       {
         id: "pond-rim-tiles",
         name: "Pond Rim Tiles",
         description: "Water border kit",
         version: "v3",
-        status: "Draft",
       },
     ],
   },

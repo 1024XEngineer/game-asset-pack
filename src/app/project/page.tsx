@@ -1,5 +1,11 @@
+import { Suspense } from "react";
+
 import { ProjectWorkspace } from "./_components/project-workspace";
 
 export default function ProjectPage() {
-  return <ProjectWorkspace />;
+  return (
+    <Suspense>
+      <ProjectWorkspace />
+    </Suspense>
+  );
 }
