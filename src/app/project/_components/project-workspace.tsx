@@ -4,18 +4,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 
 import type { AssetKind } from "../_data/project-demo-data";
 import { assetGroups, createAssetKinds, projectSummaries } from "../_data/project-demo-data";
 import { AssetCard } from "./asset-card";
-import { AssetFilters } from "./asset-filters";
-import { CreateAssetToolbar } from "./create-asset-toolbar";
-import { ProjectSidebar } from "./project-sidebar";
+import { ProjectCommandBar } from "./project-command-bar";
 
 const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
 
 export function ProjectWorkspace() {
+  const [prompt, setPrompt] = useState("");
   const [query, setQuery] = useState("");
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
   const router = useRouter();
@@ -70,71 +68,74 @@ export function ProjectWorkspace() {
               value.toLowerCase().includes(normalizedQuery),
             ),
           )
-          .map((asset) => ({ ...asset, accentClassName: group.accentClassName })),
+          .map((asset) => ({
+            ...asset,
+            accentClassName: group.accentClassName,
+            kind: group.kind,
+            kindLabel: group.title,
+          })),
       );
   }, [query, selectedKinds]);
 
+  if (!currentProject) {
+    return (
+      <div className="flex h-full items-center justify-center px-6 text-center">
+        <p className="max-w-md text-sm leading-6 text-muted-foreground">
+          Please create a project or select an existing project from the project list on the left.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-1 bg-muted/30">
-      <ProjectSidebar projects={projectSummaries} />
-
-      <section className="min-w-0 flex-1 overflow-hidden">
-        {currentProject ? (
-          <>
-            <div className="bg-background/95 px-5 py-4 backdrop-blur">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase text-muted-foreground">
-                    Current Project
-                  </p>
-                  <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-                    {currentProject.name}
-                  </h1>
-                </div>
-              </div>
-            </div>
-            <Separator />
-
-            <ScrollArea className="h-[calc(100vh-8.25rem)]">
-              <div className="space-y-5 px-5 py-5">
-                <AssetFilters
-                  query={query}
-                  selectedKinds={selectedKinds}
-                  onQueryChange={setQuery}
-                  onSelectedKindsChange={setSelectedKinds}
-                  actions={<CreateAssetToolbar assetKinds={createAssetKinds} />}
-                />
-                {filteredAssets.length > 0 ? (
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                    {filteredAssets.map((asset) => (
-                      <AssetCard
-                        key={asset.id}
-                        asset={asset}
-                        accentClassName={asset.accentClassName}
-                        projectId={currentProject.id}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-dashed bg-card px-6 py-14 text-center">
-                    <p className="text-sm font-medium">No assets found</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Try another search or asset type.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </>
-        ) : (
-          <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Please create a project or select an existing project from the project list on the
-              left.
+    <ScrollArea className="h-full">
+      <div className="mx-auto w-full max-w-[96rem] px-5 py-7 sm:px-8 sm:py-9">
+        <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Current Project
             </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+              {currentProject.name}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{currentProject.style}</p>
+          </div>
+          <p className="text-sm text-muted-foreground">{currentProject.assetCount} assets</p>
+        </header>
+
+        <div className="py-10 sm:py-12">
+          <ProjectCommandBar
+            prompt={prompt}
+            query={query}
+            selectedKinds={selectedKinds}
+            assetKinds={createAssetKinds}
+            projectName={currentProject.name}
+            onPromptChange={setPrompt}
+            onQueryChange={setQuery}
+            onSelectedKindsChange={setSelectedKinds}
+          />
+        </div>
+
+        {filteredAssets.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+            {filteredAssets.map((asset) => (
+              <AssetCard
+                key={asset.id}
+                asset={asset}
+                accentClassName={asset.accentClassName}
+                kind={asset.kind}
+                kindLabel={asset.kindLabel}
+                projectId={currentProject.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed bg-card px-6 py-20 text-center">
+            <p className="text-sm font-medium">No assets found</p>
+            <p className="mt-1 text-sm text-muted-foreground">Try another search or asset type.</p>
           </div>
         )}
-      </section>
-    </main>
+      </div>
+    </ScrollArea>
   );
 }

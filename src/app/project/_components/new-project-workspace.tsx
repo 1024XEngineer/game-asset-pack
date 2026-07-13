@@ -5,9 +5,6 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { projectSummaries } from "../_data/project-demo-data";
-import { ProjectSidebar } from "./project-sidebar";
-
 type ProjectStart = "existing-game" | "idea" | "blank";
 
 const projectStarts: {
@@ -40,48 +37,44 @@ export function NewProjectWorkspace() {
   const [selectedStart, setSelectedStart] = useState<ProjectStart | null>(null);
 
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-1 bg-muted/30">
-      <ProjectSidebar projects={projectSummaries} />
+    <div className="h-full overflow-y-auto px-5 py-10 sm:px-8 lg:px-12">
+      <div className="mx-auto w-full max-w-4xl">
+        <p className="text-xs font-semibold uppercase text-muted-foreground">New Project</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          Where would you like to start?
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Choose the starting point that best fits where you are. The next project setup will adapt
+          to your choice.
+        </p>
 
-      <section className="min-w-0 flex-1 px-5 py-10 sm:px-8 lg:px-12">
-        <div className="mx-auto w-full max-w-4xl">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">New Project</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Where would you like to start?
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Choose the starting point that best fits where you are. The next project setup will
-            adapt to your choice.
-          </p>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {projectStarts.map((start) => {
+            const Icon = start.icon;
+            const isSelected = selectedStart === start.id;
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {projectStarts.map((start) => {
-              const Icon = start.icon;
-              const isSelected = selectedStart === start.id;
-
-              return (
-                <Button
-                  key={start.id}
-                  aria-pressed={isSelected}
-                  className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
-                  variant={isSelected ? "secondary" : "outline"}
-                  onClick={() => setSelectedStart(start.id)}
-                >
-                  <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
-                    <Icon className="size-5" />
+            return (
+              <Button
+                key={start.id}
+                aria-pressed={isSelected}
+                className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
+                variant={isSelected ? "secondary" : "outline"}
+                onClick={() => setSelectedStart(start.id)}
+              >
+                <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
+                  <Icon className="size-5" />
+                </span>
+                <span>
+                  <span className="block text-base font-semibold">{start.title}</span>
+                  <span className="mt-2 block text-sm font-normal leading-6 text-muted-foreground">
+                    {start.description}
                   </span>
-                  <span>
-                    <span className="block text-base font-semibold">{start.title}</span>
-                    <span className="mt-2 block text-sm font-normal leading-6 text-muted-foreground">
-                      {start.description}
-                    </span>
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
+                </span>
+              </Button>
+            );
+          })}
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,12 @@
+import { ChevronDown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import type { AssetKind } from "../_data/project-demo-data";
 import { AssetKindIcon } from "./asset-kind-icon";
@@ -10,24 +18,32 @@ const labels: Record<AssetKind, string> = {
   tiles: "Tiles",
 };
 
-export function CreateAssetToolbar({ assetKinds }: { assetKinds: AssetKind[] }) {
+export function CreateAssetToolbar({
+  assetKinds,
+  prompt,
+  projectName,
+}: {
+  assetKinds: AssetKind[];
+  prompt: string;
+  projectName: string;
+}) {
   return (
-    <CreateAssetDialog>
+    <CreateAssetDialog initialPrompt={prompt} projectName={projectName}>
       {(openDialog) => (
-        <div className="flex rounded-lg border bg-card p-1 shadow-sm">
-          {assetKinds.map((kind) => (
-            <Button
-              key={kind}
-              variant="outline"
-              size="sm"
-              className="rounded-md border-transparent bg-transparent"
-              onClick={() => openDialog(kind)}
-            >
-              <AssetKindIcon kind={kind} data-icon="inline-start" />
-              Create {labels[kind]}
-            </Button>
-          ))}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button size="lg" className="rounded-xl px-4" />}>
+            Create
+            <ChevronDown data-icon="inline-end" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            {assetKinds.map((kind) => (
+              <DropdownMenuItem key={kind} onClick={() => openDialog(kind)}>
+                <AssetKindIcon kind={kind} />
+                Create {labels[kind]}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </CreateAssetDialog>
   );

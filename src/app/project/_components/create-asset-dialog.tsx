@@ -24,8 +24,12 @@ const labels: Record<AssetKind, string> = {
 
 export function CreateAssetDialog({
   children,
+  initialPrompt = "",
+  projectName,
 }: {
   children: (openDialog: (kind: AssetKind) => void) => React.ReactNode;
+  initialPrompt?: string;
+  projectName: string;
 }) {
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<AssetKind>("character");
@@ -36,6 +40,7 @@ export function CreateAssetDialog({
   const openDialog = (nextKind: AssetKind) => {
     setKind(nextKind);
     setCanvasSize(nextKind === "tiles" ? "16 × 16 px" : "32 × 32 px");
+    setPrompt(initialPrompt.trim());
     setOpen(true);
   };
 
@@ -101,7 +106,7 @@ export function CreateAssetDialog({
               type="checkbox"
               className="size-4 rounded border-input accent-primary"
             />
-            Use Moonlit Orchard project context
+            Use {projectName} project context
           </label>
 
           <DialogFooter>
