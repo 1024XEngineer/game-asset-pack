@@ -16,9 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-import { projectSummaries } from "../_data/project-demo-data";
-import { ProjectSidebar } from "./project-sidebar";
-
 type ImportMode = "link" | "file";
 
 const projectStarts = [
@@ -56,59 +53,56 @@ export function NewProjectWorkspace() {
   const canImport = mode === "link" ? gameUrl.trim().length > 0 : Boolean(file);
 
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-1 bg-muted/30">
-      <ProjectSidebar projects={projectSummaries} />
-      <section className="min-w-0 flex-1 px-5 py-10 sm:px-8 lg:px-12">
-        <div className="mx-auto w-full max-w-4xl">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">New Project</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Where would you like to start?
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Pick the amount of structure you need. You can always add more project context later.
-          </p>
+    <div className="h-full overflow-y-auto px-5 py-10 sm:px-8 lg:px-12">
+      <div className="mx-auto w-full max-w-4xl">
+        <p className="text-xs font-semibold uppercase text-muted-foreground">New Project</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          Where would you like to start?
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Pick the amount of structure you need. You can always add more project context later.
+        </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {projectStarts.map((start) => {
-              const Icon = start.icon;
-              const content = (
-                <>
-                  <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
-                    <Icon className="size-5" />
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {projectStarts.map((start) => {
+            const Icon = start.icon;
+            const content = (
+              <>
+                <span className="grid size-10 place-items-center rounded-lg bg-muted text-foreground">
+                  <Icon className="size-5" />
+                </span>
+                <span>
+                  <span className="block text-base font-semibold">{start.title}</span>
+                  <span className="mt-2 block text-sm font-normal leading-6 text-muted-foreground">
+                    {start.description}
                   </span>
-                  <span>
-                    <span className="block text-base font-semibold">{start.title}</span>
-                    <span className="mt-2 block text-sm font-normal leading-6 text-muted-foreground">
-                      {start.description}
-                    </span>
-                  </span>
-                </>
-              );
+                </span>
+              </>
+            );
 
-              return start.id === "existing-game" ? (
-                <Button
-                  key={start.id}
-                  className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
-                  variant="outline"
-                  onClick={() => setImportOpen(true)}
-                >
-                  {content}
-                </Button>
-              ) : (
-                <Button
-                  key={start.id}
-                  render={<Link href={start.href} />}
-                  nativeButton={false}
-                  className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
-                  variant="outline"
-                >
-                  {content}
-                </Button>
-              );
-            })}
-          </div>
+            return start.id === "existing-game" ? (
+              <Button
+                key={start.id}
+                className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
+                variant="outline"
+                onClick={() => setImportOpen(true)}
+              >
+                {content}
+              </Button>
+            ) : (
+              <Button
+                key={start.id}
+                render={<Link href={start.href} />}
+                nativeButton={false}
+                className="h-auto min-h-52 flex-col items-start justify-between gap-8 p-5 text-left whitespace-normal"
+                variant="outline"
+              >
+                {content}
+              </Button>
+            );
+          })}
         </div>
-      </section>
+      </div>
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent>
@@ -192,6 +186,6 @@ export function NewProjectWorkspace() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </main>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function ImportedGameWorkspace() {
   return (
-    <main className="grid min-h-[calc(100vh-3.5rem)] flex-1 place-items-center bg-muted/30 px-6">
+    <main className="grid h-full place-items-center px-6">
       <div className="w-full max-w-xl rounded-2xl border bg-background p-8 text-center shadow-sm">
         <span className="mx-auto grid size-14 place-items-center rounded-full bg-emerald-100 text-emerald-700">
           <CheckCircle2 />

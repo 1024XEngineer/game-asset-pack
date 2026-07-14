@@ -10,20 +10,26 @@ const labels: Record<AssetKind, string> = {
   tiles: "Tiles",
 };
 
-export function CreateAssetToolbar({ assetKinds }: { assetKinds: AssetKind[] }) {
+export function CreateAssetToolbar({
+  assetKinds,
+  projectName,
+}: {
+  assetKinds: AssetKind[];
+  projectName: string;
+}) {
   return (
-    <CreateAssetDialog>
+    <CreateAssetDialog projectName={projectName}>
       {(openDialog) => (
-        <div className="flex rounded-lg border bg-card p-1 shadow-sm">
+        <div className="grid grid-cols-1 rounded-2xl border bg-background p-1 shadow-sm sm:grid-cols-3">
           {assetKinds.map((kind) => (
             <Button
               key={kind}
-              variant="outline"
-              size="sm"
-              className="rounded-md border-transparent bg-transparent"
+              type="button"
+              variant="ghost"
+              className="h-10 justify-start rounded-xl px-3 text-sm sm:justify-center lg:px-4"
               onClick={() => openDialog(kind)}
             >
-              <AssetKindIcon kind={kind} data-icon="inline-start" />
+              <AssetKindIcon kind={kind} className="size-5" />
               Create {labels[kind]}
             </Button>
           ))}

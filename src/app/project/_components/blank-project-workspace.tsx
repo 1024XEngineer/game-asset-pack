@@ -17,7 +17,7 @@ export function BlankProjectWorkspace() {
     "h-9 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] flex-1 bg-muted/30 px-5 py-8 sm:px-8">
+    <main className="h-full overflow-y-auto px-5 py-8 sm:px-8">
       <div className="mx-auto max-w-5xl">
         <Button
           render={<Link href="/project/new" />}

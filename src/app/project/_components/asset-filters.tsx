@@ -1,5 +1,4 @@
-import { Funnel, Search } from "lucide-react";
-import type { ReactNode } from "react";
+import { Funnel, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -7,11 +6,11 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 
 import type { AssetKind } from "../_data/project-demo-data";
 import { AssetKindIcon } from "./asset-kind-icon";
@@ -23,17 +22,11 @@ const filters: { label: string; value: AssetKind }[] = [
 ];
 
 export function AssetFilters({
-  query,
   selectedKinds,
-  onQueryChange,
   onSelectedKindsChange,
-  actions,
 }: {
-  query: string;
   selectedKinds: AssetKind[];
-  onQueryChange: (query: string) => void;
   onSelectedKindsChange: (kinds: AssetKind[]) => void;
-  actions?: ReactNode;
 }) {
   const toggleKind = (kind: AssetKind, isSelected: boolean) => {
     onSelectedKindsChange(
@@ -43,44 +36,56 @@ export function AssetFilters({
     );
   };
 
+  const activeFilterCount = filters.length - selectedKinds.length;
+
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-3 shadow-sm">
-      <div className="relative w-full sm:max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          aria-label="Search assets"
-          className="bg-background pl-9"
-          placeholder="Search assets"
-          type="search"
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-        />
-      </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button aria-label="Filter asset types" size="icon" variant="outline" />}
-        >
-          <Funnel />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Asset type</DropdownMenuLabel>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            aria-label="Search and filter assets"
+            size="icon"
+            variant="outline"
+            className="relative size-12 rounded-2xl bg-background shadow-none"
+          />
+        }
+      >
+        <Funnel />
+        {activeFilterCount > 0 ? (
+          <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-primary text-[0.65rem] text-primary-foreground">
+            {activeFilterCount}
+          </span>
+        ) : null}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Asset type</DropdownMenuLabel>
+          {filters.map((filter) => (
+            <DropdownMenuCheckboxItem
+              key={filter.value}
+              checked={selectedKinds.includes(filter.value)}
+              closeOnClick={false}
+              onCheckedChange={(checked) => toggleKind(filter.value, checked)}
+            >
+              <AssetKindIcon kind={filter.value} />
+              {filter.label}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuGroup>
+        {activeFilterCount > 0 ? (
+          <>
             <DropdownMenuSeparator />
-            {filters.map((filter) => (
-              <DropdownMenuCheckboxItem
-                key={filter.value}
-                checked={selectedKinds.includes(filter.value)}
-                closeOnClick={false}
-                onCheckedChange={(checked) => toggleKind(filter.value, checked)}
-              >
-                <AssetKindIcon kind={filter.value} />
-                {filter.label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {actions ? <div className="ml-auto">{actions}</div> : null}
-    </div>
+            <DropdownMenuItem
+              onClick={() => {
+                onSelectedKindsChange(filters.map((filter) => filter.value));
+              }}
+            >
+              <X />
+              Clear filters
+            </DropdownMenuItem>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

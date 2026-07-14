@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -13,6 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
 import type { AssetKind } from "../_data/project-demo-data";
 
@@ -24,8 +27,12 @@ const labels: Record<AssetKind, string> = {
 
 export function CreateAssetDialog({
   children,
+  initialPrompt = "",
+  projectName,
 }: {
   children: (openDialog: (kind: AssetKind) => void) => React.ReactNode;
+  initialPrompt?: string;
+  projectName: string;
 }) {
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<AssetKind>("character");
@@ -36,6 +43,7 @@ export function CreateAssetDialog({
   const openDialog = (nextKind: AssetKind) => {
     setKind(nextKind);
     setCanvasSize(nextKind === "tiles" ? "16 × 16 px" : "32 × 32 px");
+    setPrompt(initialPrompt.trim());
     setOpen(true);
   };
 
@@ -71,9 +79,9 @@ export function CreateAssetDialog({
 
           <label className="grid gap-2 text-sm font-medium">
             Creative brief
-            <textarea
+            <Textarea
               required
-              className="min-h-24 w-full resize-y rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="min-h-24 resize-y"
               placeholder="Describe the subject, material, mood, and details to generate..."
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
@@ -85,23 +93,19 @@ export function CreateAssetDialog({
               Canvas size
               <Input value={canvasSize} onChange={(event) => setCanvasSize(event.target.value)} />
             </label>
-            <label className="grid gap-2 text-sm font-medium">
-              Perspective
-              <select className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30">
-                <option>Top-down</option>
-                <option>Side-on</option>
-                <option>Isometric</option>
-              </select>
-            </label>
+            <div className="grid gap-2 text-sm font-medium">
+              <label htmlFor="create-asset-perspective">Perspective</label>
+              <NativeSelect id="create-asset-perspective" className="w-full">
+                <NativeSelectOption>Top-down</NativeSelectOption>
+                <NativeSelectOption>Side-on</NativeSelectOption>
+                <NativeSelectOption>Isometric</NativeSelectOption>
+              </NativeSelect>
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              defaultChecked
-              type="checkbox"
-              className="size-4 rounded border-input accent-primary"
-            />
-            Use Moonlit Orchard project context
+            <Checkbox defaultChecked />
+            Use {projectName} project context
           </label>
 
           <DialogFooter>

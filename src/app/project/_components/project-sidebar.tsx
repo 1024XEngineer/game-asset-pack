@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Folder, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,17 +18,23 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
   const searchParams = useSearchParams();
   const selectedProjectId = searchParams.get("project");
 
+  useEffect(() => {
+    if (pathname.includes("/editor")) {
+      setIsOpen(false);
+    }
+  }, [pathname]);
+
   return (
     <aside
       className={cn(
-        "border-r bg-sidebar transition-[width] duration-300 ease-out",
-        isOpen ? "w-80" : "w-16",
+        "w-16 shrink-0 border-r bg-sidebar transition-[width] duration-300 ease-out",
+        isOpen && "md:w-80",
       )}
     >
       <div className="flex h-full min-h-0 flex-col">
-        <div className="flex h-16 items-center justify-between px-3">
+        <div className="flex h-16 items-center justify-center px-3 md:justify-between">
           {isOpen ? (
-            <div className="min-w-0">
+            <div className="hidden min-w-0 md:block">
               <p className="text-xs font-semibold uppercase text-muted-foreground">Projects</p>
               <h2 className="truncate text-lg font-semibold">Asset Library</h2>
             </div>
@@ -37,15 +43,17 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
             aria-label={isOpen ? "Collapse project list" : "Expand project list"}
             variant="outline"
             size="icon-sm"
+            className="hidden md:inline-flex"
             onClick={() => setIsOpen((current) => !current)}
           >
             {isOpen ? <ChevronLeft /> : <ChevronRight />}
           </Button>
+          <Folder className="size-5 text-muted-foreground md:hidden" />
         </div>
         <Separator />
 
         {isOpen ? (
-          <ScrollArea className="min-h-0 flex-1 px-3 py-4">
+          <ScrollArea className="hidden min-h-0 flex-1 px-3 py-4 md:block">
             <Button
               render={<Link href="/project/new" />}
               nativeButton={false}
@@ -85,7 +93,16 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
             </div>
           </ScrollArea>
         ) : (
-          <div className="flex flex-1 flex-col items-center gap-3 py-4">
+          <div className="hidden flex-1 flex-col items-center gap-3 py-4 md:flex">
+            <Button
+              render={<Link href="/project/new" />}
+              nativeButton={false}
+              aria-label="New Project"
+              variant="outline"
+              size="icon-lg"
+            >
+              <Plus />
+            </Button>
             {projects.map((project) => (
               <Button
                 key={project.id}
@@ -106,6 +123,36 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
             ))}
           </div>
         )}
+
+        <div className="flex flex-1 flex-col items-center gap-3 py-4 md:hidden">
+          <Button
+            render={<Link href="/project/new" />}
+            nativeButton={false}
+            aria-label="New Project"
+            variant="outline"
+            size="icon-lg"
+          >
+            <Plus />
+          </Button>
+          {projects.map((project) => (
+            <Button
+              key={project.id}
+              render={<Link href={`/project?project=${project.id}`} />}
+              nativeButton={false}
+              aria-label={project.name}
+              variant={
+                pathname.startsWith("/project") &&
+                pathname !== "/project/new" &&
+                project.id === selectedProjectId
+                  ? "default"
+                  : "outline"
+              }
+              size="icon-lg"
+            >
+              <Folder />
+            </Button>
+          ))}
+        </div>
       </div>
     </aside>
   );
