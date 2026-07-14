@@ -130,7 +130,7 @@ Relation 提供以下能力：
 
 ## Feature
 
-第一阶段主要完成游戏资源 AI 生成平台的核心业务闭环，实现从 **Project 创建 → Asset 生成与管理 → 版本迭代 → 批量处理 → 导出** 的完整流程。
+第一阶段主要完成游戏资源 AI 生成平台的核心业务闭环，实现从 **Project 创建 → Asset 生成与管理 → 迭代 → 批量处理 → 导出** 的完整流程。
 
 ### Feature 1：Web 端
 
@@ -141,20 +141,11 @@ Relation 提供以下能力：
 ### Feature 2：快速生成
 
 提供简化的生成入口，用户无需关心 Project 等概念和专业化的表单数据，仅需提供必须的几个参数与提示词即可快速创建游戏资源。
-
----
-
-### Feature 3：快速生成资源列表
-
 保存用户的 AI 创作历史，方便用户查看历史生成记录。
 
-支持：
-
-- 历史资源查看
-
 ---
 
-### Feature 4：Project 管理与全局配置
+### Feature 3：Project 管理与全局配置
 
 提供 Project 的创建与管理能力，作为整个游戏资源的工作空间。
 
@@ -178,7 +169,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 5：初始 Asset
+### Feature 4：初始 Asset
 
 支持用户基于 Project 快速创建初始资源，为后续资源扩展提供基础。
 
@@ -191,7 +182,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 6：Asset 管理
+### Feature 5：Asset 管理
 
 提供资源的全生命周期管理。
 
@@ -205,7 +196,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 7：单个 Asset 修改
+### Feature 6：单个 Asset 修改
 
 支持围绕单个 Asset 进行 AI 生成。
 
@@ -214,24 +205,24 @@ Relation 提供以下能力：
 - Prompt 修改
 - 引用上下文
 - 保留修改历史
-- 自动创建新 Version
+- 自动创建新 Record
 
 ---
 
-### Feature 8：Version 管理
+### Feature 7：Record 管理
 
 记录资源的完整演化过程，支持资源持续迭代。
 
 支持：
 
-- Version 历史查看
+- Record 历史查看
 - 回退历史版本
 - Fork 新 Asset
 - 查看版本详情
 
 ---
 
-### Feature 9：Asset Relation
+### Feature 8：Asset Relation
 
 建立 Asset 之间的业务关联：
 
@@ -239,7 +230,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 10：Tag
+### Feature 9：Tag
 
 支持资源分类与批量管理。
 
@@ -252,7 +243,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 11：批量创建
+### Feature 10：批量创建
 
 支持一次生成多个资源，提高资源生产效率。
 
@@ -260,11 +251,10 @@ Relation 提供以下能力：
 
 - 按类型批量生成
 - 按 Prompt 批量生成
-- AI 自动拆分生成任务
 
 ---
 
-### Feature 12：批量修改
+### Feature 11：批量修改
 
 支持同时修改多个 Asset。
 
@@ -276,7 +266,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 13：资源导出
+### Feature 12：资源导出
 
 支持将资源导出为通用格式。
 
@@ -290,7 +280,7 @@ Relation 提供以下能力：
 
 ---
 
-### Feature 14：基础 MCP 能力
+### Feature 13：基础 MCP 能力
 
 提供基础 MCP 接口，使 AI Agent 能够访问平台资源。
 

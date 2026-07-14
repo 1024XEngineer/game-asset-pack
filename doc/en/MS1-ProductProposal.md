@@ -1,348 +1,295 @@
-# MS1 Product Proposal
+# MS1-Product Proposal
 
 ## One-Sentence Product Summary
 
-This product is a **Project-centric** platform that leverages **natural language, asset references, and global context** to help 2D game developers generate stylistically consistent assets, efficiently manage and reuse game resources throughout the entire production workflow.
+This product is a **Project-centric**, all-in-one platform that leverages **natural language, asset references, and global constraints** to help 2D game developers easily generate stylistically consistent assets, and efficiently manage and reuse game assets.
 
 ---
 
-# Problems We Solve
+## Problems We Solve
 
 When using general-purpose AI image generation tools for game development, users commonly encounter the following issues:
 
-1. AI typically generates only a single image, which is disconnected from real game development workflows. It cannot directly produce animation frames, spritesheets, tilesets, or engine-ready assets.
-2. Assets generated independently within the same game project often lack visual consistency because the AI has no project-level context, resulting in inconsistent art style, proportions, color palettes, and design language.
-3. A single asset usually requires multiple rounds of iteration, but general chat-based AI tools make it difficult to organize conversations, version history, and branching for that asset.
-4. Characters, animations, weapons, sound effects, and environments are inherently related, yet these relationships are not recorded by existing tools, forcing users to repeatedly provide the same context.
-5. When users need to create an entire set of related assets, they must generate and edit each one individually, leading to poor productivity.
-6. Generated assets still require manual cropping, frame extraction, file organization, and format conversion before they can be imported into engines such as Unity or Godot.
-7. Music and sound effect creation has an even higher barrier than visual asset creation. While users without drawing skills can often communicate ideas through rough sketches, users without music knowledge usually have no effective starting point for creating BGM or sound effects.
+1. A single generation result is disconnected from real game development workflows — you only get a single image, and cannot directly obtain animation frames, spritesheets, tilesets, or game engine objects.
+2. Multiple assets within the same game project are generated independently, and the AI lacks project-level context, easily resulting in inconsistent art style, proportions, color palettes, and design specifications.
+3. A single asset often requires multiple rounds of generation and modification, but general chat-based AI tools make it difficult to centrally manage conversations, historical records, and branching for that asset.
+4. Characters, animations, weapons, sound effects, and environments are inherently related, yet these relationships are typically not recorded by the system, forcing users to repeatedly provide the same context.
+5. When users need to batch-produce a set of interrelated assets, they must generate and edit each one individually, leading to low productivity.
+6. Generated results still require manual cropping, frame extraction, file organization, and format conversion before they can be imported into engines such as Unity or Godot.
+7. Music and sound effect creation has an even higher barrier than general image asset creation. While users without drawing skills can still express ideas through rough sketches, users with no musical knowledge typically find it very difficult to start creating BGM or sound effects on their own.
 
-Therefore, the goal of this product is to build an all-in-one 2D game asset creation and management platform that enables users to generate, edit, relate, manage, and export assets within a unified project context.
-
----
-
-# Target Users
-
-The product targets **pixel art enthusiasts, character art enthusiasts, indie game developers, small game studios, and rapid game prototype creators**. The distinction lies in **their intended use cases rather than their professional skill levels**.
-
-* **Pixel art / character art enthusiasts** represent the largest user base but are not the primary target audience. Their individual usage is relatively low, and their willingness to pay is limited. Their primary value is user acquisition and community exposure rather than direct monetization.
-* **Indie game developers** can generally be divided into two groups:
-
-  * Individuals or teams with little or no artistic capability who require a more complete AI-powered solution.
-  * Developers with limited art resources who use AI as a productivity assistant ("vibe creating" / "AI-assisted creating") integrated into their existing game development workflow.
-* **Game prototype creators** primarily need to produce playable demos quickly. During prototyping, programming speed often exceeds art production speed, making AI-generated assets an efficient solution. In practice, these needs largely overlap with those of indie developers.
+Therefore, the goal of this product is to build a one-stop 2D game asset creation and management platform that enables users to generate, edit, relate, manage, and deliver game assets within a unified project context.
 
 ---
 
-# Core Concepts & Information Architecture
+## Target Users
 
-## Project
+The product targets **pixel art / character art enthusiasts, indie game developers, small game teams, and game prototype creators**. The distinction lies in **their intended use cases rather than their professional skill levels**.
 
-To help users continuously create, manage, and maintain assets for the same game, we introduce the concept of a **Project**.
+- **Pixel art / character art enthusiasts** represent a relatively large user base but are not the core target audience. Their individual usage is relatively low, and their willingness to pay is limited. Their primary value is user acquisition and community exposure rather than direct monetization.
+- **Indie game developers** can generally be divided into two groups:
+  - Individuals or teams with no artistic capability at all, who require a more complete AI-powered solution.
+  - Individuals or teams with limited art staff and low art team productivity, who need AI assistance to improve productivity. These users are offered a "vibe creating" / "AI assistant creating" solution integrated into the creative environments indie developers commonly use.
+- **Game prototype creators** primarily target those who want to rapidly develop a game demo. During the demo phase, the speed of developing basic game functionality is clearly much faster than producing art assets. It is also possible that art teams may directly use AI to generate assets during the demo phase rather than spending effort on drawing. In essence, these needs largely overlap with the two categories of indie developers.
 
-A Project typically represents a game, a game prototype, or a themed asset pack, serving as the central workspace for the entire asset production process.
+---
+
+## Core Concepts & Information Architecture
+
+### Project
+
+To help users continuously generate, manage, and maintain assets for the same game, we introduce the concept of a **Project**. A Project typically corresponds to a game, a game demo, or a themed asset pack with a unified style, serving as the workspace for the entire asset production process.
 
 A Project provides the following capabilities:
 
-### Unified AI Context
+- **Unified AI Context**
+  - When users first create a Project, they configure basic information such as game genre, art style, camera perspective, pixel resolution, and target platform, and can also upload reference images.
+  - This information becomes the default AI context for the Project and is automatically referenced when generating Characters, UI, Tilesets, Objects, and other assets, reducing repetitive prompt input and maintaining stylistic consistency across the project as much as possible.
 
-* When creating a Project, users configure basic information such as:
+- **Centralized Asset Management**
+  - Users can create, import, browse, and manage multiple Assets within a Project.
+  - All Assets belong to a single Project, ensuring complete isolation between different games or asset packs.
 
-  * Game genre
-  * Art style
-  * Camera perspective
-  * Pixel resolution
-  * Target platform
-  * Reference images
-* This information becomes the default AI context for the Project and is automatically reused when generating Characters, UI, Tilesets, Objects, and other assets, reducing prompt repetition while maintaining stylistic consistency.
+- **Asset Relationship Management**
+  - Projects maintain parent-child relationships, association relationships, and Tags between Assets.
+  - During generation or modification, the system automatically selects appropriate contextual assets based on these relationships, improving the consistency of AI generation results.
 
-### Centralized Asset Management
-
-* Users can create, import, browse, and manage multiple Assets within a Project.
-* Every Asset belongs to exactly one Project, ensuring complete isolation between different games or asset packs.
-
-### Asset Relationship Management
-
-* Projects maintain parent-child relationships, associations, and tags between Assets.
-* During generation or editing, the system automatically selects appropriate contextual assets to improve consistency.
-
-### Batch Operations
-
-* Assets can be batch edited or exported based on Asset type, Tags, or user selections, allowing entire asset collections to be updated simultaneously.
+- **Batch Operations**
+  - Supports batch editing and batch exporting based on Asset type, Tags, or user selections. Users can complete unified adjustments across an entire asset collection without modifying each asset individually.
 
 ---
 
-## Asset
+### Asset
 
-An **Asset** is the smallest manageable resource unit within a Project.
+To help users continuously iterate on and manage game assets, we introduce the concept of **Asset**. An Asset is the smallest resource management unit within a Project — each Asset corresponds to an independent resource in a game, such as a Character, Object, UI, Tileset, or Map.
 
-Each Asset represents an individual game resource, such as a Character, Object, UI element, Tileset, or Map.
-
-Rather than generating isolated images, users continuously iterate on the same Asset throughout its lifecycle.
+Users can continuously complete the entire creation process around a single Asset, rather than generating a new isolated image each time.
 
 An Asset provides the following capabilities:
 
-### Continuous Iteration
+- **Continuous Asset Iteration**
+  - Users can repeatedly perform AI generation, partial repainting, and manual fine-tuning around the same Asset.
+  - Every modification is retained within the current Asset rather than creating a new independent resource, making it easy for users to continuously refine the same asset.
 
-* Users can repeatedly generate, AI-edit, partially repaint, and manually refine an Asset.
-* Every modification remains within the same Asset instead of creating unrelated resources.
+- **Record Management**
+  - Assets include built-in Record management. Each time a user uses AI generation, a new Record is automatically created.
+  - Users can browse historical records, restore any previous record, or fork a new Asset from a historical record.
 
-### Record Management
+- **Asset Associations**
+  - Assets support AI-automated parent-child relationships and association relationships.
+  - For example, a character can be associated with animations, weapons, sound effects, and other assets. The system automatically references these related assets as context during generation or modification, improving the consistency of generated results.
 
-* Every AI generation automatically creates a new record.
-* Users can browse history, restore previous versions, or fork a historical record into a new Asset.
+- **Tag Classification**
+  - Users can add one or more Tags to an Asset for classification, quick search, and batch modification.
+  - The same Tag can be associated with multiple Assets, making it convenient to manage a group of assets with shared characteristics.
 
-### Asset Relationships
-
-* The system automatically establishes parent-child and related Asset relationships.
-* Characters may reference animations, weapons, or sound effects, allowing AI to reuse contextual information during future generations.
-
-### Tags
-
-* Assets may contain one or multiple Tags.
-* Tags support organization, searching, filtering, and batch operations across multiple Assets.
-
-### Export
-
-Assets can be exported into multiple formats, including:
-
-* PNG
-* GIF
-* Spritesheet
-* Tileset
-* JSON
-
-They can also be converted into engine-ready formats for Unity, Godot, and other game engines.
+- **Asset Export**
+  - Assets can be exported into formats such as PNG, GIF, Spritesheet, Tileset, and JSON depending on the asset type, and can also be further converted into resource formats required by game engines such as Unity or Godot, enabling users to use them out of the box.
 
 ---
 
-## Record
+### Record
 
 To support continuous iteration and historical traceability of game assets, we introduce the concept of **Record**.
 
-A **Record** is the persistent history of an Asset. Each time a user confirms a creation or edit operation, the system automatically creates a new Record that captures the complete state of the Asset at that moment, without overwriting any previous history.
+A Record is a persistent history entry for an Asset. Each time a user confirms a creation or edit operation, the system automatically creates a new Record that captures the complete state of the Asset at that moment, without overwriting any previous history.
 
 A Record provides the following capabilities:
 
 - **Automatic Saving**
-  - Every user-confirmed creation or edit operation automatically generates a new Record, such as AI Generate, AI Edit, or confirmed manual edits.
-  - Users do not need to save manually. The system automatically persists the history, allowing users to focus on asset creation.
+  - Every creation or edit operation that requires user confirmation automatically generates a new Record, such as AI Generate, AI Edit, or confirmed manual edits.
+  - Users do not need to save manually — the system automatically persists the history, allowing users to focus on asset creation.
 
 - **Complete History**
   - Each Record stores a complete snapshot of the Asset at the time it was created.
 
-- **History Rollback**
-  - Users can revert to a previous Record to recover from mistakes or unintended changes.
+- **Historical Rollback**
+  - Users can revert to a previous historical record to recover from problems caused by incorrect operations.
 
 ---
 
-## Relation
+### Relation
 
-A **Relation** represents the logical relationship between Assets.
+To help users organize and manage assets with business associations, we introduce the concept of **Relation**. Relation describes the association relationships between Assets, allowing related assets to be managed and displayed in a unified manner rather than existing independently.
 
-Rather than existing independently, related Assets are organized and managed together.
+Relations provide the following capabilities:
 
-Relations provide:
+- **Parent-Child Relationship Management**
+  - Some Assets depend on another Asset to have complete meaning, thus requiring parent-child relationships.
+  - For example, a user first generates a Goblin character, then generates idle, walk, attack, and jump animations based on that character. These animations become child Assets of the Goblin, rather than independently existing resources.
 
-### Parent-Child Relationships
+- **Related Asset Display**
+  - When viewing an Asset, users can directly browse all its associated resources without needing to search repeatedly through the asset library.
+  - For example, when viewing a character, users can simultaneously view its animations, multi-directional sprites, sound effects, and other related assets, facilitating unified management and maintenance.
 
-Some Assets depend on others to be meaningful.
-
-For example:
-
-* Goblin Character
-
-  * Idle Animation
-  * Walk Animation
-  * Attack Animation
-  * Jump Animation
-
-These animations are stored as child Assets instead of independent resources.
-
-### Related Asset Browsing
-
-When viewing an Asset, users can immediately access all associated resources such as animations, alternate directions, weapons, or sound effects.
-
-### AI Context Reuse
-
-During generation or editing, related Assets are automatically referenced as AI context.
-
-For example, when generating an attack animation, the system automatically references the corresponding character model.
+- **AI Context Referencing**
+  - When users generate or modify an asset, the system can automatically reference related Assets as context based on Relations.
+  - For example, when generating a character's attack animation, the system can automatically reference the corresponding character model, improving the consistency of generated results.
 
 ---
 
-# Features
+## Features
 
-The first milestone focuses on completing the core workflow of the AI game asset platform, covering the entire lifecycle:
+The first milestone focuses on completing the core business loop of the AI game asset generation platform, covering the entire workflow:
 
-**Project Creation → Asset Generation & Management → Version Iteration → Batch Processing → Export**
+**Project Creation → Asset Generation & Management → Iteration → Batch Processing → Export**
 
----
+### Feature 1: Web Application
 
-## Feature 1: Web Application
-
-Provide a browser-based platform as the primary entry point for asset generation, management, and export.
+Provide a browser-based asset management platform as the primary entry point for asset generation, management, and export.
 
 ---
 
-## Feature 2: Quick Generate
+### Feature 2: Quick Generate
 
-Provide a simplified generation workflow.
-
-Users only need to supply a few required parameters and prompts without understanding Projects or complex configurations.
-
----
-
-## Feature 3: Quick Generation Sessions
-
-Preserve AI creation history.
-
-Supported features:
-* Viewing historical assets
+Provide a simplified generation entry point. Users do not need to understand concepts like Projects or complex form data — they only need to provide a few required parameters and prompts to quickly create game assets.
+Preserve the user's AI creation history, making it convenient for users to view their historical generation records.
 
 ---
 
-## Feature 4: Project Management & Global Configuration
+### Feature 3: Project Management & Global Configuration
 
-Provide Project creation and management.
+Provide Project creation and management capabilities, serving as the workspace for the entire game asset production process.
 
 Supported operations:
 
-* Create Project
-* Edit Project
-* Delete Project
-* View Project
+- Create Project
+- Edit Project
+- Delete Project
+- View Project
 
-Configure global AI context, including:
+Configure unified AI context for the Project to improve asset generation consistency.
 
-* Game genre
-* Art style
-* Camera perspective
-* Pixel resolution
-* Target platform
-* Reference images
+Supported configurations:
 
----
-
-## Feature 5: Initial Asset Creation
-
-Allow users to create the initial Asset within a Project.
-
-Supported Asset types:
-
-* Character
-* Object
-* UI
-* Tileset
+- Game genre
+- Art style
+- Camera perspective
+- Pixel resolution
+- Target platform
+- Reference images
 
 ---
 
-## Feature 6: Asset Management
+### Feature 4: Initial Asset Creation
 
-Provide full Asset lifecycle management.
+Allow users to quickly create initial assets within a Project, providing a foundation for subsequent asset expansion.
+
+Supported asset types:
+
+- Character
+- Object
+- UI
+- Tileset
+
+---
+
+### Feature 5: Asset Management
+
+Provide full lifecycle management of assets.
 
 Supported operations:
 
-* Create Asset
-* Edit Asset
-* Delete Asset
-* Search Assets
-* View Asset Details
+- Create Asset
+- Edit Asset
+- Delete Asset
+- Search Assets
+- View Asset Details
 
 ---
 
-## Feature 7: Individual Asset Editing
+### Feature 6: Individual Asset Editing
 
-Support AI-powered editing around a single Asset.
+Support AI-powered generation around a single Asset.
 
 Capabilities include:
 
-* Prompt modification
-* Context reference
-* Edit history preservation
-* Automatic Version creation
+- Prompt modification
+- Context referencing
+- Edit history preservation
+- Automatic Record creation
 
 ---
 
-## Feature 8: Version Management
+### Feature 7: Record Management
 
-Track the complete evolution of every Asset.
+Track the complete evolution of every Asset, supporting continuous iteration.
 
 Supported features:
 
-* View Version history
-* Restore previous Versions
-* Fork new Assets
-* View Version details
+- View Record history
+- Restore historical Records
+- Fork new Assets
+- View Record details
 
 ---
 
-## Feature 9: Asset Relations
+### Feature 8: Asset Relations
 
-Support parent-child relationships between Assets.
+Establish business associations between Assets:
+
+- Parent-Child relationships
 
 ---
 
-## Feature 10: Tags
+### Feature 9: Tags
 
-Support classification and batch management.
+Support asset classification and batch management.
 
 Capabilities include:
 
-* Create Tags
-* Assign Tags to Assets
-* Search by Tag
-* Batch operations using Tags
+- Create Tags
+- Assign Tags to Assets
+- Search by Tag
+- Batch operations via Tags
 
 ---
 
-## Feature 11: Batch Creation
+### Feature 10: Batch Creation
 
-Support generating multiple Assets simultaneously.
+Support generating multiple assets at once, improving asset production efficiency.
 
 Capabilities include:
 
-* Batch generation by Asset type
-* Batch generation from prompts
-* AI-assisted task decomposition
+- Batch generation by asset type
+- Batch generation from prompts
 
 ---
 
-## Feature 12: Batch Editing
+### Feature 11: Batch Editing
 
 Support editing multiple Assets simultaneously.
 
 Capabilities include:
 
-* Edit by Tag
-* Edit selected Assets
-* AI-powered global style adjustment
+- Edit by Tag
+- Edit by selected asset list
+- AI-powered unified style adjustment
 
 ---
 
-## Feature 13: Asset Export
+### Feature 12: Asset Export
 
-Support exporting Assets into common formats.
+Support exporting assets into common formats.
 
 Supported formats:
 
-* PNG
-* GIF
-* Spritesheet
-* JSON
-* ZIP
+- PNG
+- GIF
+- Spritesheet
+- JSON
+- ZIP
 
 ---
 
-## Feature 14: Basic MCP Support
+### Feature 13: Basic MCP Capabilities
 
 Provide basic MCP APIs that enable AI agents to access platform resources.
 
 Supported capabilities:
 
-* Query Projects
-* Query Assets
-* Create Assets
-* Modify Assets
-* Export Assets
+- Query Projects
+- Query Assets
+- Create Assets
+- Modify Assets
+- Export Assets
