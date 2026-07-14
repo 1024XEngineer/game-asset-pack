@@ -88,10 +88,10 @@ An Asset provides the following capabilities:
 * Users can repeatedly generate, AI-edit, partially repaint, and manually refine an Asset.
 * Every modification remains within the same Asset instead of creating unrelated resources.
 
-### Version Management
+### Record Management
 
-* Every AI generation automatically creates a new Version.
-* Users can browse history, restore previous versions, or fork a historical version into a new Asset.
+* Every AI generation automatically creates a new record.
+* Users can browse history, restore previous versions, or fork a historical record into a new Asset.
 
 ### Asset Relationships
 
