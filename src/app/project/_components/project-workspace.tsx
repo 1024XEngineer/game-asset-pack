@@ -13,7 +13,6 @@ import { ProjectCommandBar } from "./project-command-bar";
 const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
 
 export function ProjectWorkspace() {
-  const [prompt, setPrompt] = useState("");
   const [query, setQuery] = useState("");
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
   const router = useRouter();
@@ -105,12 +104,10 @@ export function ProjectWorkspace() {
 
         <div className="py-10 sm:py-12">
           <ProjectCommandBar
-            prompt={prompt}
             query={query}
             selectedKinds={selectedKinds}
             assetKinds={createAssetKinds}
             projectName={currentProject.name}
-            onPromptChange={setPrompt}
             onQueryChange={setQuery}
             onSelectedKindsChange={setSelectedKinds}
           />

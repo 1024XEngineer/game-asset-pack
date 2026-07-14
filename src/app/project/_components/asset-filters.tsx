@@ -1,4 +1,4 @@
-import { Funnel, Search, X } from "lucide-react";
+import { Funnel, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 
 import type { AssetKind } from "../_data/project-demo-data";
 import { AssetKindIcon } from "./asset-kind-icon";
@@ -22,14 +21,10 @@ const filters: { label: string; value: AssetKind }[] = [
 ];
 
 export function AssetFilters({
-  query,
   selectedKinds,
-  onQueryChange,
   onSelectedKindsChange,
 }: {
-  query: string;
   selectedKinds: AssetKind[];
-  onQueryChange: (query: string) => void;
   onSelectedKindsChange: (kinds: AssetKind[]) => void;
 }) {
   const toggleKind = (kind: AssetKind, isSelected: boolean) => {
@@ -40,7 +35,7 @@ export function AssetFilters({
     );
   };
 
-  const activeFilterCount = (query.trim() ? 1 : 0) + (filters.length - selectedKinds.length);
+  const activeFilterCount = filters.length - selectedKinds.length;
 
   return (
     <DropdownMenu>
@@ -48,9 +43,9 @@ export function AssetFilters({
         render={
           <Button
             aria-label="Search and filter assets"
-            size="icon-lg"
+            size="icon"
             variant="outline"
-            className="relative size-12 rounded-full bg-card shadow-sm"
+            className="relative size-12 rounded-2xl bg-background shadow-none"
           />
         }
       >
@@ -61,22 +56,7 @@ export function AssetFilters({
           </span>
         ) : null}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
-        <div className="p-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              aria-label="Search assets"
-              className="bg-background pl-9"
-              placeholder="Search assets"
-              type="search"
-              value={query}
-              onChange={(event) => onQueryChange(event.target.value)}
-              onKeyDown={(event) => event.stopPropagation()}
-            />
-          </div>
-        </div>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="start" className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Asset type</DropdownMenuLabel>
           {filters.map((filter) => (
@@ -99,7 +79,6 @@ export function AssetFilters({
               size="sm"
               className="w-full justify-start"
               onClick={() => {
-                onQueryChange("");
                 onSelectedKindsChange(filters.map((filter) => filter.value));
               }}
             >

@@ -1,4 +1,4 @@
-import { WandSparkles } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 
@@ -7,43 +7,37 @@ import { AssetFilters } from "./asset-filters";
 import { CreateAssetToolbar } from "./create-asset-toolbar";
 
 export function ProjectCommandBar({
-  prompt,
   query,
   selectedKinds,
   assetKinds,
   projectName,
-  onPromptChange,
   onQueryChange,
   onSelectedKindsChange,
 }: {
-  prompt: string;
   query: string;
   selectedKinds: AssetKind[];
   assetKinds: AssetKind[];
   projectName: string;
-  onPromptChange: (prompt: string) => void;
   onQueryChange: (query: string) => void;
   onSelectedKindsChange: (kinds: AssetKind[]) => void;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-5xl items-center gap-3">
-      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border bg-card p-2 shadow-sm">
-        <WandSparkles className="ml-2 size-5 shrink-0 text-muted-foreground" />
-        <Input
-          aria-label="Quick create description"
-          className="h-10 min-w-0 flex-1 border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
-          placeholder="Describe an asset to create..."
-          value={prompt}
-          onChange={(event) => onPromptChange(event.target.value)}
-        />
-        <CreateAssetToolbar assetKinds={assetKinds} prompt={prompt} projectName={projectName} />
+    <div className="flex w-full flex-col gap-3 rounded-3xl border bg-card p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="relative min-w-0 flex-1 lg:max-w-xl">
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            aria-label="Search assets"
+            className="h-12 rounded-2xl bg-background pl-12 pr-4 text-base shadow-none md:text-base"
+            placeholder="Search assets"
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+          />
+        </div>
+        <AssetFilters selectedKinds={selectedKinds} onSelectedKindsChange={onSelectedKindsChange} />
       </div>
-      <AssetFilters
-        query={query}
-        selectedKinds={selectedKinds}
-        onQueryChange={onQueryChange}
-        onSelectedKindsChange={onSelectedKindsChange}
-      />
+      <CreateAssetToolbar assetKinds={assetKinds} projectName={projectName} />
     </div>
   );
 }
