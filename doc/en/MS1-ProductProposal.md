@@ -55,7 +55,7 @@ A Project provides the following capabilities:
   * Pixel resolution
   * Target platform
   * Reference images
-* This information becomes the default AI context for the Project and is automatically reused when generating Characters, Animations, UI, Tilesets, Objects, and other assets, reducing prompt repetition while maintaining stylistic consistency.
+* This information becomes the default AI context for the Project and is automatically reused when generating Characters, UI, Tilesets, Objects, and other assets, reducing prompt repetition while maintaining stylistic consistency.
 
 ### Centralized Asset Management
 
@@ -77,7 +77,7 @@ A Project provides the following capabilities:
 
 An **Asset** is the smallest manageable resource unit within a Project.
 
-Each Asset represents an individual game resource, such as a Character, Object, Animation, UI element, Tileset, or Map.
+Each Asset represents an individual game resource, such as a Character, Object, UI element, Tileset, or Map.
 
 Rather than generating isolated images, users continuously iterate on the same Asset throughout its lifecycle.
 
@@ -117,25 +117,23 @@ They can also be converted into engine-ready formats for Unity, Godot, and other
 
 ---
 
-## Version
+## Record
 
-To support continuous iteration and historical tracking, each AI generation or modification creates a new **Version** instead of overwriting previous results.
+To support continuous iteration and historical traceability of game assets, we introduce the concept of **Record**.
 
-A Version provides:
+A **Record** is the persistent history of an Asset. Each time a user confirms a creation or edit operation, the system automatically creates a new Record that captures the complete state of the Asset at that moment, without overwriting any previous history.
 
-### Complete Version History
+A Record provides the following capabilities:
 
-* Every generation records:
+- **Automatic Saving**
+  - Every user-confirmed creation or edit operation automatically generates a new Record, such as AI Generate, AI Edit, or confirmed manual edits.
+  - Users do not need to save manually. The system automatically persists the history, allowing users to focus on asset creation.
 
-  * Generated asset files
-  * Prompts
-  * Generation parameters
-* Users can review the complete evolution of an Asset.
+- **Complete History**
+  - Each Record stores a complete snapshot of the Asset at the time it was created.
 
-### History Rollback
-
-* Users can switch to any historical Version.
-* Previous Versions remain preserved even after rollback.
+- **History Rollback**
+  - Users can revert to a previous Record to recover from mistakes or unintended changes.
 
 ---
 
@@ -201,9 +199,7 @@ Users only need to supply a few required parameters and prompts without understa
 Preserve AI creation history.
 
 Supported features:
-
-* Session list
-* Conversation history
+* Viewing historical assets
 
 ---
 
@@ -239,7 +235,6 @@ Supported Asset types:
 * Object
 * UI
 * Tileset
-* Animation
 
 ---
 
