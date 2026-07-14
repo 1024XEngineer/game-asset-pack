@@ -73,7 +73,7 @@ An Asset provides the following capabilities:
 
 - **Record Management**
   - Assets include built-in Record management. Each time a user uses AI generation, a new Record is automatically created.
-  - Users can browse historical records, restore any previous record, or fork a new Asset from a historical record.
+  - Users can browse historical records, restore any previous record, or copy a new Asset from a historical record.
 
 - **Asset Associations**
   - Assets support AI-automated parent-child relationships and association relationships.
@@ -195,6 +195,7 @@ Supported operations:
 - Delete Asset
 - Search Assets
 - View Asset Details
+- Copy Asset
 
 ---
 
@@ -219,7 +220,6 @@ Supported features:
 
 - View Record history
 - Restore historical Records
-- Fork new Assets
 - View Record details
 
 ---
@@ -258,13 +258,7 @@ Capabilities include:
 
 ### Feature 11: Batch Editing
 
-Support editing multiple Assets simultaneously.
-
-Capabilities include:
-
-- Edit by Tag
-- Edit by selected asset list
-- AI-powered unified style adjustment
+Support editing multiple sub-Assets under a single Asset simultaneously.
 
 ---
 
@@ -288,8 +282,8 @@ Provide basic MCP APIs that enable AI agents to access platform resources.
 
 Supported capabilities:
 
-- Query Projects
-- Query Assets
-- Create Assets
-- Modify Assets
-- Export Assets
+- Search Assets within Projects
+- Generate new game assets
+- Retrieve animation information
+- Save assets to a specified directory
+- Generate resource configurations required by target game engines
