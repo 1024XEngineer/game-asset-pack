@@ -1,17 +1,13 @@
 import { Suspense } from "react";
 
-import { AssetDetailWorkspace } from "../../_components/asset-detail-workspace";
+import { Workspace } from "./_components/workspace";
 
-export default async function AssetDetailPage({
-  params,
-}: {
-  params: Promise<{ assetId: string }>;
-}) {
+export default async function AssetPage({ params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = await params;
 
   return (
     <Suspense>
-      <AssetDetailWorkspace assetId={assetId} />
+      <Workspace assetId={assetId} />
     </Suspense>
   );
 }

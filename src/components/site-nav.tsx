@@ -39,6 +39,12 @@ function NavLink({ href, label }: { href: string; label: string }) {
 }
 
 export function SiteNav() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/project/assets/")) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur">
       <nav

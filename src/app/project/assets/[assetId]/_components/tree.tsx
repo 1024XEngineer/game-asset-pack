@@ -1,0 +1,237 @@
+import { ChevronDown, Folder, ImagePlus, Music2, Play, Plus } from "lucide-react";
+import { useState } from "react";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { animationAudio, nodeMeta, type NodeId } from "../_data/asset-demo-data";
+
+type AssetTreeProps = {
+  selectedNode: NodeId | null;
+  selectedFrames: Array<{ node: NodeId; index: number }>;
+  onSelect: (node: NodeId) => void;
+  onSelectFrame: (node: NodeId, index: number) => void;
+};
+
+export function AssetTree({
+  selectedNode,
+  selectedFrames,
+  onSelect,
+  onSelectFrame,
+}: AssetTreeProps) {
+  const [isAnimationsOpen, setIsAnimationsOpen] = useState(true);
+
+  return (
+    <aside className="flex w-full shrink-0 flex-col border-b border-black/10 bg-[#ffffff] lg:w-[16.5rem] lg:border-b-0 lg:border-r">
+      <ScrollArea className="max-h-[15rem] flex-1 lg:max-h-none">
+        <div className="space-y-2 p-3">
+          <TreeItem
+            node="prototype"
+            selectedNode={selectedNode}
+            onSelect={onSelect}
+            icon={<ImagePlus className="size-4" />}
+            accent="rose"
+          />
+          <FolderItem
+            label="Animations"
+            count="5"
+            open={isAnimationsOpen}
+            onToggle={() => setIsAnimationsOpen((current) => !current)}
+          >
+            <AnimationTreeItem
+              node="idle"
+              selectedNode={selectedNode}
+              selectedFrames={selectedFrames}
+              onSelect={onSelect}
+              onSelectFrame={onSelectFrame}
+            />
+            <AnimationTreeItem
+              node="walk"
+              selectedNode={selectedNode}
+              selectedFrames={selectedFrames}
+              onSelect={onSelect}
+              onSelectFrame={onSelectFrame}
+            />
+            <AnimationTreeItem
+              node="harvest"
+              selectedNode={selectedNode}
+              selectedFrames={selectedFrames}
+              onSelect={onSelect}
+              onSelectFrame={onSelectFrame}
+            />
+            <AnimationTreeItem
+              node="jump"
+              selectedNode={selectedNode}
+              selectedFrames={selectedFrames}
+              onSelect={onSelect}
+              onSelectFrame={onSelectFrame}
+            />
+            <AnimationTreeItem
+              node="celebrate"
+              selectedNode={selectedNode}
+              selectedFrames={selectedFrames}
+              onSelect={onSelect}
+              onSelectFrame={onSelectFrame}
+            />
+          </FolderItem>
+        </div>
+      </ScrollArea>
+      <div className="border-t border-black/10 p-3">
+        <button
+          type="button"
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-black/10 px-3 py-2.5 text-xs text-[#7c7368] transition-colors hover:border-[#b86b70]/60 hover:bg-[#b86b70]/5 hover:text-[#b86b70]"
+        >
+          <Plus className="size-3.5" />
+          Add layer
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function FolderItem({
+  label,
+  count,
+  open,
+  onToggle,
+  children,
+}: {
+  label: string;
+  count: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-xs font-medium text-[#71685d] transition-colors hover:bg-black/[.04] hover:text-[#2d2923]"
+      >
+        <Folder className="size-4 text-[#b86b70]" />
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className="font-mono text-[10px] text-[#81786d]">{count}</span>
+        <ChevronDown
+          className={`size-3.5 text-[#81786d] transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
+        />
+      </button>
+      {open ? (
+        <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function TreeItem({
+  node,
+  selectedNode,
+  onSelect,
+  icon,
+  accent,
+}: {
+  node: NodeId;
+  selectedNode: NodeId | null;
+  onSelect: (node: NodeId) => void;
+  icon: React.ReactNode;
+  accent: "rose" | "blue" | "mint" | "coral" | "neutral";
+}) {
+  const colors = {
+    rose: "text-[#b86b70]",
+    blue: "text-[#6d8fbd]",
+    mint: "text-[#4c7e5e]",
+    coral: "text-[#c36d6c]",
+    neutral: "text-[#786f64]",
+  };
+  const meta = nodeMeta[node];
+  const isFrameBasedAsset = ["idle", "walk", "harvest", "jump", "celebrate"].includes(node);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(node)}
+      className={`group flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors ${selectedNode === node ? "bg-black/5 text-[#2d2923]" : "text-[#71685d] hover:bg-black/[.04] hover:text-[#2d2923]"}`}
+    >
+      <span className={colors[accent]}>{icon}</span>
+      <span className="min-w-0 flex-1 truncate text-xs font-medium">{meta.label}</span>
+      {meta.count && !isFrameBasedAsset ? (
+        <span className="font-mono text-[10px] text-[#81786d]">{meta.count}</span>
+      ) : null}
+    </button>
+  );
+}
+
+function AnimationTreeItem({
+  node,
+  selectedNode,
+  selectedFrames,
+  onSelect,
+  onSelectFrame,
+}: {
+  node: "idle" | "walk" | "harvest" | "jump" | "celebrate";
+  selectedNode: NodeId | null;
+  selectedFrames: Array<{ node: NodeId; index: number }>;
+  onSelect: (node: NodeId) => void;
+  onSelectFrame: (node: NodeId, index: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const frames = Array.from(
+    { length: Number.parseInt(nodeMeta[node].count ?? "1", 10) || 1 },
+    (_, index) => `Frame ${index + 1}`,
+  );
+  const selected = selectedNode === node;
+  const audio = animationAudio[node];
+
+  return (
+    <div>
+      <div
+        className={`flex items-center rounded-lg transition-colors ${selected ? "bg-black/5 text-[#2d2923]" : "text-[#71685d] hover:bg-black/[.04] hover:text-[#2d2923]"}`}
+      >
+        <button
+          type="button"
+          onClick={() => onSelect(node)}
+          className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left"
+        >
+          <Play className="size-3.5 text-[#4c7e5e]" />
+          {audio ? <Music2 className="size-3.5 text-[#c36d6c]" aria-label="Has audio" /> : null}
+          <span className="min-w-0 flex-1 truncate text-xs font-medium">
+            {nodeMeta[node].label}
+          </span>
+        </button>
+        <button
+          type="button"
+          aria-label={`${open ? "Collapse" : "Expand"} ${nodeMeta[node].label}`}
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
+          className="mr-1 rounded-md p-1.5 text-[#81786d] hover:bg-black/[.05]"
+        >
+          <ChevronDown
+            className={`size-3.5 transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
+          />
+        </button>
+      </div>
+      {open ? (
+        <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">
+          {frames.map((frame, index) => {
+            const isSelected = selectedFrames.some(
+              (selectedFrame) => selectedFrame.node === node && selectedFrame.index === index,
+            );
+
+            return (
+              <button
+                key={frame}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => onSelectFrame(node, index)}
+                className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] transition-colors ${isSelected ? "bg-[#b86b70]/10 text-[#8b4e53]" : "text-[#81786d] hover:bg-black/[.04] hover:text-[#51493f]"}`}
+              >
+                <span className="size-1.5 rounded-full bg-current opacity-70" />
+                {frame}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
