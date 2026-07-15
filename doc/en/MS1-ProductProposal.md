@@ -128,6 +128,22 @@ Relations provide the following capabilities:
 
 ---
 
+### MCP
+
+To seamlessly integrate platform assets into the game development workflow, we introduce the **MCP (Model Context Protocol)** interface. MCP enables AI agents to directly access the platform's Projects, Assets, and their derived resources, and to land generated results directly into users' game projects, eliminating the cumbersome "download → upload to own storage → manually configure" workflow.
+
+MCP addresses two typical game development scenarios:
+
+- **Network Game Scenario: SDK Integration**
+  - Network games require assets such as images, audio, and animations to be hosted in object storage. The platform provides optimized built-in object storage services and packages a client SDK, allowing users to call assets directly in their code via the SDK — no need for "download assets → upload to own object bucket → configure access URLs".
+  - Agents read the SDK's real-time documentation via MCP, automatically generating asset invocation code to achieve vibe coding — users only need to describe their requirements, and the agent handles the entire pipeline from asset retrieval to code integration.
+
+- **Local Game Scenario: Direct Project Landing**
+  - After users configure assets in the Web editor, agents use MCP to directly land resource files into the local project directory.
+  - Automatically generates engine-specific scene files (such as Godot's .tscn files), including sprite nodes, animation frame references, and other configurations.
+
+---
+
 ## Features
 
 The first milestone focuses on completing the core business loop of the AI game asset generation platform, covering the entire workflow:
@@ -276,14 +292,15 @@ Supported formats:
 
 ---
 
-### Feature 13: Basic MCP Capabilities
+### Feature 13: MCP Capabilities
 
-Provide basic MCP APIs that enable AI agents to access platform resources.
+Provide MCP APIs that enable AI agents to access platform resources and generate deliverable files for seamless integration into users' game projects.
 
 Supported capabilities:
 
+- Read SDK real-time documentation
+- Query Project information and Asset lists
 - Search Assets within Projects
-- Generate new game assets
-- Retrieve animation information
-- Save assets to a specified directory
-- Generate resource configurations required by target game engines
+- Retrieve Asset details and related assets
+- Download resource files to a specified directory
+- Generate engine-specific scene files and resource configurations
