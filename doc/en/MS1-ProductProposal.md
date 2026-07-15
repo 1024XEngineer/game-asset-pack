@@ -61,6 +61,81 @@ To help users continuously iterate on and manage game assets, we introduce the c
 
 Users can continuously complete the entire creation process around a single Asset, rather than generating a new isolated image each time.
 
+#### Character
+
+A Character Asset contains one or more protoTypes (prototype images), Animations generated from protoTypes, and sound effects attached to corresponding Animations.
+
+When creating a Character-type Asset, users are required to fill out the Character form:
+- Asset Name
+- Creative brief (the user's specific description of this Character)
+- Canvas size (the canvas size for the generated Character, e.g., 32×32px)
+- Perspective (the user can choose Top-down, Side-on, or Isometric)
+- Direction count (how many directional views to generate, e.g., 1, 4, 8)
+- Reference (reference images)
+- Whether to use Project Context
+
+After generation, users can directly view the protoType result. If unsatisfied, they can further refine it by writing prompts.
+Once satisfied, users can generate Animations attached to this Character Asset based on the protoType, which also requires filling out a form:
+- Animation Name
+- First Frame (select which protoType image corresponds to the first frame)
+- Description (a specific description of the motion to generate; users can write their own or use our presets such as idle and then modify)
+- Frame count (4–16 frames)
+- Keep first frame (whether to preserve the first frame)
+
+After the animation is produced, users can play the animation directly to review the result, or expand the animation into individual frames. Users can select multiple frames and modify them via prompts.
+
+Once satisfied with the animation, users can configure sound effects for it by filling out:
+- Animation (the corresponding animation)
+- Description (sound effect description)
+
+After generating sound effects, users can directly see and hear how they work during animation playback. If unsatisfied, they can regenerate, or perform basic trimming and speed adjustment on the sound effects.
+
+#### Object
+
+An Object Asset is similar to Character — it contains one or more protoTypes (prototype images), Animations generated from protoTypes, and sound effects attached to corresponding Animations.
+
+The creation form requires:
+- Asset Name
+- Creative brief (the user's specific description of this Object)
+- Canvas size (the canvas size for the generated Object, e.g., 32×32px)
+- Perspective (the user can choose Top-down, Side-on, or Isometric)
+- Direction count (how many directional views to generate, e.g., 1, 4, 8)
+- Reference (reference images)
+- Whether to use Project Context
+
+Users can also add animations to this Object:
+- Animation Name
+- First Frame (select which protoType image corresponds to the first frame)
+- Description (a specific description of the motion to generate; users can write their own or use our presets such as idle and then modify)
+- Frame count (4–16 frames)
+- Keep first frame (whether to preserve the first frame)
+
+Configure sound effects for animations:
+- Animation (the corresponding animation)
+- Description (sound effect description)
+
+After generating sound effects, users can directly see and hear how they work during animation playback. If unsatisfied, they can regenerate, or perform basic trimming and speed adjustment on the sound effects.
+
+#### UI
+
+#### Backend
+
+##### Scenery
+
+##### Tiles
+
+#### Audio
+
+Audio Assets are distinct from animation-attached sound effects. Audio is an Asset type typically used for generating BGM, ambient sounds, and similar audio for games.
+The creation form requires:
+- Asset Name
+- Style (music style; users can choose preset styles such as rock, or write their own prompts)
+- Instrumental (whether it is purely instrumental)
+- Lyrics (song lyrics)
+- Voice (male, female, or child voice; users can also upload audio as a timbre reference)
+- Reference (audio reference)
+- Length (duration)
+
 An Asset provides the following capabilities:
 
 - **Continuous Asset Iteration**

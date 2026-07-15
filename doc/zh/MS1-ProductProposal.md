@@ -57,9 +57,86 @@ Project 为用户提供以下能力：
 
 ### Asset
 
-为了帮助用户持续迭代和管理游戏资源，我们引入了 Asset 的概念。Asset 是 Project 中最小的资源管理单元，一个 Asset 对应游戏中的一个独立资源，例如 Character、Object、UI、Tileset 或 Map。
+为了帮助用户持续迭代和管理游戏资源，我们引入了 Asset 的概念。Asset 是 Project 中最小的资源管理单元，一个 Asset 对应游戏中的一个独立资源，例如 Character、Object、UI、Tiles。
 
 围绕一个 Asset，用户可以持续完成整个资源的创作过程，而不是每次生成一张新的图片。
+
+#### Character
+
+Character Asset包含一张或多张protoType(原型图)、基于protoType生成的Animation以及附属与相应Animation的音效
+
+用户创建Character类型的Asset时会被要求填写Character表单：
+- Asset Name
+- Creative brief (用户对于这个Character的具体描述)
+- Canvas size (生成的 Character 画布尺寸，e.g. 32X32px)
+- Perspective  (用户可以选择 Top down or Side on or Isometric)
+- Direction count (生成几向图 e.g. 1，4，8)
+- Reference (参考图片)
+- 是否使用Project Context
+
+生成后用户可以直接看到protoType效果，若不满意可以通过编写prompt对其做进一步改造。
+用户满意后便可基于protoType去生成附属于该Character Asset的Animation,这也需要填写一个表单：
+- Animation Name
+- First Frame (选择第一帧对应protoType的哪一张图)
+- Description (对于生成的动作的具体描述，用户可以选择自己编写，也可以使用我们提供的预设如idle再加以更改)
+- Frame count (帧数 4～16)
+- Keep first frame (是否保留第一帧)
+
+产出动画后用户可以直接播放动画查看效果，也可将动画展开为帧图，用户可以选中多张帧图通过prompt去做修改。
+
+用户对动画效果也满意后便可以为该动画配置音效，需要填写：
+- Animation (对应动画)
+- Descrption (音效描述)
+
+用户生成音效后可以直接看到动画运行时的音效效果，不满意便可重新生成，也可对音效进行基础的裁剪、倍速操作
+
+
+#### Object
+
+Object Asset与Character类似，包含一张或多张protoType(原型图)、基于protoType生成的Animation以及附属与相应Animation的音效。
+
+其创建时需要填写的表单：
+- Asset Name
+- Creative brief (用户对于这个Object的具体描述)
+- Canvas size (生成的 Object 画布尺寸，e.g. 32X32px)
+- Perspective  (用户可以选择 Top down or Side on or Isometric)
+- Direction count (生成几向图 e.g. 1，4，8)
+- Reference (参考图片)
+- 是否使用Project Context
+
+用户同样可以为这个Object添加动画：
+- Animation Name
+- First Frame (选择第一帧对应protoType的哪一张图)
+- Description (对于生成的动作的具体描述，用户可以选择自己编写，也可以使用我们提供的预设如idle再加以更改)
+- Frame count (帧数 4～16)
+- Keep first frame (是否保留第一帧)
+
+为动画配置音效：
+- Animation (对应动画)
+- Descrption (音效描述)
+
+用户生成音效后可以直接看到动画运行时的音效效果，不满意便可重新生成，也可对音效进行基础的裁剪、倍速操作
+
+
+#### UI
+
+#### Backend
+
+##### Scenery
+
+##### Tiles
+
+#### Audio
+
+Audio Asset不同于附属于动画的音效，它属于Asset的一种类型，通常用于生成我们游戏中的BGM、环境音等。
+创建时需要填写：
+- Asset Name
+- Style (音乐风格，用户可以选择预设的风格如摇滚风，也可以自己编写提示词) 
+- Instrumental (是否为纯音乐)
+- Lyrics (歌曲歌词)
+- Voice （男声、女声、童音，也可上传音频作为音色参考）
+- Reference (音频参考)
+- Length (时长)
 
 Asset 提供以下能力：
 
