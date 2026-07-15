@@ -135,8 +135,8 @@ Network games require assets such as images, audio, and animations to be hosted 
 
 The SDK provides the following capabilities:
 
-- **Cross-Engine Support**
-  - Provides native SDK packages for mainstream game engines such as Unity and Godot, enabling developers to call cloud assets just like local resources.
+- **Frontend SDK**
+  - Provides a JavaScript SDK installable via npm, enabling developers to call the platform's cloud assets through code.
 - **Asset Retrieval**
   - Provides convenient tooling to directly access platform assets without manual download.
 
@@ -311,7 +311,7 @@ Provide a client SDK that encapsulates platform asset retrieval capabilities, en
 
 Supported capabilities:
 
-- Unity and Godot SDKs
+- JS SDK (npm install)
 - Asset loading
 
 ---
