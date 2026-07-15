@@ -3,12 +3,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { AssetKind } from "../_data/project-demo-data";
-import { assetGroups, createAssetKinds, projectSummaries } from "../_data/project-demo-data";
+import { assetGroups, createAssetKinds } from "../_data/project-demo-data";
 import { AssetCard } from "./asset-card";
 import { ProjectCommandBar } from "./project-command-bar";
+import { useProjectStore } from "./project-store";
 
 const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
 
@@ -17,8 +19,9 @@ export function ProjectWorkspace() {
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { projects } = useProjectStore();
   const requestedProjectId = searchParams.get("project");
-  const currentProject = projectSummaries.find((project) => project.id === requestedProjectId);
+  const currentProject = projects.find((project) => project.id === requestedProjectId);
 
   useEffect(() => {
     try {
@@ -40,9 +43,7 @@ export function ProjectWorkspace() {
         return;
       }
 
-      const cachedProjectExists = projectSummaries.some(
-        (project) => project.id === cachedProjectId,
-      );
+      const cachedProjectExists = projects.some((project) => project.id === cachedProjectId);
 
       if (!cachedProjectExists) {
         localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
@@ -53,7 +54,7 @@ export function ProjectWorkspace() {
     } catch {
       // Keep the empty state when browser storage is unavailable.
     }
-  }, [currentProject, requestedProjectId, router]);
+  }, [currentProject, projects, requestedProjectId, router]);
 
   const filteredAssets = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -89,7 +90,7 @@ export function ProjectWorkspace() {
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto w-full max-w-[96rem] px-5 py-7 sm:px-8 sm:py-9">
-        <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Current Project
@@ -98,8 +99,21 @@ export function ProjectWorkspace() {
               {currentProject.name}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{currentProject.style}</p>
+            {currentProject.description ? (
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                {currentProject.description}
+              </p>
+            ) : null}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {[currentProject.gameType, currentProject.visualStyle, currentProject.platform]
+                .filter(Boolean)
+                .map((item) => (
+                  <Badge key={item} variant="secondary">
+                    {item}
+                  </Badge>
+                ))}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">{currentProject.assetCount} assets</p>
         </header>
 
         <div className="py-10 sm:py-12">
@@ -107,7 +121,7 @@ export function ProjectWorkspace() {
             query={query}
             selectedKinds={selectedKinds}
             assetKinds={createAssetKinds}
-            projectName={currentProject.name}
+            project={currentProject}
             onQueryChange={setQuery}
             onSelectedKindsChange={setSelectedKinds}
           />

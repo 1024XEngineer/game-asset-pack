@@ -1,22 +1,55 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Folder, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Folder, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
-import type { ProjectSummary } from "../_data/project-demo-data";
+import { ProjectSettingsDialog } from "./project-settings-dialog";
+import { useProjectStore } from "./project-store";
 
-export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
+const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
+
+export function ProjectSidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedProjectId = searchParams.get("project");
+  const { projects, updateProject, deleteProject } = useProjectStore();
+
+  function handleDeleteProject(projectId: string) {
+    const nextProject = projects.find((project) => project.id !== projectId);
+    deleteProject(projectId);
+    try {
+      if (localStorage.getItem(LAST_PROJECT_STORAGE_KEY) === projectId) {
+        localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
+      }
+    } catch {
+      // Navigation still works when browser storage is unavailable.
+    }
+    if (selectedProjectId === projectId) {
+      router.replace(
+        nextProject ? `/project?project=${encodeURIComponent(nextProject.id)}` : "/project",
+      );
+    }
+  }
 
   useEffect(() => {
     if (pathname.includes("/editor")) {
@@ -70,24 +103,60 @@ export function ProjectSidebar({ projects }: { projects: ProjectSummary[] }) {
                   project.id === selectedProjectId;
 
                 return (
-                  <Link
+                  <div
                     key={project.id}
-                    href={`/project?project=${project.id}`}
-                    aria-current={isSelected ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-2 rounded-lg border bg-card px-3 py-3 transition-colors hover:bg-muted",
+                      "group flex items-center gap-1 rounded-lg border bg-card p-1.5 transition-colors hover:bg-muted",
                       isSelected ? "border-foreground shadow-sm" : "border-border",
                     )}
                   >
-                    <Folder className="size-4 text-muted-foreground" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">{project.name}</span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {project.style}
+                    <Link
+                      href={`/project?project=${project.id}`}
+                      aria-current={isSelected ? "page" : undefined}
+                      className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1"
+                    >
+                      <Folder className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold">{project.name}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {project.style}
+                        </span>
                       </span>
-                    </span>
-                    <span className="text-xs text-muted-foreground">{project.assetCount}</span>
-                  </Link>
+                    </Link>
+                    <ProjectSettingsDialog project={project} onSave={updateProject} iconOnly />
+                    <AlertDialog>
+                      <AlertDialogTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:text-destructive"
+                            aria-label={`Delete ${project.name}`}
+                          />
+                        }
+                      >
+                        <Trash2 />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete {project.name}?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This removes the project and its asset workspace from this browser. This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            variant="destructive"
+                            onClick={() => handleDeleteProject(project.id)}
+                          >
+                            Delete project
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 );
               })}
             </div>

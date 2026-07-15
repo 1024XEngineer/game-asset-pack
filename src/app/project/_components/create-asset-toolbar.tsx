@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-import type { AssetKind } from "../_data/project-demo-data";
+import type { AssetKind, ProjectSummary } from "../_data/project-demo-data";
 import { AssetKindIcon } from "./asset-kind-icon";
 import { CreateAssetDialog } from "./create-asset-dialog";
 
@@ -12,13 +12,13 @@ const labels: Record<AssetKind, string> = {
 
 export function CreateAssetToolbar({
   assetKinds,
-  projectName,
+  project,
 }: {
   assetKinds: AssetKind[];
-  projectName: string;
+  project: ProjectSummary;
 }) {
   return (
-    <CreateAssetDialog projectName={projectName}>
+    <CreateAssetDialog project={project}>
       {(openDialog) => (
         <div className="grid grid-cols-1 rounded-2xl border bg-background p-1 shadow-sm sm:grid-cols-3">
           {assetKinds.map((kind) => (

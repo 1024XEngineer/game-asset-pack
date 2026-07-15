@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -17,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { AssetKind } from "../_data/project-demo-data";
+import type { AssetKind, ProjectSummary } from "../_data/project-demo-data";
 
 const labels: Record<AssetKind, string> = {
   character: "Character",
@@ -28,11 +29,11 @@ const labels: Record<AssetKind, string> = {
 export function CreateAssetDialog({
   children,
   initialPrompt = "",
-  projectName,
+  project,
 }: {
   children: (openDialog: (kind: AssetKind) => void) => React.ReactNode;
   initialPrompt?: string;
-  projectName: string;
+  project: ProjectSummary;
 }) {
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<AssetKind>("character");
@@ -105,8 +106,26 @@ export function CreateAssetDialog({
 
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <Checkbox defaultChecked />
-            Use {projectName} project context
+            Use {project.name} project context
           </label>
+
+          <div className="rounded-lg border bg-muted/40 p-3">
+            <p className="text-xs font-medium text-muted-foreground">Generation context</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {[project.gameType, project.visualStyle, project.platform]
+                .filter(Boolean)
+                .map((item) => (
+                  <Badge key={item} variant="secondary">
+                    {item}
+                  </Badge>
+                ))}
+            </div>
+            {project.description ? (
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {project.description}
+              </p>
+            ) : null}
+          </div>
 
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>

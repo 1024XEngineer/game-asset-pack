@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 
-import type { AssetKind } from "../_data/project-demo-data";
+import type { AssetKind, ProjectSummary } from "../_data/project-demo-data";
 import { AssetFilters } from "./asset-filters";
 import { CreateAssetToolbar } from "./create-asset-toolbar";
 
@@ -10,14 +10,14 @@ export function ProjectCommandBar({
   query,
   selectedKinds,
   assetKinds,
-  projectName,
+  project,
   onQueryChange,
   onSelectedKindsChange,
 }: {
   query: string;
   selectedKinds: AssetKind[];
   assetKinds: AssetKind[];
-  projectName: string;
+  project: ProjectSummary;
   onQueryChange: (query: string) => void;
   onSelectedKindsChange: (kinds: AssetKind[]) => void;
 }) {
@@ -37,7 +37,7 @@ export function ProjectCommandBar({
         </div>
         <AssetFilters selectedKinds={selectedKinds} onSelectedKindsChange={onSelectedKindsChange} />
       </div>
-      <CreateAssetToolbar assetKinds={assetKinds} projectName={projectName} />
+      <CreateAssetToolbar assetKinds={assetKinds} project={project} />
     </div>
   );
 }
