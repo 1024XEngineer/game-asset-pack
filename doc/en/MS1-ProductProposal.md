@@ -17,6 +17,7 @@ When using general-purpose AI image generation tools for game development, users
 5. When users need to batch-produce a set of interrelated assets, they must generate and edit each one individually, leading to low productivity.
 6. Generated results still require manual cropping, frame extraction, file organization, and format conversion before they can be imported into engines such as Unity or Godot.
 7. Music and sound effect creation has an even higher barrier than general image asset creation. While users without drawing skills can still express ideas through rough sketches, users with no musical knowledge typically find it very difficult to start creating BGM or sound effects on their own.
+8. Some similar products are disconnected from development workflows and cannot be integrated into actual work processes. Generated results remain locked inside the tool — without an SDK or API to connect assets directly into game engines or code, developers still need to manually export, transfer, and configure assets, making automated integration impossible.
 
 Therefore, the goal of this product is to build a one-stop 2D game asset creation and management platform that enables users to generate, edit, relate, manage, and deliver game assets within a unified project context.
 
@@ -128,14 +129,26 @@ Relations provide the following capabilities:
 
 ---
 
+### SDK
+
+Network games require assets such as images, audio, and animations to be hosted in object storage. The platform provides optimized built-in object storage services and packages a client SDK, allowing users to call assets directly in their code via the SDK — no need for "download assets → upload to own object bucket → configure access URLs".
+
+The SDK provides the following capabilities:
+
+- **Cross-Engine Support**
+  - Provides native SDK packages for mainstream game engines such as Unity and Godot, enabling developers to call cloud assets just like local resources.
+- **Asset Retrieval**
+  - Provides convenient tooling to directly access platform assets without manual download.
+
+---
+
 ### MCP
 
 To seamlessly integrate platform assets into the game development workflow, we introduce the **MCP (Model Context Protocol)** interface. MCP enables AI agents to directly access the platform's Projects, Assets, and their derived resources, and to land generated results directly into users' game projects, eliminating the cumbersome "download → upload to own storage → manually configure" workflow.
 
 MCP addresses two typical game development scenarios:
 
-- **Network Game Scenario: SDK Integration**
-  - Network games require assets such as images, audio, and animations to be hosted in object storage. The platform provides optimized built-in object storage services and packages a client SDK, allowing users to call assets directly in their code via the SDK — no need for "download assets → upload to own object bucket → configure access URLs".
+- **Network Game Scenario: SDK Information Retrieval**
   - Agents read the SDK's real-time documentation via MCP, automatically generating asset invocation code to achieve vibe coding — users only need to describe their requirements, and the agent handles the entire pipeline from asset retrieval to code integration.
 
 - **Local Game Scenario: Direct Project Landing**
@@ -292,7 +305,18 @@ Supported formats:
 
 ---
 
-### Feature 13: MCP Capabilities
+### Feature 13: SDK
+
+Provide a client SDK that encapsulates platform asset retrieval capabilities, enabling developers to call platform assets directly in game code without manual download and configuration.
+
+Supported capabilities:
+
+- Unity and Godot SDKs
+- Asset loading
+
+---
+
+### Feature 14: MCP Capabilities
 
 Provide MCP APIs that enable AI agents to access platform resources and generate deliverable files for seamless integration into users' game projects.
 
