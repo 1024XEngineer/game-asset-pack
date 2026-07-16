@@ -169,6 +169,7 @@ After generation, users can stack multiple layers together to review the result.
 
 ##### Tiles
 
+A Tiles Asset contains a set of tiles. Users fill out a form to generate a set of spliceable tiles.
 When creating a Tiles-type Asset, users are required to fill out the form:
 - Asset Name
 - Tile num (number of tiles to generate)
@@ -177,6 +178,8 @@ When creating a Tiles-type Asset, users are required to fill out the form:
   - Reference (reference images)
   ![alt text](/doc/image/tile-example.png)
 - Whether to use Project Context
+
+Users can preview each individual tile and further refine specific tiles. Once satisfied, users can drag tiles onto the canvas to splice them together and assemble the complete Tile Set.
 
 #### Audio
 
@@ -192,7 +195,7 @@ The creation form requires:
 
 After generation, users can play the audio online, adjust playback speed to preview the result, perform basic trimming operations, and continue modifying it via prompts afterward.
 
-An Asset provides the following capabilities:
+#### Asset provides the following general capabilities:
 
 - **Continuous Asset Iteration**
   - Users can repeatedly perform AI generation, partial repainting, and manual fine-tuning around the same Asset.
