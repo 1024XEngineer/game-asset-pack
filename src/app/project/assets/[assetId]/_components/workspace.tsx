@@ -97,7 +97,7 @@ export function Workspace({ assetId }: { assetId: string }) {
         onSave={() => handleAction("Saved just now")}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <AssetTree
           selectedNode={selectedNode}
           selectedFrames={selectedFrames}

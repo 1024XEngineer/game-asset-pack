@@ -23,7 +23,14 @@ export function ProjectChrome({ children }: { children: React.ReactNode }) {
           <ProjectSidebar />
         </Suspense>
       ) : null}
-      <section className="min-w-0 flex-1 overflow-hidden">{children}</section>
+      <section
+        className={cn(
+          "min-h-0 min-w-0 flex-1 overflow-hidden",
+          isEditorRoute && "flex",
+        )}
+      >
+        {children}
+      </section>
     </main>
   );
 }
