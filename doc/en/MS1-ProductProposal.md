@@ -118,11 +118,41 @@ After generating sound effects, users can directly see and hear how they work du
 
 #### UI
 
+When creating a UI-type Asset, users are required to fill out the form:
+- Asset Name
+- LayOut (layout diagram of UI components):
+  - Components (users can use our preset or custom components to organize the layout):
+      - Name
+      - Description (if it is a custom component, users need to describe the shape of this component)
+- Style (overall style description for this set of UI components)
+- Reference (style reference images)
+- Whether to use Project Context
+
 #### Backend
+
+Backend includes two specific Asset types: Scenery and Tiles.
 
 ##### Scenery
 
+When creating a Scenery-type Asset, users are required to fill out the form:
+- Asset Name
+- Style (overall style description for this scene)
+- Layer num (number of layers)
+- Layer list (corresponding to Layer num):
+    - Description (specific description of this layer)
+- Aspect ratio (e.g., 16:9)
+- Reference (reference images)
+- Whether to use Project Context
+
 ##### Tiles
+
+When creating a Tiles-type Asset, users are required to fill out the form:
+- Asset Name
+- Tile num (number of tiles to generate)
+- Tile list (corresponding to Tile num):
+  - Description (description of this tile)
+  - Reference (reference images)
+- Whether to use Project Context
 
 #### Audio
 
@@ -135,6 +165,8 @@ The creation form requires:
 - Voice (male, female, or child voice; users can also upload audio as a timbre reference)
 - Reference (audio reference)
 - Length (duration)
+
+After generation, users can play the audio online, adjust playback speed to preview the result, perform basic trimming operations, and continue modifying it via prompts afterward.
 
 An Asset provides the following capabilities:
 
