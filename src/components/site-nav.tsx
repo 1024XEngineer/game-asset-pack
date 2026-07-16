@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/quick-generating", label: "Image" },
-  { href: "/project", label: "Project" },
   { href: "/audio", label: "Audio" },
+  { href: "/project", label: "Project" },
 ];
 
 function isActivePath(pathname: string, href: string) {
