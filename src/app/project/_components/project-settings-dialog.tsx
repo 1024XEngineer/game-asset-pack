@@ -70,7 +70,7 @@ export function ProjectSettingsDialog({
             size={iconOnly ? "icon-sm" : "sm"}
             className={
               iconOnly
-                ? "text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:text-foreground"
+                ? "pointer-events-none opacity-0 text-muted-foreground transition-all group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-foreground/10 hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:text-foreground"
                 : undefined
             }
             aria-label={`Edit ${project.name}`}

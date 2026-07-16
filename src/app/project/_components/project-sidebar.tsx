@@ -124,7 +124,7 @@ export function ProjectSidebar() {
                           <Button
                             variant="ghost"
                             size="icon-sm"
-                            className="text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:text-destructive"
+                            className="pointer-events-none opacity-0 text-muted-foreground transition-all group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:text-destructive"
                             aria-label={`Delete ${project.name}`}
                           />
                         }
