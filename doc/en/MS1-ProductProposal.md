@@ -118,7 +118,7 @@ After generating sound effects, users can directly see and hear how they work du
 
 #### UI
 
-A UI Asset represents a set of UI components. It includes a protoType showing all UI components, the protoTypes of individual components sliced from it, their associated animations, and the sound effects paired with those animations.
+A UI Asset represents a set of UI components. In the first phase, we focus on the most basic static UI. The second phase will add different states (e.g., hover) to UI components, and the final phase will provide UI animation capabilities.
 
 The form required for creation:
 - Asset Name
@@ -130,22 +130,7 @@ The form required for creation:
 - Reference (style reference images)
 - Whether to use Project Context
 
-After generation, if users are unsatisfied, they can modify the style prompt and regenerate. If only certain components are unsatisfactory, they can also select and slice them for targeted prompt-based regeneration.
-
-Users can add animations to specific components:
-- Animation Name
-- First Frame (select which component protoType corresponds to the first frame)
-- Description (a specific description of the animation to generate; users can write their own or use our presets such as scale and then modify)
-- Frame count (2–16 frames)
-- Keep first frame (whether to preserve the first frame)
-
-After the animation is produced, users can play the animation directly to review the result, or expand the animation into individual frames. Users can select multiple frames and modify them via prompts.
-
-Configure sound effects for animations:
-- Animation (the corresponding animation)
-- Description (sound effect description)
-
-After generating sound effects, users can directly see and hear how they work during animation playback. If unsatisfied, they can regenerate, or perform basic trimming and speed adjustment on the sound effects.
+After generation, a large composite image is presented to the user. If unsatisfied, users can regenerate. Once satisfied, the system will slice the large image into individual components, after which users can modify specific components via prompts.
 
 #### Background
 
@@ -172,18 +157,17 @@ After generation, users can stack multiple layers together to review the result.
 A Tiles Asset contains a set of tiles. Users fill out a form to generate a set of spliceable tiles.
 When creating a Tiles-type Asset, users are required to fill out the form:
 - Asset Name
-- Tile num (number of tiles to generate)
-- Tile list (corresponding to Tile num):
-  - Description (description of this tile)
-  - Reference (reference images)
-  ![alt text](/doc/image/tile-example.png)
+- Template (Tiles template, e.g., 3×5, 4×4)
+- Description (description of this Tileset)
+- Reference (reference images)
+![alt text](/doc/image/tile-example.png)
 - Whether to use Project Context
 
-Users can preview each individual tile and further refine specific tiles. Once satisfied, users can drag tiles onto the canvas to splice them together and assemble the complete Tile Set.
+After generation, users can see a large Tile Set image. Once confirmed, the system will slice it into individual tiles, which users can then splice together on the workbench.
 
 #### Audio
 
-Audio Assets are distinct from animation-attached sound effects. Audio is an Asset type typically used for generating BGM, ambient sounds, and similar audio for games.
+Audio Assets are distinct from animation-attached sound effects. Audio is an Asset type typically used for generating BGM, ambient sounds, and similar audio for games. An Audio Asset can contain multiple Tracks.
 The creation form requires:
 - Asset Name
 - Style (music style; users can choose preset styles such as rock, or write their own prompts)
@@ -194,6 +178,7 @@ The creation form requires:
 - Length (duration)
 
 After generation, users can play the audio online, adjust playback speed to preview the result, perform basic trimming operations, and continue modifying it via prompts afterward.
+If users have more complex audio needs, they can also generate new Tracks and combine them to achieve more flexible audio effects.
 
 #### Asset provides the following general capabilities:
 
