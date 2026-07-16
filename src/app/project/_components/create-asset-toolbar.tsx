@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-import type { AssetKind, ProjectSummary } from "../_data/project-demo-data";
+import type { CreatableAssetKind, ProjectSummary } from "../_data/project-demo-data";
 import { AssetKindIcon } from "./asset-kind-icon";
 import { CreateAssetDialog } from "./create-asset-dialog";
 
@@ -15,7 +15,7 @@ export function CreateAssetToolbar({
   assetKinds,
   project,
 }: {
-  assetKinds: AssetKind[];
+  assetKinds: CreatableAssetKind[];
   project: ProjectSummary;
 }) {
   return (

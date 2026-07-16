@@ -1,6 +1,21 @@
+"use client";
+
+import { Copy, Trash2 } from "lucide-react";
 import Link from "next/link";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import type { ProjectAsset } from "../_data/project-demo-data";
@@ -14,22 +29,28 @@ export function AssetCard({
   kind,
   kindLabel,
   projectId,
+  onCopy,
+  onDelete,
 }: {
   asset: ProjectAsset;
   accentClassName: string;
   kind: AssetKind;
   kindLabel: string;
   projectId: string;
+  onCopy: () => void;
+  onDelete: () => void;
 }) {
   return (
-    <Link
-      href={`/project/assets/${asset.id}?project=${projectId}`}
-      className="block rounded-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+    <Card
+      className="group relative gap-0 overflow-hidden rounded-xl py-0 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50"
+      size="sm"
     >
-      <Card
-        className="gap-0 rounded-xl py-0 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-        size="sm"
-      >
+      <Link
+        href={`/project/assets/${asset.id}?project=${projectId}`}
+        aria-label={`Open ${asset.name}`}
+        className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none"
+      />
+      <div className="pointer-events-none relative z-10">
         <AssetPreview accentClassName={accentClassName} className="aspect-[4/3]" />
         <CardHeader className="px-3 pt-3">
           <CardTitle className="truncate text-sm font-semibold">{asset.name}</CardTitle>
@@ -45,7 +66,48 @@ export function AssetCard({
             <span className="shrink-0">{asset.canvasSize.replace(" px", "")}</span>
           </p>
         </CardContent>
-      </Card>
-    </Link>
+      </div>
+      <div className="absolute top-2 right-2 z-20 flex gap-1">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          className="border-border/70 bg-background/90 shadow-xs backdrop-blur-sm"
+          aria-label={`Copy ${asset.name}`}
+          title="Copy asset"
+          onClick={onCopy}
+        >
+          <Copy />
+        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger
+            render={
+              <Button
+                variant="outline"
+                size="icon-sm"
+                className="border-border/70 bg-background/90 text-muted-foreground shadow-xs backdrop-blur-sm hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                aria-label={`Delete ${asset.name}`}
+                title="Delete asset"
+              />
+            }
+          >
+            <Trash2 />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {asset.name}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This removes the asset from this project. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={onDelete}>
+                Delete asset
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </Card>
   );
 }

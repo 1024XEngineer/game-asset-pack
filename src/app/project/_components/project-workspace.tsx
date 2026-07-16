@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { AssetKind } from "../_data/project-demo-data";
-import { assetGroups, createAssetKinds } from "../_data/project-demo-data";
+import { createAssetKinds } from "../_data/project-demo-data";
 import { AssetCard } from "./asset-card";
 import { ProjectCommandBar } from "./project-command-bar";
 import { useProjectStore } from "./project-store";
@@ -19,7 +19,7 @@ export function ProjectWorkspace() {
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { projects } = useProjectStore();
+  const { projects, assetGroups, copyAsset, deleteAsset } = useProjectStore();
   const requestedProjectId = searchParams.get("project");
   const currentProject = projects.find((project) => project.id === requestedProjectId);
 
@@ -75,7 +75,7 @@ export function ProjectWorkspace() {
             kindLabel: group.title,
           })),
       );
-  }, [query, selectedKinds]);
+  }, [assetGroups, query, selectedKinds]);
 
   if (!currentProject) {
     return (
@@ -137,6 +137,8 @@ export function ProjectWorkspace() {
                 kind={asset.kind}
                 kindLabel={asset.kindLabel}
                 projectId={currentProject.id}
+                onCopy={() => copyAsset(asset.id)}
+                onDelete={() => deleteAsset(asset.id)}
               />
             ))}
           </div>

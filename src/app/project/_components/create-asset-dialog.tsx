@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { AssetKind, ProjectSummary } from "../_data/project-demo-data";
+import type { CreatableAssetKind, ProjectSummary } from "../_data/project-demo-data";
 
 const labels: Record<CreatableAssetKind, string> = {
   character: "Character",
