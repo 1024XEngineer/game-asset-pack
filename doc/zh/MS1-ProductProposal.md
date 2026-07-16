@@ -107,7 +107,7 @@ Object Asset与Character类似，包含一张或多张protoType(原型图)、基
 用户同样可以为这个Object添加动画：
 - Animation Name
 - First Frame (选择第一帧对应protoType的哪一张图)
-- Description (对于生成的动作的具体描述，用户可以选择自己编写，也可以使用我们提供的预设如idle再加以更改)
+- Description (对于生成的动画的具体描述，用户可以选择自己编写，也可以使用我们提供的预设如destroy再加以更改)
 - Frame count (帧数 4～16)
 - Keep first frame (是否保留第一帧)
 
@@ -120,7 +120,9 @@ Object Asset与Character类似，包含一张或多张protoType(原型图)、基
 
 #### UI
 
-表单：
+UI Asset 代表了一套UI组件，它包含一张展示了所有UI组件的protoType、由此切割出来的各个组件的protoType以及他们所关联的动画、动画配套的音效。
+
+其创建时需要填写的表单：
 - Asset Name
 - LayOut (UI 组件的布局图)：
   - Components (组件，用户可以使用我们预设或custom组件来组织布局):
@@ -130,13 +132,31 @@ Object Asset与Character类似，包含一张或多张protoType(原型图)、基
 - Reference (风格参考图)
 - 是否使用Project Context
 
-#### Backend
+生成后若用户不满意，可修改风格提示词进行重新生成，若是对部分组件生成不满意，也可以框选切割后进行针对提示生成。
 
-Backend 包含Scenery 与Tiles两种具体的Asset类别。
+用户可以针对某个组件去添加动画：
+- Animation Name
+- First Frame (选择第一帧对应哪个组件protoType)
+- Description (对于生成的动画的具体描述，用户可以选择自己编写，也可以使用我们提供的预设如scale再加以更改)
+- Frame count (帧数 2～16)
+- Keep first frame (是否保留第一帧)
+
+产出动画后用户可以直接播放动画查看效果，也可将动画展开为帧图，用户可以选中多张帧图通过prompt去做修改。
+
+为动画配置音效：
+- Animation (对应动画)
+- Descrption (音效描述)
+
+用户生成音效后可以直接看到动画运行时的音效效果，不满意便可重新生成，也可对音效进行基础的裁剪、倍速操作
+
+#### Background
+
+Background 包含Scenery 与Tiles两种具体的Asset类别。
 
 ##### Scenery
 
-表单：
+Scenery Asset通常由多个图层堆叠展示
+其创建时需要填写的表单：
 - Asset Name
 - Style (对这个场景一个整体的风格描述)
 - Layer num (层数)
@@ -144,7 +164,10 @@ Backend 包含Scenery 与Tiles两种具体的Asset类别。
     - Description （对这个图层的具体描述）
 - Aspect ratio （比例，e.g. 16:9）
 - Reference (参考图片)
+![alt text](/doc/image/secenery-example.png)
 - 是否使用Project Context
+
+生成后用户可以将多个图层堆叠起来看效果，若对某些图层不满意，可以针对具体图层进行进一步修改
 
 ##### Tiles
 
@@ -154,6 +177,7 @@ Backend 包含Scenery 与Tiles两种具体的Asset类别。
 - Tile列表 （与Tile num 对应）:
   - Description (对这个瓦片的描述)
   - Reference (参考图片)
+  ![alt text](/doc/image/tile-example.png)
 - 是否使用Project Context
 
 

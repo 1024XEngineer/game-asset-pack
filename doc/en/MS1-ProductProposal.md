@@ -106,7 +106,7 @@ The creation form requires:
 Users can also add animations to this Object:
 - Animation Name
 - First Frame (select which protoType image corresponds to the first frame)
-- Description (a specific description of the motion to generate; users can write their own or use our presets such as idle and then modify)
+- Description (a specific description of the motion to generate; users can write their own or use our presets such as destroy and then modify)
 - Frame count (4–16 frames)
 - Keep first frame (whether to preserve the first frame)
 
@@ -118,7 +118,9 @@ After generating sound effects, users can directly see and hear how they work du
 
 #### UI
 
-When creating a UI-type Asset, users are required to fill out the form:
+A UI Asset represents a set of UI components. It includes a protoType showing all UI components, the protoTypes of individual components sliced from it, their associated animations, and the sound effects paired with those animations.
+
+The form required for creation:
 - Asset Name
 - LayOut (layout diagram of UI components):
   - Components (users can use our preset or custom components to organize the layout):
@@ -128,13 +130,31 @@ When creating a UI-type Asset, users are required to fill out the form:
 - Reference (style reference images)
 - Whether to use Project Context
 
-#### Backend
+After generation, if users are unsatisfied, they can modify the style prompt and regenerate. If only certain components are unsatisfactory, they can also select and slice them for targeted prompt-based regeneration.
 
-Backend includes two specific Asset types: Scenery and Tiles.
+Users can add animations to specific components:
+- Animation Name
+- First Frame (select which component protoType corresponds to the first frame)
+- Description (a specific description of the animation to generate; users can write their own or use our presets such as scale and then modify)
+- Frame count (2–16 frames)
+- Keep first frame (whether to preserve the first frame)
+
+After the animation is produced, users can play the animation directly to review the result, or expand the animation into individual frames. Users can select multiple frames and modify them via prompts.
+
+Configure sound effects for animations:
+- Animation (the corresponding animation)
+- Description (sound effect description)
+
+After generating sound effects, users can directly see and hear how they work during animation playback. If unsatisfied, they can regenerate, or perform basic trimming and speed adjustment on the sound effects.
+
+#### Background
+
+Background includes two specific Asset types: Scenery and Tiles.
 
 ##### Scenery
 
-When creating a Scenery-type Asset, users are required to fill out the form:
+A Scenery Asset is typically displayed as multiple stacked layers.
+The form required for creation:
 - Asset Name
 - Style (overall style description for this scene)
 - Layer num (number of layers)
@@ -142,7 +162,10 @@ When creating a Scenery-type Asset, users are required to fill out the form:
     - Description (specific description of this layer)
 - Aspect ratio (e.g., 16:9)
 - Reference (reference images)
+![alt text](/doc/image/secenery-example.png)
 - Whether to use Project Context
+
+After generation, users can stack multiple layers together to review the result. If unsatisfied with certain layers, they can further modify specific layers.
 
 ##### Tiles
 
@@ -152,6 +175,7 @@ When creating a Tiles-type Asset, users are required to fill out the form:
 - Tile list (corresponding to Tile num):
   - Description (description of this tile)
   - Reference (reference images)
+  ![alt text](/doc/image/tile-example.png)
 - Whether to use Project Context
 
 #### Audio
