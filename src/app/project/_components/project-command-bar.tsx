@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 
 import type { AssetKind, CreatableAssetKind, ProjectSummary } from "../_data/project-demo-data";
 import { AssetFilters } from "./asset-filters";
+import type { CreationRequest } from "./create-asset-dialog";
 import { CreateAssetToolbar } from "./create-asset-toolbar";
 
 export function ProjectCommandBar({
   query,
   selectedKinds,
   assetKinds,
+  onCreate,
   project,
   onQueryChange,
   onSelectedKindsChange,
@@ -17,6 +19,7 @@ export function ProjectCommandBar({
   query: string;
   selectedKinds: AssetKind[];
   assetKinds: CreatableAssetKind[];
+  onCreate: (request: CreationRequest) => void;
   project: ProjectSummary;
   onQueryChange: (query: string) => void;
   onSelectedKindsChange: (kinds: AssetKind[]) => void;
@@ -40,7 +43,7 @@ export function ProjectCommandBar({
           onSelectedKindsChange={onSelectedKindsChange}
         />
       </div>
-      <CreateAssetToolbar assetKinds={assetKinds} project={project} />
+      <CreateAssetToolbar assetKinds={assetKinds} project={project} onCreate={onCreate} />
     </div>
   );
 }

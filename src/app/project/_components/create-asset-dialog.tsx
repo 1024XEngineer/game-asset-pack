@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -31,17 +30,25 @@ const labels: Record<CreatableAssetKind, string> = {
   audio: "Audio",
 };
 
+export type CreationRequest = {
+  kind: CreatableAssetKind;
+  name: string;
+  prompt: string;
+  canvasSize: string;
+};
+
 export function CreateAssetDialog({
   children,
   initialPrompt = "",
+  onCreate,
   project,
 }: {
   children: (openDialog: (kind: CreatableAssetKind) => void) => React.ReactNode;
   initialPrompt?: string;
+  onCreate: (request: CreationRequest) => void;
   project: ProjectSummary;
 }) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const [kind, setKind] = useState<CreatableAssetKind>("character");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -56,16 +63,7 @@ export function CreateAssetDialog({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (kind === "audio") {
-      const params = new URLSearchParams({
-        project: project.id,
-        name: name.trim(),
-        prompt: prompt.trim(),
-      });
-      setOpen(false);
-      router.push(`/project/audio/new?${params.toString()}`);
-      return;
-    }
+    onCreate({ kind, name: name.trim(), prompt: prompt.trim(), canvasSize });
     setOpen(false);
     setName("");
     setPrompt("");

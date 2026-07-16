@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AssetKind } from "../_data/project-demo-data";
 import { createAssetKinds } from "../_data/project-demo-data";
 import { AssetCard } from "./asset-card";
+import type { CreationRequest } from "./create-asset-dialog";
+import { CreationQueue, type CreationQueueItem } from "./creation-queue";
 import { ProjectCommandBar } from "./project-command-bar";
 import { useProjectStore } from "./project-store";
 
@@ -17,11 +19,16 @@ const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
 export function ProjectWorkspace() {
   const [query, setQuery] = useState("");
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
+  const [creationQueue, setCreationQueue] = useState<CreationQueueItem[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { projects, assetGroups, copyAsset, deleteAsset } = useProjectStore();
   const requestedProjectId = searchParams.get("project");
   const currentProject = projects.find((project) => project.id === requestedProjectId);
+
+  const handleCreate = useCallback((request: CreationRequest) => {
+    setCreationQueue((current) => [...current, { ...request, id: crypto.randomUUID() }]);
+  }, []);
 
   useEffect(() => {
     try {
@@ -122,10 +129,13 @@ export function ProjectWorkspace() {
             selectedKinds={selectedKinds}
             assetKinds={createAssetKinds}
             project={currentProject}
+            onCreate={handleCreate}
             onQueryChange={setQuery}
             onSelectedKindsChange={setSelectedKinds}
           />
         </div>
+
+        <CreationQueue items={creationQueue} />
 
         {filteredAssets.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
