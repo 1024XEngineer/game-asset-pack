@@ -2,7 +2,7 @@
 
 ## Overall Architecture
 
-This project adopts a Service-Based Architecture (SBA), dividing the system into several independent services based on business domains and functions. Each service has clear responsibility boundaries, can choose the appropriate technology stack based on business requirements, and communicates via protocols such as HTTP/gRPC.
+This project adopts a Service-Based Architecture (SBA), dividing the system into several independent services based on business domains and functions. Each service has clear responsibility boundaries, can choose the appropriate technology stack based on business requirements.
 
 Rationale:
 - Compared to a monolithic architecture, this project has a larger business scope with clearly distinct service domains and multiple technology stack requirements. SBA provides greater technology stack flexibility and better module decoupling.
@@ -35,6 +35,7 @@ const (
     ViewTypeTopDown ViewType = "TopDown"
     ViewTypeSideView ViewType = "SideView"
     ViewTypeIsometric ViewType = "Isometric"
+    ViewTypeOther   ViewType = "Other"
 )
 
 type Project struct {
