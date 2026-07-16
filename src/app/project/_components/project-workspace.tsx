@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { AssetKind } from "../_data/project-demo-data";
@@ -97,33 +96,7 @@ export function ProjectWorkspace() {
   return (
     <ScrollArea className="h-full">
       <div className="mx-auto w-full max-w-[96rem] px-5 py-7 sm:px-8 sm:py-9">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Current Project
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-              {currentProject.name}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{currentProject.style}</p>
-            {currentProject.description ? (
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                {currentProject.description}
-              </p>
-            ) : null}
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {[currentProject.gameType, currentProject.visualStyle, currentProject.platform]
-                .filter(Boolean)
-                .map((item) => (
-                  <Badge key={item} variant="secondary">
-                    {item}
-                  </Badge>
-                ))}
-            </div>
-          </div>
-        </header>
-
-        <div className="py-10 sm:py-12">
+        <div className="pb-10 sm:pb-12">
           <ProjectCommandBar
             query={query}
             selectedKinds={selectedKinds}
