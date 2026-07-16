@@ -2,7 +2,7 @@
 
 ## Overall Architecture
 
-This project adopts a Service-Based Architecture (SBA), dividing the system into several independent services based on business domains and functions. Each service has clear responsibility boundaries, can choose the appropriate technology stack based on business requirements, and communicates via protocols such as HTTP/gRPC.
+This project adopts a Service-Based Architecture (SBA), dividing the system into several independent services based on business domains and functions. Each service has clear responsibility boundaries, can choose the appropriate technology stack based on business requirements.
 
 Rationale:
 - Compared to a monolithic architecture, this project has a larger business scope with clearly distinct service domains and multiple technology stack requirements. SBA provides greater technology stack flexibility and better module decoupling.
@@ -21,9 +21,8 @@ Rationale:
 - Retrieve project details
 - Update project configuration
 
-#### Interfaces
-
-````go
+#### Data Structure
+```go
 type GameType string
 type ViewType string
 
@@ -36,6 +35,7 @@ const (
     ViewTypeTopDown ViewType = "TopDown"
     ViewTypeSideView ViewType = "SideView"
     ViewTypeIsometric ViewType = "Isometric"
+    ViewTypeOther   ViewType = "Other"
 )
 
 type Project struct {
@@ -47,7 +47,9 @@ type Project struct {
     Reference   string                       // AI-generated reference image based on the project description
     Style       string                       // Art style of the project
 }
-
+```
+#### Service
+```go
 type ProjectService interface {
     Create(ctx context.Context, project *Project) error
     // Get project list by User ID
@@ -56,7 +58,9 @@ type ProjectService interface {
     GetDetail(ctx context.Context, id uint) (*Project, error)
     Update(ctx context.Context, project *Project) error
 }
-````
+```
+#### Input&Output
+
 
 ### 2. Asset
 
@@ -72,7 +76,7 @@ type ProjectService interface {
 - Delete a tag
 - Update a tag
 
-#### Interfaces
+#### Data Structure
 
 ```go
 package asset
@@ -103,6 +107,7 @@ const (
 //
 // The service should validate that Attributes contains a JSON object.
 type Asset struct {
+    ParentID    unit            `json:parentId`
     ID          uint            `json:"id"`
     ProjectID   uint            `json:"projectId"`
     Name        string          `json:"name"`
@@ -143,16 +148,17 @@ type AssetRecord struct {
     AssetID      uint            `json:"assetId"`
     Snapshot     json.RawMessage `json:"snapshot"`
 }
+```
+
+#### Service
+``` go
 type AssetService interface {
     // Create creates an asset and its initial version snapshot.
     Create(ctx context.Context, asset *Asset) error
-
     // ListByProjectID returns all assets belonging to a project.
     ListByProjectID(ctx context.Context, projectID uint) ([]*Asset, error)
-
     // GetDetail returns the current asset state.
     GetDetail(ctx context.Context, id uint) (*Asset, error)
-
     // Update updates the asset and creates a new snapshot atomically.
     Update(ctx context.Context, asset *Asset) error
 }
@@ -161,24 +167,21 @@ type AssetRecordService interface {
     // CreateSnapshot creates a snapshot from the current asset state.
     // The service assigns the next AssetVersion automatically.
     CreateSnapshot(ctx context.Context, assetID uint) (*AssetRecord, error)
-
     // ListByAssetID returns snapshots ordered by AssetVersion descending.
     ListByAssetID(
         ctx context.Context,
         assetID uint,
     ) ([]*AssetRecord, error)
-
     // GetDetail returns a specific snapshot record.
     GetDetail(ctx context.Context, recordID uint) (*AssetRecord, error)
-
     // Restore replaces the current editable asset state with a snapshot.
     // Restoring also creates a new version rather than overwriting history.
-    Restore(
-        ctx context.Context,
-        assetID uint,
-        recordID uint,
-    ) error
+    Restore(ctx context.Context, assetID uint, recordID uint,
+    ) (*AssetRecord,error)
 }
+```
+#### Input&Output
+
 
 ### 3. AI
 
@@ -191,15 +194,15 @@ type AssetRecordService interface {
 - Generate animations
 - Generate reference images
 
-#### Interfaces
+#### Data Structure
+```go
 
-````go
 type Size struct {
     Width  int `json:"width"`
     Height int `json:"height"`
 }
 
-type CharacterGenerationRequest struct {
+type CreateCharacterRequest struct {
     ProjectPrompt string        `json:"projectPrompt"` // Project prompt
     UserPrompt    string        `json:"userPrompt"`
     Name          string        `json:"name"`
@@ -207,6 +210,10 @@ type CharacterGenerationRequest struct {
     Size          Size          `json:"size"`
     Reference     []string      `json:"reference"`
     Physics       PhysicsConfig `json:"physics"`
+}
+
+type CreateCharacterResponse struct {
+    URL string `json:"url"`
 }
 
 type PhysicsConfig struct {
@@ -252,11 +259,6 @@ type CreateTileSetResponse struct {
     Url string `json:"url"` // Generated tile set image URL
 }
 
-type MapService interface {
-    CreateScene(request *CreateSceneRequest) (*CreateSceneResponse, error)
-    CreateTileSet(request *CreateTileSetRequest) (*CreateTileSetResponse, error)
-}
-
 type CreateObjectRequest struct {
     UserPrompt    string   `json:"prompt"`        // Prompt for the object
     ProjectPrompt string   `json:"projectPrompt"` // Project prompt
@@ -270,13 +272,125 @@ type CreateObjectResponse struct {
     Url string `json:"url"` // Generated object image URL
 }
 
+type CreateAnimationRequest struct {
+    ProjectPrompt  string `json:"projectPrompt"`
+    UserPrompt     string `json:"userPrompt"`
+    Name           string `json:"name"`
+    FirstFrameURL  string `json:"firstFrameUrl"`
+    Description    string `json:"description"`
+    FrameCount     int    `json:"frameCount"`
+    KeepFirstFrame bool   `json:"keepFirstFrame"`
+}
+
+type CreateAnimationResponse struct {
+    URL            string `json:"urls"`
+}
+```
+#### Service
+```go
+type Character interface {
+    CrreateCharacter(request *CreateCharacterRequest)
+}
+type MapService interface {
+    CreateScene(request *CreateSceneRequest) (*CreateSceneResponse, error)
+    CreateTileSet(request *CreateTileSetRequest) (*CreateTileSetResponse, error)
+}
+
 type ObjectService interface {
     CreateObject(request *CreateObjectRequest) (*CreateObjectResponse, error)
 }
-````
+```
+#### Message Structure
+```go
+type MessageRole string
+type ContentPartType string
+
+const (
+    MessageRoleSystem    MessageRole = "system"
+    MessageRoleUser      MessageRole = "user"
+    MessageRoleAssistant MessageRole = "assistant"
+    MessageRoleTool      MessageRole = "tool"
+
+    ContentPartText     ContentPartType = "text"
+    ContentPartImageURL ContentPartType = "image_url"
+    ContentPartAudioURL ContentPartType = "audio_url"
+    ContentPartMaskURL  ContentPartType = "mask_url"
+)
+
+type ContentPart struct {
+    Type      ContentPartType `json:"type"`
+    Text      string          `json:"text,omitempty"`
+    URL       string          `json:"url,omitempty"`
+    MediaType string          `json:"mediaType,omitempty"`
+}
+
+type LLMMessage struct {
+    Role    MessageRole   `json:"role"`
+    Content []ContentPart `json:"content"`
+}
+
+type LLMUsage struct {
+    InputTokens  int `json:"inputTokens"`
+    OutputTokens int `json:"outputTokens"`
+    TotalTokens  int `json:"totalTokens"`
+}
+
+type LLMRequest struct {
+    RequestID      string          `json:"requestId"`
+    Model          string          `json:"model"`
+    Messages       []LLMMessage    `json:"messages"`
+    ResponseFormat json.RawMessage `json:"responseFormat,omitempty"`
+}
+
+type LLMResponse struct {
+    ID      string     `json:"id"`
+    Model   string     `json:"model"`
+    Message LLMMessage `json:"message"`
+    Usage   LLMUsage   `json:"usage"`
+}
+
+type ImageGenerationRequest struct {
+    RequestID  string   `json:"requestId"`
+    Model      string   `json:"model"`
+    Prompt     string   `json:"prompt"`
+    References []string `json:"references,omitempty"`
+    Size       Size     `json:"size"`
+    Count      int      `json:"count"`
+}
+
+
+type LLMClient interface {
+    Chat(ctx context.Context, request *LLMRequest) (*LLMResponse, error)
+    GenerateImage(ctx context.Context, request *ImageGenerationRequest) (*GenerationResult, error)
+    GetGenerationResult(ctx context.Context, generationID string) (*GenerationResult, error)
+    CancelGeneration(ctx context.Context, generationID string) error
+}
+```
 
 ### 4. Gateway
 
-#### Function
+#### function
+The Gateway provides a unified entry point for frontend and external requests.
 
-The Gateway chains the individual services together, simplifies their usage, and exposes the resulting interfaces to the frontend.
+Its main responsibilities include:
+
+- Forwarding requests to the appropriate backend service
+- TLS termination
+- Authentication information forwarding
+- CORS handling
+- Request size limits
+- Rate limiting
+- Timeout control
+- Access logging and request tracing
+
+Nginx is planned as the initial Gateway implementation.
+
+The Gateway does not contain business logic or directly access service databases. Project, asset, and AI-related operations are handled by their corresponding backend services.
+
+The concrete routing paths and API versioning strategy will be defined after the service boundaries and external APIs are finalized.
+
+#### Service Orchestration
+
+Nginx is responsible only for request forwarding and infrastructure-level concerns.
+
+Business workflows involving multiple services should be coordinated by an application service or a dedicated orchestration component rather than by Nginx.

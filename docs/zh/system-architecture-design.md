@@ -2,7 +2,7 @@
 
 ## 整体架构
 
-本项目采用 Service-Based Architecture（SBA）,根据业务领域与功能划分为几个独立的服务，每个服务都有明确的职责边界，可以根据业务需求选择相应的技术栈，并通过http/grpc等协议进行通信。
+本项目采用 Service-Based Architecture（SBA）,根据业务领域与功能划分为几个独立的服务，每个服务都有明确的职责边界，可以根据业务需求选择相应的技术栈。
 
 原因：
 - 相较于单体架构，本项目业务量较大，不同服务领域区分清晰且有多种技术栈的需求，SBA提供了更高的技术栈灵活性与更好的模块解耦。
@@ -22,9 +22,9 @@
 - 获取项目详情
 - 更新项目配置
 
-#### 接口
+#### 数据结构
 
-````go
+```go
 type GameType string
 type ViewType string
 
@@ -48,7 +48,11 @@ type Project struct {
     Reference   string                       // 基于项目描述由 AI 生成的参考图
     Style       string                       // 项目的美术风格
 }
+```
 
+#### 服务
+
+```go
 type ProjectService interface {
     Create(ctx context.Context, project *Project) error
     // 根据用户 ID 获取项目列表
@@ -57,7 +61,9 @@ type ProjectService interface {
     GetDetail(ctx context.Context, id uint) (*Project, error)
     Update(ctx context.Context, project *Project) error
 }
-````
+```
+
+#### 输入与输出
 
 ### 2. Asset
 
@@ -73,8 +79,9 @@ type ProjectService interface {
 - 删除标签
 - 更新标签
 
-#### 接口
-```
+#### 数据结构
+
+```go
 package asset
 
 import (
@@ -103,6 +110,7 @@ const (
 //
 // 服务层需要校验 Attributes 是否为合法的 JSON 对象。
 type Asset struct {
+    ParentID    unit            `json:parentId`
 	ID          uint            `json:"id"`
 	ProjectID   uint            `json:"projectId"`
 	Name        string          `json:"name"`
@@ -142,17 +150,18 @@ type AssetRecord struct {
 	AssetID      uint            `json:"assetId"`
 	Snapshot     json.RawMessage `json:"snapshot"`
 }
+```
 
+#### 服务
+
+```go
 type AssetService interface {
 	// Create 创建资产，并同时生成该资产的初始版本快照。
 	Create(ctx context.Context, asset *Asset) error
-
 	// ListByProjectID 返回指定项目下的所有资产。
 	ListByProjectID(ctx context.Context, projectID uint) ([]*Asset, error)
-
 	// GetDetail 返回指定资产的当前详细信息。
 	GetDetail(ctx context.Context, id uint) (*Asset, error)
-
 	// Update 更新资产，并在同一个事务中创建新的版本快照。
 	Update(ctx context.Context, asset *Asset) error
 }
@@ -161,26 +170,22 @@ type AssetRecordService interface {
 	// CreateSnapshot 根据资产的当前状态创建快照。
 	// 具体的 AssetVersion 由服务层自动计算和分配。
 	CreateSnapshot(ctx context.Context, assetID uint) (*AssetRecord, error)
-
 	// ListByAssetID 返回指定资产的所有快照记录，
 	// 并按照 AssetVersion 从高到低排序。
 	ListByAssetID(
 		ctx context.Context,
 		assetID uint,
 	) ([]*AssetRecord, error)
-
 	// GetDetail 返回指定资产快照记录的详细信息。
 	GetDetail(ctx context.Context, recordID uint) (*AssetRecord, error)
-
 	// Restore 使用指定快照恢复资产的可编辑状态。
 	// 恢复操作会创建一个新的资产版本，不会覆盖或删除已有历史记录。
-	Restore(
-		ctx context.Context,
-		assetID uint,
-		recordID uint,
-	) error
+	Restore(ctx context.Context, assetID uint, recordID uint,
+	) (*AssetRecord, error)
 }
 ```
+
+#### 输入与输出
 
 ### 3. AI
 
@@ -193,15 +198,15 @@ type AssetRecordService interface {
 - 生成动画
 - 生成参考图
 
-#### 接口
+#### 数据结构
 
-````go
+```go
 type Size struct {
     Width  int `json:"width"`
     Height int `json:"height"`
 }
 
-type CharacterGenerationRequest struct {
+type CreateCharacterRequest struct {
     ProjectPrompt string        `json:"projectPrompt"` // 项目提示词
     UserPrompt    string        `json:"userPrompt"`
     Name          string        `json:"name"`
@@ -209,6 +214,10 @@ type CharacterGenerationRequest struct {
     Size          Size          `json:"size"`
     Reference     []string      `json:"reference"`
     Physics       PhysicsConfig `json:"physics"`
+}
+
+type CreateCharacterResponse struct {
+    URL string `json:"url"`
 }
 
 type PhysicsConfig struct {
@@ -254,11 +263,6 @@ type CreateTileSetResponse struct {
     Url string `json:"url"` // 生成图块集图片的 URL
 }
 
-type MapService interface {
-    CreateScene(request *CreateSceneRequest) (*CreateSceneResponse, error)
-    CreateTileSet(request *CreateTileSetRequest) (*CreateTileSetResponse, error)
-}
-
 type CreateObjectRequest struct {
     UserPrompt    string   `json:"prompt"`        // 对象提示词
     ProjectPrompt string   `json:"projectPrompt"` // 项目提示词
@@ -272,13 +276,130 @@ type CreateObjectResponse struct {
     Url string `json:"url"` // 生成对象图片的 URL
 }
 
+type CreateAnimationRequest struct {
+    ProjectPrompt  string `json:"projectPrompt"`
+    UserPrompt     string `json:"userPrompt"`
+    Name           string `json:"name"`
+    FirstFrameURL  string `json:"firstFrameUrl"`
+    Description    string `json:"description"`
+    FrameCount     int    `json:"frameCount"`
+    KeepFirstFrame bool   `json:"keepFirstFrame"`
+}
+
+type CreateAnimationResponse struct {
+    URL string `json:"urls"`
+}
+```
+
+#### 服务
+
+```go
+type Character interface {
+    CrreateCharacter(request *CreateCharacterRequest)
+}
+
+type MapService interface {
+    CreateScene(request *CreateSceneRequest) (*CreateSceneResponse, error)
+    CreateTileSet(request *CreateTileSetRequest) (*CreateTileSetResponse, error)
+}
+
 type ObjectService interface {
     CreateObject(request *CreateObjectRequest) (*CreateObjectResponse, error)
 }
-````
+```
+
+#### 消息结构
+
+```go
+type MessageRole string
+type ContentPartType string
+
+const (
+    MessageRoleSystem    MessageRole = "system"
+    MessageRoleUser      MessageRole = "user"
+    MessageRoleAssistant MessageRole = "assistant"
+    MessageRoleTool      MessageRole = "tool"
+
+    ContentPartText     ContentPartType = "text"
+    ContentPartImageURL ContentPartType = "image_url"
+    ContentPartAudioURL ContentPartType = "audio_url"
+    ContentPartMaskURL  ContentPartType = "mask_url"
+)
+
+type ContentPart struct {
+    Type      ContentPartType `json:"type"`
+    Text      string          `json:"text,omitempty"`
+    URL       string          `json:"url,omitempty"`
+    MediaType string          `json:"mediaType,omitempty"`
+}
+
+type LLMMessage struct {
+    Role    MessageRole   `json:"role"`
+    Content []ContentPart `json:"content"`
+}
+
+type LLMUsage struct {
+    InputTokens  int `json:"inputTokens"`
+    OutputTokens int `json:"outputTokens"`
+    TotalTokens  int `json:"totalTokens"`
+}
+
+type LLMRequest struct {
+    RequestID      string          `json:"requestId"`
+    Model          string          `json:"model"`
+    Messages       []LLMMessage    `json:"messages"`
+    ResponseFormat json.RawMessage `json:"responseFormat,omitempty"`
+}
+
+type LLMResponse struct {
+    ID      string     `json:"id"`
+    Model   string     `json:"model"`
+    Message LLMMessage `json:"message"`
+    Usage   LLMUsage   `json:"usage"`
+}
+
+type ImageGenerationRequest struct {
+    RequestID  string   `json:"requestId"`
+    Model      string   `json:"model"`
+    Prompt     string   `json:"prompt"`
+    References []string `json:"references,omitempty"`
+    Size       Size     `json:"size"`
+    Count      int      `json:"count"`
+}
+
+type LLMClient interface {
+    Chat(ctx context.Context, request *LLMRequest) (*LLMResponse, error)
+    GenerateImage(ctx context.Context, request *ImageGenerationRequest) (*GenerationResult, error)
+    GetGenerationResult(ctx context.Context, generationID string) (*GenerationResult, error)
+    CancelGeneration(ctx context.Context, generationID string) error
+}
+```
 
 ### 4. Gateway
 
 #### 功能
 
-Gateway 串联各个服务，简化服务调用，并向前端暴露统一接口。
+Gateway 为前端和外部请求提供统一的系统入口。
+
+其主要职责包括：
+
+- 将请求转发到对应的后端服务
+- 终止 TLS 连接
+- 转发用户认证信息
+- 处理跨域请求
+- 限制请求体大小
+- 实施请求限流
+- 控制请求超时时间
+- 记录访问日志和请求追踪信息
+
+系统计划在初始阶段使用 Nginx 作为 Gateway 的实现方案。
+
+网关不包含具体的业务逻辑，也不会直接访问各个服务的数据库。项目、资产和 AI 相关的业务操作均由对应的后端服务负责处理。
+
+具体的请求路由、API 路径以及 API 版本管理策略，将在服务边界和对外接口确定后进一步设计。
+
+#### 服务编排
+
+Nginx 只负责请求转发和基础设施层面的通用功能。
+
+涉及多个服务的业务流程不应由 Nginx 负责处理，而应由应用服务或独立的服务编排组件进行协调。
