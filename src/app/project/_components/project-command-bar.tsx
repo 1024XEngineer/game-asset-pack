@@ -35,7 +35,10 @@ export function ProjectCommandBar({
             onChange={(event) => onQueryChange(event.target.value)}
           />
         </div>
-        <AssetFilters selectedKinds={selectedKinds} onSelectedKindsChange={onSelectedKindsChange} />
+        <AssetFilters
+          selectedKinds={selectedKinds}
+          onSelectedKindsChange={onSelectedKindsChange}
+        />
       </div>
       <CreateAssetToolbar assetKinds={assetKinds} project={project} />
     </div>
