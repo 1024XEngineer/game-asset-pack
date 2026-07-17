@@ -120,7 +120,7 @@ A large composite image is presented to the user and then sliced. This image con
 
 #### Background
 
-Background includes two specific Asset types: Scenery and Tiles.
+Background includes two specific Asset types: Scenery and TileSet.
 
 ##### Scenery
 
@@ -236,35 +236,21 @@ Supported operations:
 - Delete Project
 - View Project
 
-Configure unified AI context for the Project to improve asset generation consistency.
+Configure unified AI context for the Project, and generate or upload a Visual Direction master image to improve asset generation consistency. This prevents the problem of multiple assets within the same project being generated independently, where the AI lacks project context, leading to inconsistent art style and design specifications.
 
 Supported configurations:
 
 - Game genre
 - Art style
 - Camera perspective
-- Pixel resolution
 - Target platform
 - Reference images
 
 ---
 
-### Feature 4: Initial Asset Creation
+### Feature 4: Asset Management
 
-Allow users to quickly create initial assets within a Project, providing a foundation for subsequent asset expansion.
-
-Supported asset types:
-
-- Character
-- Object
-- UI
-- Tileset
-
----
-
-### Feature 5: Asset Management
-
-Provide full lifecycle management of assets.
+Provide organization and management capabilities for assets within a Project, helping users efficiently locate and maintain assets as their number grows.
 
 Supported operations:
 
@@ -277,28 +263,32 @@ Supported operations:
 
 ---
 
-### Feature 6: Individual Asset Editing
+### Feature 5: Asset Content Modification
 
-Support AI-powered generation around a single Asset.
-
-Capabilities include:
-
-- Prompt modification
-- Context referencing
-- Edit history preservation
-- Automatic Record creation
+Support AI re-generation or manual editing of content within an Asset.
 
 ---
 
-### Feature 7: Record Management
+### Feature 6: Record Management
 
-Track the complete evolution of every Asset, supporting continuous iteration.
+Automatically track the complete evolution history of every Asset, solving the problem that a single asset often requires multiple rounds of generation and modification whose historical versions are difficult to trace and manage.
 
 Supported features:
 
-- View Record history
+- Automatic Record creation
 - Restore historical Records
 - View Record details
+
+---
+
+### Feature 7: Animation & Sound Effect Generation
+
+Generate animation frames for characters or objects based on their ProtoType, and attach sound effects to animations, forming a complete "Character → Animation → Sound Effect" chain. This solves the problems of prototypes, animations, and sound effects lacking associations (forcing users to re-describe context) and the high barrier to sound effect creation.
+
+Supported capabilities:
+
+- Generate Animations from ProtoType
+- Preview animations and sound effects
 
 ---
 
@@ -315,20 +305,25 @@ Capabilities include:
 
 ---
 
-### Feature 9: Batch Creation
+### Feature 9: Asset Associations
 
-Support generating multiple assets at once, improving asset production efficiency.
+Automatically establish relationships between Assets, enabling related assets to be referenced as context during generation and modification, improving cross-asset consistency within a Project. This solves the problem of users needing to repeatedly describe relationships between characters, objects, scenes, and other related assets.
 
-Capabilities include:
+Supported capabilities:
 
-- Batch generation by asset type
-- Batch generation from prompts
+- AI automatically identifies and establishes Asset associations
 
 ---
 
-### Feature 10: Batch Editing
+### Feature 10: Audio Generation (Low Priority)
 
-Support editing multiple sub-Assets under a single Asset simultaneously.
+Provide standalone BGM, ambient sound, and other audio asset generation capabilities, solving the problem of the high barrier to creating music assets such as BGM.
+
+Supported capabilities:
+
+- Online audio playback
+- Duration control
+- Simple trimming and speed adjustment
 
 ---
 
@@ -361,6 +356,8 @@ MCP addresses two typical game development scenarios:
 - **Local Game Scenario: Direct Project Landing**
   - After users configure assets in the Web editor, agents use MCP to directly land resource files into the local project directory.
   - Automatically generates engine-specific scene files (such as Godot's .tscn files), including sprite nodes, animation frame references, and other configurations.
+
+This solves the problem of the product being disconnected from development workflows — unable to integrate into actual work processes or directly produce ready-to-use resources.
 
 Supported capabilities:
 
