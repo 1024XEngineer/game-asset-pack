@@ -7,10 +7,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { assetGroups, projectSummaries } from "../../../_data/project-demo-data";
-import { defaultEditorPrompt, type NodeId } from "../_data/asset-demo-data";
+import { defaultEditorPrompt, nodeMeta, type NodeId } from "../_data/asset-demo-data";
 import { EditorStage } from "./canvas";
 import { EditorHeader } from "./header";
-import { Inspector } from "./inspector";
+import { Inspector, type SaveHistoryEntry } from "./inspector";
 import { AssetTree } from "./tree";
 
 export function Workspace({ assetId }: { assetId: string }) {
@@ -30,6 +30,7 @@ export function Workspace({ assetId }: { assetId: string }) {
   const [canUndo, setCanUndo] = useState(true);
   const [canRedo, setCanRedo] = useState(false);
   const [prompt, setPrompt] = useState(defaultEditorPrompt);
+  const [saveHistory, setSaveHistory] = useState<SaveHistoryEntry[]>([]);
 
   if (!group || !asset) {
     return (
@@ -73,6 +74,25 @@ export function Workspace({ assetId }: { assetId: string }) {
     setSelectedNode(nodes[0] ?? null);
     setSelectedFrames([]);
   };
+  const handleSave = () => {
+    const timestamp = new Date().toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    setSaveHistory((current) => [
+      {
+        id: `${Date.now()}-${current.length}`,
+        savedAt: timestamp,
+        description: prompt.trim() || "No description provided.",
+        selection: selectedNodes.length
+          ? selectedNodes.map((node) => nodeMeta[node].label).join(", ")
+          : "Nothing selected",
+      },
+      ...current,
+    ]);
+    handleAction("Saved just now");
+  };
 
   return (
     <div className="asset-workspace-shell flex h-full min-h-0 flex-col overflow-hidden bg-[#f7f5f0] text-[#2d2923] selection:bg-[#d99096] selection:text-[#2d2923]">
@@ -94,7 +114,7 @@ export function Workspace({ assetId }: { assetId: string }) {
           setCanRedo(false);
           handleAction("Edit restored");
         }}
-        onSave={() => handleAction("Saved just now")}
+        onSave={handleSave}
       />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
@@ -123,6 +143,7 @@ export function Workspace({ assetId }: { assetId: string }) {
           prompt={prompt}
           onPromptChange={setPrompt}
           onAction={handleAction}
+          saveHistory={saveHistory}
         />
       </div>
     </div>
