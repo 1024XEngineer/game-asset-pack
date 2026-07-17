@@ -1,4 +1,4 @@
-import { ChevronDown, Clapperboard, Folder, ImagePlus, Music2, Play, Plus } from "lucide-react";
+import { ChevronDown, Folder, ImagePlus, Music2, Play, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,6 @@ export function AssetTree({
   onSelect,
   onSelectFrame,
 }: AssetTreeProps) {
-  const [isAnimationsOpen, setIsAnimationsOpen] = useState(true);
   const [isCreateAnimationOpen, setIsCreateAnimationOpen] = useState(false);
   const [animationName, setAnimationName] = useState("");
   const [animationNames, setAnimationNames] = useState<string[]>([]);
@@ -42,7 +41,6 @@ export function AssetTree({
 
     setAnimationNames((current) => [...current, name]);
     setAnimationName("");
-    setIsAnimationsOpen(true);
     setIsCreateAnimationOpen(false);
   };
 
@@ -60,8 +58,7 @@ export function AssetTree({
           <FolderItem
             label="Animations"
             count={String(5 + animationNames.length)}
-            open={isAnimationsOpen}
-            onToggle={() => setIsAnimationsOpen((current) => !current)}
+            onCreateAnimation={() => setIsCreateAnimationOpen(true)}
           >
             <AnimationTreeItem
               node="idle"
@@ -104,17 +101,6 @@ export function AssetTree({
           </FolderItem>
         </div>
       </ScrollArea>
-      <div className="flex justify-end border-t border-black/10 p-3 lg:fixed lg:bottom-0 lg:left-0 lg:z-20 lg:w-[16.5rem] lg:bg-white">
-        <button
-          type="button"
-          aria-label="Create animation"
-          title="Create animation"
-          onClick={() => setIsCreateAnimationOpen(true)}
-          className="grid size-8 place-items-center rounded-md border border-dashed border-black/15 text-[#7c7368] transition-colors hover:border-[#b86b70]/60 hover:bg-[#b86b70]/5 hover:text-[#b86b70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b86b70]"
-        >
-          <Plus className="size-4" />
-        </button>
-      </div>
       <Dialog open={isCreateAnimationOpen} onOpenChange={setIsCreateAnimationOpen}>
         <DialogContent>
           <DialogHeader>
@@ -149,44 +135,46 @@ export function AssetTree({
 function FolderItem({
   label,
   count,
-  open,
-  onToggle,
+  onCreateAnimation,
   children,
 }: {
   label: string;
   count: string;
-  open: boolean;
-  onToggle: () => void;
+  onCreateAnimation: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={onToggle}
-        className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-xs font-medium text-[#71685d] transition-colors hover:bg-black/[.04] hover:text-[#2d2923]"
-      >
+      <div className="flex w-full items-center gap-2 px-2 py-2 text-xs font-medium text-[#71685d]">
         <Folder className="size-4 text-[#b86b70]" />
         <span className="min-w-0 flex-1 truncate">{label}</span>
         <span className="font-mono text-[10px] text-[#81786d]">{count}</span>
-        <ChevronDown
-          className={`size-3.5 text-[#81786d] transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
-        />
-      </button>
-      {open ? (
-        <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">{children}</div>
-      ) : null}
+        <button
+          type="button"
+          aria-label="Create animation"
+          title="Create animation"
+          onClick={onCreateAnimation}
+          className="grid size-6 place-items-center rounded-md border border-dashed border-black/15 text-[#7c7368] transition-colors hover:border-[#b86b70]/60 hover:bg-[#b86b70]/5 hover:text-[#b86b70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b86b70]"
+        >
+          <Plus className="size-3.5" />
+        </button>
+      </div>
+      <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">{children}</div>
     </div>
   );
 }
 
 function AddedAnimationTreeItem({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg px-2 py-2 text-[#71685d]">
-      <Clapperboard className="size-3.5 text-[#4c7e5e]" />
-      <span className="min-w-0 flex-1 truncate text-xs font-medium">{label}</span>
-      <span className="font-mono text-[10px] text-[#81786d]">0f</span>
+    <div className="flex items-center rounded-lg text-[#71685d]">
+      <div className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2">
+        <Play className="size-3.5 text-[#4c7e5e]" />
+        <span className="-mx-0.5 inline-flex cursor-pointer rounded p-0.5 text-[#a9a29a] transition-all hover:bg-black/[.06] hover:text-[#71685d] active:scale-90">
+          <Music2 className="size-3.5" aria-label="No audio" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-xs font-medium">{label}</span>
+      </div>
+      <ChevronDown className="mr-1 size-3.5 -rotate-90 text-[#81786d]" />
     </div>
   );
 }
@@ -261,7 +249,11 @@ function AnimationTreeItem({
           className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left"
         >
           <Play className="size-3.5 text-[#4c7e5e]" />
-          {audio ? <Music2 className="size-3.5 text-[#c36d6c]" aria-label="Has audio" /> : null}
+          <span
+            className={`-mx-0.5 inline-flex cursor-pointer rounded p-0.5 transition-all hover:bg-black/[.06] active:scale-90 ${audio ? "text-[#c36d6c] hover:text-[#a84f50]" : "text-[#a9a29a] hover:text-[#71685d]"}`}
+          >
+            <Music2 className="size-3.5" aria-label={audio ? "Has audio" : "No audio"} />
+          </span>
           <span className="min-w-0 flex-1 truncate text-xs font-medium">
             {nodeMeta[node].label}
           </span>
