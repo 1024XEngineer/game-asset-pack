@@ -149,8 +149,18 @@ TileSet 代表一组瓦片资源，包括的信息有：
 ![alt text](/doc/image/tile-example.png)
 - 归属的Project
 
-我们会为用户提供一张大的Tile Set图，将其分割为一个个Tile,Tile作为Tile Set的基本图块，包含有：
+Tile Set下管理有用户定义的多个Item，Item是可独立放置的、具有逻辑概念的一个单位(比如一张床，可能占有两个Tile，这两个Tile各自并不具有逻辑概念，两个组合成的床才是Item),我们会为用户提供一张大的Tile Set图，将其分割为一个个Tile,根据用户的预设决定其属于哪个Item.
+
+Item包含有：
+- Name
+- Description (对这个Item内容的具体描述)
+- Size (大小)
+- Location (位置 (x,y))
 - 归属的TileSet
+
+Tile作为Tile Set的基本图块，包含有：
+- 归属的TileSet
+- 归属的Item
 - 切割后的资源
 
 
@@ -358,7 +368,7 @@ MCP 面向两种典型游戏开发场景：
 
 ---
 
-### Feature 13：Audio 生成 (低优先)
+### Feature 13：Audio 生成 
 
 提供独立的 BGM、环境音等音频资源生成能力，解决了BGM等音乐资产制作门槛高的问题
 

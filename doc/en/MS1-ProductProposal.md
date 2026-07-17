@@ -149,8 +149,18 @@ A TileSet represents a set of tile resources, and includes:
 ![alt text](/doc/image/tile-example.png)
 - Belongs to Project
 
-A large Tile Set image is provided to the user and sliced into individual Tiles. A Tile includes:
+A TileSet manages multiple user-defined Items. An Item is an independently placeable unit with a logical concept (for example, a bed may occupy two Tiles — these two Tiles individually have no logical meaning; only the two combined as a bed form the Item). A large Tile Set image is provided to the user and sliced into individual Tiles, which are assigned to their respective Items based on the user's preset configuration.
+
+An Item includes:
+- Name
+- Description (specific description of this Item's content)
+- Size (size)
+- Location (position (x, y))
 - Belongs to TileSet
+
+A Tile, as the basic tile unit of a TileSet, includes:
+- Belongs to TileSet
+- Belongs to Item
 - The sliced resource
 
 #### Audio
@@ -358,7 +368,7 @@ Supported capabilities:
 
 ---
 
-### Feature 13: Audio Generation (Low Priority)
+### Feature 13: Audio Generation
 
 Provide standalone BGM, ambient sound, and other audio asset generation capabilities, solving the problem of the high barrier to creating music assets such as BGM.
 
