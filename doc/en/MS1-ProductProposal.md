@@ -315,25 +315,13 @@ Supported capabilities:
 
 ---
 
-### Feature 10: Audio Generation (Low Priority)
-
-Provide standalone BGM, ambient sound, and other audio asset generation capabilities, solving the problem of the high barrier to creating music assets such as BGM.
-
-Supported capabilities:
-
-- Online audio playback
-- Duration control
-- Simple trimming and speed adjustment
-
----
-
-### Feature 11: Asset Export
+### Feature 10: Asset Export
 
 Support exporting assets into common formats.
 
 ---
 
-### Feature 12: SDK
+### Feature 11: SDK
 
 Network games require assets such as images, audio, and animations to be hosted in object storage. The platform provides optimized built-in object storage services and packages a client SDK, allowing users to call assets directly in their code via the SDK — no need for "download assets → upload to own object bucket → configure access URLs".
 
@@ -344,7 +332,7 @@ Supported capabilities:
 
 ---
 
-### Feature 13: MCP Capabilities
+### Feature 12: MCP Capabilities
 
 To seamlessly integrate platform assets into the game development workflow, we introduce the **MCP (Model Context Protocol)** interface.
 
@@ -367,3 +355,15 @@ Supported capabilities:
 - Retrieve Asset details and related assets
 - Download resource files to a specified directory
 - Generate engine-specific scene files and resource configurations
+
+---
+
+### Feature 13: Audio Generation (Low Priority)
+
+Provide standalone BGM, ambient sound, and other audio asset generation capabilities, solving the problem of the high barrier to creating music assets such as BGM.
+
+Supported capabilities:
+
+- Online audio playback
+- Duration control
+- Simple trimming and speed adjustment
