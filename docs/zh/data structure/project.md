@@ -12,6 +12,8 @@ type GameType string
 
 type ViewType string
 
+type PlatformType string
+
 
 
 const (
@@ -30,6 +32,12 @@ ViewTypeSideView ViewType = "SideView"
 
 ViewTypeIsometric ViewType = "Isometric"
 
+PlatformTypePC Platform = "PC"
+
+PlatformTypeMobile Platform = "Mobile"
+
+PlatformTypeWeb Platform = "Web"
+
 )
 
 
@@ -43,6 +51,8 @@ Name string
 GameType GameType `json:"gameType"` // RPG、ACT、SLG 等
 
 ViewType ViewType `json:"viewType"` // TopDown、SideView、Isometric 等
+
+TargetPlatform  PlatformType 
 
 Description string // 项目描述
 

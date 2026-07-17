@@ -20,7 +20,7 @@ const (
 
 AssetTypeCharacter AssetType = "character"
 
-AssetTypeBackground AssetType = "background"
+AssetTypeTileSet AssetType = "tileSet"
 
 AssetTypeAudio AssetType = "audio"
 
@@ -29,8 +29,6 @@ AssetTypeUI AssetType = "UI"
 AssetTypeObject AssetType = "object"
 
 AssetTypeScenery AssetType = "scenery"
-
-AssetTypeLayer AssetType = "layer"
 
 )
 

@@ -11,6 +11,8 @@ type GameType string
 
 type ViewType string
 
+type PlatformType string
+
 const (
 	GameTypeRPG   GameType = "RPG"
 	GameTypeACT   GameType = "ACT"
@@ -20,6 +22,10 @@ const (
 	ViewTypeTopDown   ViewType = "TopDown"
 	ViewTypeSideView  ViewType = "SideView"
 	ViewTypeIsometric ViewType = "Isometric"
+
+	PlatformTypePC     PlatformType = "PC"
+	PlatformTypeMobile PlatformType = "Mobile"
+	PlatformTypeWeb    PlatformType = "Web"
 )
 
 type Project struct {
@@ -30,6 +36,8 @@ type Project struct {
 	GameType GameType `json:"gameType"` // RPG, ACT, SLG, etc.
 
 	ViewType ViewType `json:"viewType"` // TopDown, SideView, Isometric, etc.
+
+	TargetPlatform PlatformType
 
 	Description string // Project description
 
