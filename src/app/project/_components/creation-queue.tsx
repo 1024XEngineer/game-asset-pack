@@ -17,6 +17,8 @@ const labels: Record<CreatableAssetKind, string> = {
   character: "Character",
   object: "Object",
   tiles: "Tiles",
+  background: "Background",
+  ui: "UI",
   audio: "Audio",
 };
 
@@ -46,7 +48,9 @@ export function CreationQueue({ items }: { items: CreationQueueItem[] }) {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {item.kind !== "audio" ? (
-                <span className="hidden text-xs text-muted-foreground sm:inline">{item.canvasSize}</span>
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  {item.canvasSize}
+                </span>
               ) : null}
               <Badge variant="outline">{labels[item.kind]}</Badge>
               <Badge variant="secondary">Queued</Badge>

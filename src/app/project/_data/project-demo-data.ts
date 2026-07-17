@@ -1,5 +1,5 @@
 export type AssetKind = "character" | "object" | "tiles";
-export type CreatableAssetKind = AssetKind | "audio";
+export type CreatableAssetKind = AssetKind | "audio" | "background" | "ui";
 
 export type AssetHistoryStatus = "ready" | "generating" | "failed";
 
@@ -88,7 +88,13 @@ export const projectSummaries: ProjectSummary[] = [
   },
 ];
 
-export const createAssetKinds: CreatableAssetKind[] = ["character", "object", "tiles", "audio"];
+export const createAssetKinds: CreatableAssetKind[] = [
+  "character",
+  "object",
+  "background",
+  "ui",
+  "audio",
+];
 
 function createHistory(
   assetId: string,
