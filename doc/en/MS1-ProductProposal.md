@@ -154,7 +154,7 @@ A TileSet manages multiple user-defined Items. An Item is an independently place
 An Item includes:
 - Name
 - Description (specific description of this Item's content)
-- Size (size)
+- Shape(e.g. 16X32)
 - Location (position (x, y))
 - Belongs to TileSet
 
