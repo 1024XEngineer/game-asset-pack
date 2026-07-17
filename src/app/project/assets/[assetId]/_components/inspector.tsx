@@ -13,6 +13,7 @@ type InspectorProps = {
   onPromptChange: (value: string) => void;
   onAction: (message: string) => void;
   saveHistory: SaveHistoryEntry[];
+  selectedItems?: string[];
 };
 
 export type SaveHistoryEntry = {
@@ -29,6 +30,7 @@ export function Inspector({
   onPromptChange,
   onAction,
   saveHistory,
+  selectedItems,
 }: InspectorProps) {
   const [activeTab, setActiveTab] = useState<"ai-edit" | "history">("ai-edit");
 
@@ -56,7 +58,11 @@ export function Inspector({
         <div className="p-4">
           {activeTab === "ai-edit" ? (
             <div role="tabpanel" aria-labelledby="ai-edit-tab" id="ai-edit-panel">
-              <SelectionSummary selectedNodes={selectedNodes} selectedFrames={selectedFrames} />
+              <SelectionSummary
+                selectedNodes={selectedNodes}
+                selectedFrames={selectedFrames}
+                selectedItems={selectedItems}
+              />
               <label className="grid gap-2 text-sm font-medium text-[#51493f]">
                 Description
                 <div className="overflow-hidden rounded-2xl border border-black/10 bg-[#ffffff] shadow-sm focus-within:ring-3 focus-within:ring-[#b86b70]/25">
@@ -145,22 +151,26 @@ function SaveHistory({ entries }: { entries: SaveHistoryEntry[] }) {
 function SelectionSummary({
   selectedNodes,
   selectedFrames,
+  selectedItems,
 }: {
   selectedNodes: NodeId[];
   selectedFrames: Array<{ node: NodeId; index: number }>;
+  selectedItems?: string[];
 }) {
   const frameGroups = selectedFrames.reduce<Record<string, number[]>>((groups, selection) => {
     groups[selection.node] = [...(groups[selection.node] ?? []), selection.index + 1];
     return groups;
   }, {});
-  const summary = selectedNodes.length
-    ? selectedNodes.map((node) => {
-        const frames = frameGroups[node];
-        return frames?.length
-          ? `${nodeMeta[node].label} · frames ${frames.join(", ")}`
-          : nodeMeta[node].label;
-      })
-    : ["Nothing selected"];
+  const summary = selectedItems?.length
+    ? selectedItems
+    : selectedNodes.length
+      ? selectedNodes.map((node) => {
+          const frames = frameGroups[node];
+          return frames?.length
+            ? `${nodeMeta[node].label} · frames ${frames.join(", ")}`
+            : nodeMeta[node].label;
+        })
+      : ["Nothing selected"];
 
   return (
     <section className="mb-5">

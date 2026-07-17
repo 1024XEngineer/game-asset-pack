@@ -14,7 +14,7 @@ export function ProjectChrome({ children }: { children: React.ReactNode }) {
   return (
     <main
       className={cn(
-        "flex min-h-0 flex-1 overflow-hidden bg-muted/30",
+        "flex w-full min-h-0 flex-1 overflow-hidden bg-muted/30",
         isEditorRoute ? "h-screen" : "h-[calc(100vh-3.5rem)]",
       )}
     >
@@ -24,10 +24,7 @@ export function ProjectChrome({ children }: { children: React.ReactNode }) {
         </Suspense>
       ) : null}
       <section
-        className={cn(
-          "min-h-0 min-w-0 flex-1 overflow-hidden",
-          isEditorRoute && "flex",
-        )}
+        className={cn("w-full min-h-0 min-w-0 flex-1 overflow-hidden", isEditorRoute && "flex")}
       >
         {children}
       </section>
