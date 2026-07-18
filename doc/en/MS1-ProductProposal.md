@@ -117,6 +117,7 @@ A large composite image is presented to the user and then sliced. This image con
 - Belongs to UI
 - Size (the size specification of the Component)
 - The sliced resource
+![alt text](/doc/image/ui-example.png)
 
 #### Background
 

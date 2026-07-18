@@ -117,6 +117,7 @@ UI包括的信息有：
 - 所属的UI
 - Size (Component的大小规格)
 - 切割后的资源
+![alt text](/doc/image/ui-example.png)
 
 #### Background
 
