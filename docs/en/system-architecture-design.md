@@ -15,22 +15,8 @@ Project, Asset, Record, and Media modules live inside Core API; they are not sep
 
 ### 1.1 Topology
 
-```mermaid
-flowchart TB
-    Browser["Browser"] --> Traefik["Traefik"]
-    Traefik --> Web["React + Vite"]
-    Traefik --> API["Core API"]
 
-    API --> DB[("PostgreSQL")]
-    API --> Redis[("Redis")]
-    API <--> NATS[("NATS JetStream")]
-    API <--> S3[("S3 Object Storage")]
-
-    NATS <--> AI["Python AI Service"]
-    NATS <--> Worker["Rust Asset Worker"]
-    AI <--> S3
-    Worker <--> S3
-```
+![Holonic-Asset System Architecture](<../image/holonic-Asset System Architecture.png>)
 
 ### 1.2 Communication boundaries
 
