@@ -25,6 +25,7 @@ const labels: Record<CreatableAssetKind, string> = {
   character: "Character",
   object: "Object",
   tiles: "Tiles",
+  scenery: "Scenery",
   background: "Background",
   ui: "UI",
   audio: "Audio",

@@ -36,7 +36,9 @@ export function AssetFilters({
     );
   };
 
-  const activeFilterCount = filters.length - selectedKinds.length;
+  const activeFilterCount = filters.filter(
+    (filter) => !selectedKinds.includes(filter.value),
+  ).length;
 
   return (
     <DropdownMenu>
@@ -77,7 +79,7 @@ export function AssetFilters({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                onSelectedKindsChange(filters.map((filter) => filter.value));
+                onSelectedKindsChange([...filters.map((filter) => filter.value), "scenery"]);
               }}
             >
               <X />

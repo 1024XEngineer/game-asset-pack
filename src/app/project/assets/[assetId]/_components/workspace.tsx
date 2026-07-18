@@ -11,6 +11,9 @@ import { defaultEditorPrompt, nodeMeta, type NodeId } from "../_data/asset-demo-
 import { EditorStage } from "./canvas";
 import { EditorHeader } from "./header";
 import { Inspector, type SaveHistoryEntry } from "./inspector";
+import { SCENERY_LAYERS, type SceneryLayerId } from "./scenery-data";
+import { SceneryLayerTree } from "./scenery-layer-tree";
+import { SceneryStage } from "./scenery-stage";
 import { SpriteSheetStage } from "./sprite-sheet-stage";
 import { StaticAssetTree } from "./static-asset-tree";
 import { AssetTree } from "./tree";
@@ -42,7 +45,12 @@ export function Workspace({ assetId }: { assetId: string }) {
   const [saveHistory, setSaveHistory] = useState<SaveHistoryEntry[]>([]);
   const [selectedStaticItems, setSelectedStaticItems] = useState<string[]>([]);
   const [selectedStaticTiles, setSelectedStaticTiles] = useState<string[]>([]);
+  const [selectedSceneryLayers, setSelectedSceneryLayers] = useState<SceneryLayerId[]>([]);
+  const [visibleSceneryLayers, setVisibleSceneryLayers] = useState<SceneryLayerId[]>(() =>
+    SCENERY_LAYERS.map((layer) => layer.id),
+  );
   const usesCharacterEditor = group?.kind === "character" || group?.kind === "object";
+  const usesSceneryEditor = group?.kind === "scenery";
   const staticSelections = [
     ...selectedStaticItems,
     ...selectedStaticTiles.map((tile) => {
@@ -54,6 +62,7 @@ export function Workspace({ assetId }: { assetId: string }) {
         : `${item} / ${STATIC_TILE_POSITIONS[item]?.[tileIndex] ?? `Tile ${tileIndex + 1}`}`;
     }),
   ];
+  const editorSelections = usesSceneryEditor ? selectedSceneryLayers : staticSelections;
 
   if (!group || !asset) {
     return (
@@ -148,6 +157,20 @@ export function Workspace({ assetId }: { assetId: string }) {
       current.filter((selectedTile) => !selectedTile.startsWith(`${item}:`)),
     );
   };
+  const handleToggleSceneryLayer = (layer: SceneryLayerId) => {
+    setSelectedSceneryLayers((current) =>
+      current.includes(layer)
+        ? current.filter((selectedLayer) => selectedLayer !== layer)
+        : [...current, layer],
+    );
+  };
+  const handleToggleSceneryVisibility = (layer: SceneryLayerId) => {
+    setVisibleSceneryLayers((current) =>
+      current.includes(layer)
+        ? current.filter((visibleLayer) => visibleLayer !== layer)
+        : [...current, layer],
+    );
+  };
   const handleSave = () => {
     const timestamp = new Date().toLocaleString("en-US", {
       dateStyle: "medium",
@@ -159,8 +182,8 @@ export function Workspace({ assetId }: { assetId: string }) {
         id: `${Date.now()}-${current.length}`,
         savedAt: timestamp,
         description: prompt.trim() || "No description provided.",
-        selection: staticSelections.length
-          ? staticSelections.join(", ")
+        selection: editorSelections.length
+          ? editorSelections.join(", ")
           : selectedNodes.length
             ? selectedNodes.map((node) => nodeMeta[node].label).join(", ")
             : "Nothing selected",
@@ -201,6 +224,13 @@ export function Workspace({ assetId }: { assetId: string }) {
             onSelect={handleSelectNode}
             onSelectFrame={handleSelectFrame}
           />
+        ) : usesSceneryEditor ? (
+          <SceneryLayerTree
+            selectedLayers={selectedSceneryLayers}
+            visibleLayers={visibleSceneryLayers}
+            onToggleLayer={handleToggleSceneryLayer}
+            onToggleVisibility={handleToggleSceneryVisibility}
+          />
         ) : (
           <StaticAssetTree
             kind={group.kind === "tiles" ? "tiles" : "object"}
@@ -224,6 +254,11 @@ export function Workspace({ assetId }: { assetId: string }) {
               setSelectedFrames([]);
             }}
           />
+        ) : usesSceneryEditor ? (
+          <SceneryStage
+            selectedLayers={selectedSceneryLayers}
+            visibleLayers={visibleSceneryLayers}
+          />
         ) : (
           <SpriteSheetStage
             selectedItems={selectedStaticItems}
@@ -238,7 +273,7 @@ export function Workspace({ assetId }: { assetId: string }) {
           onPromptChange={setPrompt}
           onAction={handleAction}
           saveHistory={saveHistory}
-          selectedItems={usesCharacterEditor ? undefined : staticSelections}
+          selectedItems={usesCharacterEditor ? undefined : editorSelections}
         />
       </div>
     </div>

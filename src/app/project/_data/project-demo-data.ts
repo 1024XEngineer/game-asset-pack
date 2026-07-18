@@ -1,4 +1,4 @@
-export type AssetKind = "character" | "object" | "tiles";
+export type AssetKind = "character" | "object" | "tiles" | "scenery";
 export type CreatableAssetKind = AssetKind | "audio" | "background" | "ui";
 
 export type AssetHistoryStatus = "ready" | "generating" | "failed";
@@ -229,6 +229,22 @@ export const assetGroups: AssetGroup[] = [
         canvasSize: "16 × 16 px",
         perspective: "Top-down",
         tags: ["terrain", "water"],
+      }),
+    ],
+  },
+  {
+    kind: "scenery",
+    title: "Scenery",
+    accentClassName: "bg-sky-500",
+    assets: [
+      createAsset({
+        id: "moonlit-orchard-scene",
+        name: "Moonlit Orchard Scene",
+        description: "Sky, hills, trees, and foreground layers",
+        version: "v3",
+        canvasSize: "1920 × 1080 px",
+        perspective: "Side view",
+        tags: ["environment", "orchard"],
       }),
     ],
   },

@@ -1,4 +1,4 @@
-import { Box, Grid3X3, Image, PanelsTopLeft, UserRound, Volume2 } from "lucide-react";
+import { Box, Grid3X3, Image, Mountain, PanelsTopLeft, UserRound, Volume2 } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import type { CreatableAssetKind } from "../_data/project-demo-data";
@@ -11,6 +11,7 @@ export function AssetKindIcon({
     character: UserRound,
     object: Box,
     tiles: Grid3X3,
+    scenery: Mountain,
     background: Image,
     ui: PanelsTopLeft,
     audio: Volume2,

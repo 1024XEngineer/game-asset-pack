@@ -17,7 +17,12 @@ const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
 
 export function ProjectWorkspace() {
   const [query, setQuery] = useState("");
-  const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>(["character", "object", "tiles"]);
+  const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>([
+    "character",
+    "object",
+    "tiles",
+    "scenery",
+  ]);
   const [creationQueue, setCreationQueue] = useState<CreationQueueItem[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,7 +71,7 @@ export function ProjectWorkspace() {
     const normalizedQuery = query.trim().toLowerCase();
 
     return assetGroups
-      .filter((group) => selectedKinds.includes(group.kind))
+      .filter((group) => group.kind === "scenery" || selectedKinds.includes(group.kind))
       .flatMap((group) =>
         group.assets
           .filter((asset) =>
