@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://holonic-asset.local/schemas/scenery-export.schema.json",
+  "title": "Holonic Asset Scenery Export",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scenery", "layers", "files"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "scenery": { "$ref": "#/$defs/scenery" },
+    "layers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/layer" }
+    },
+    "files": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file" }
+    }
+  },
+  "$defs": {
+    "vector2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "scale2": {
+      "allOf": [
+        { "$ref": "#/$defs/vector2" },
+        {
+          "properties": {
+            "x": { "exclusiveMinimum": 0, "maximum": 100 },
+            "y": { "exclusiveMinimum": 0, "maximum": 100 }
+          }
+        }
+      ]
+    },
+    "size2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1, "maximum": 32768 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 32768 }
+      }
+    },
+    "repeat2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "boolean" },
+        "y": { "type": "boolean" }
+      }
+    },
+    "scenery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parentId", "id", "projectId", "name", "type", "description", "resultUrl", "tags", "attributes"],
+      "properties": {
+        "parentId": { "type": "integer" },
+        "id": { "type": "integer" },
+        "projectId": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "const": "scenery" },
+        "description": { "type": "string" },
+        "resultUrl": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer", "minimum": 1, "maximum": 32768 },
+            "height": { "type": "integer", "minimum": 1, "maximum": 32768 }
+          }
+        }
+      }
+    },
+    "layerMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "sourcePrompt", "effectivePrompt", "mediaType", "hasAlphaChannel", "hasTransparentPixels", "alphaBounds"],
+      "properties": {
+        "role": { "type": "string" },
+        "sourcePrompt": { "type": "string" },
+        "effectivePrompt": { "type": "string" },
+        "mediaType": { "const": "image/png" },
+        "hasAlphaChannel": { "type": "boolean" },
+        "hasTransparentPixels": { "type": "boolean" },
+        "alphaBounds": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y", "width", "height"],
+              "properties": {
+                "x": { "type": "integer" },
+                "y": { "type": "integer" },
+                "width": { "type": "integer" },
+                "height": { "type": "integer" }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parentId", "id", "projectId", "name", "type", "description", "resultUrl", "tags", "attributes", "metadata", "siblingOrder"],
+      "properties": {
+        "parentId": { "type": "integer" },
+        "id": { "type": "integer" },
+        "projectId": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "const": "layer" },
+        "description": { "type": "string" },
+        "resultUrl": { "type": "string", "pattern": "^layers/layer-[0-9]+\\.png$" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["visible", "opacity", "zIndex", "position", "scale", "size", "rotation", "repeat", "speed", "parallax"],
+          "properties": {
+            "visible": { "type": "boolean" },
+            "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+            "zIndex": { "type": "integer", "minimum": -100000, "maximum": 100000 },
+            "position": { "$ref": "#/$defs/vector2" },
+            "scale": { "$ref": "#/$defs/scale2" },
+            "size": { "$ref": "#/$defs/size2" },
+            "rotation": { "type": "number", "minimum": -360000, "maximum": 360000 },
+            "repeat": { "$ref": "#/$defs/repeat2" },
+            "speed": { "$ref": "#/$defs/vector2" },
+            "parallax": { "$ref": "#/$defs/vector2" }
+          }
+        },
+        "metadata": { "$ref": "#/$defs/layerMetadata" },
+        "siblingOrder": { "type": "integer" }
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layerId", "path", "mediaType", "sha256"],
+      "properties": {
+        "layerId": { "type": "integer" },
+        "path": { "type": "string", "pattern": "^layers/layer-[0-9]+\\.png$" },
+        "mediaType": { "const": "image/png" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}
