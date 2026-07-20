@@ -1,0 +1,17 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest_tmp/
+.coverage
+htmlcov/
+outputs/
+*.log
+/.agents/
+/.pytest_cache/
+/.pytest_tmp/
+/.venv/
+/.vscode/
+/tests/
+pytest.ini
