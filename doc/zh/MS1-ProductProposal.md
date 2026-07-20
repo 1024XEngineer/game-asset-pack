@@ -64,7 +64,7 @@ Project 为用户提供以下能力：
 
 ### Asset
 
-为了帮助用户持续迭代和管理游戏素材，我们引入了 Asset 的概念。Asset 是 Project 中最小的素材管理单元，一个 Asset 对应游戏中的一个独立素材，例如，在《星露谷物语》中，Abigail可以作为一个角色 Asset，Pelican Town可以作为一个场景 Asset，木制宝箱可以作为一个物品 Asset，背包界面可以作为一个 UI Asset。
+为了帮助用户持续迭代和管理游戏素材，我们引入了 Asset 的概念。Asset 是 Project 中的素材管理单元，一个 Asset 对应游戏中的一个独立素材，例如，在《星露谷物语》中，Abigail可以作为一个角色 Asset，Pelican Town可以作为一个场景 Asset，木制宝箱可以作为一个物品 Asset，背包界面可以作为一个 UI Asset。
 
 #### Character
 

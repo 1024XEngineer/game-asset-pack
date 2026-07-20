@@ -64,7 +64,7 @@ A Project provides the following capabilities:
 
 ### Asset
 
-To help users continuously iterate on and manage game assets, we introduce the concept of **Asset**. An Asset is the smallest asset management unit within a Project — each Asset corresponds to an independent asset in a game. For example, in *Stardew Valley*, Abigail could be a Character Asset, Pelican Town could be a Scenery Asset, a wooden chest could be an Object Asset, and the backpack interface could be a UI Asset.
+To help users continuously iterate on and manage game assets, we introduce the concept of **Asset**. An Asset is an asset management unit within a Project — each Asset corresponds to an independent asset in a game. For example, in *Stardew Valley*, Abigail could be a Character Asset, Pelican Town could be a Scenery Asset, a wooden chest could be an Object Asset, and the backpack interface could be a UI Asset.
 
 #### Character
 
