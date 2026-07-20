@@ -2,7 +2,7 @@
 
 ## One-Sentence Product Summary
 
-This product is a **Project-centric**, all-in-one platform that leverages **natural language, asset references, and global constraints** to help 2D game developers easily generate stylistically consistent pixel assets, and efficiently manage and reuse game assets.
+This product is a 2D pixel-art game asset generation tool built on top of a game asset management system. It is designed to help 2D pixel-art game developers efficiently generate, manage, and reuse stylistically consistent game assets.
 
 ---
 
@@ -64,7 +64,7 @@ A Project provides the following capabilities:
 
 ### Asset
 
-To help users continuously iterate on and manage game assets, we introduce the concept of **Asset**. An Asset is the smallest resource management unit within a Project — each Asset corresponds to an independent resource in a game, such as a Character, Object, UI, or Background.
+To help users continuously iterate on and manage game assets, we introduce the concept of **Asset**. An Asset is the smallest asset management unit within a Project — each Asset corresponds to an independent asset in a game. For example, in *Stardew Valley*, Abigail could be a Character Asset, Pelican Town could be a Scenery Asset, a wooden chest could be an Object Asset, and the backpack interface could be a UI Asset.
 
 #### Character
 
@@ -82,7 +82,7 @@ After defining a Character, the AI generates a protoType for the user, which des
 A protoType includes:
 - Name
 - Belongs to Character
-- AI-generated image resource (currently presented as multi-directional sprites; the user is required to decide the Direction count)
+- AI-generated image asset (currently presented as multi-directional sprites)
 
 Once satisfied, users can generate Animations attached to this Character based on the protoType. An Animation includes:
 - Animation Name
@@ -183,7 +183,7 @@ At this stage, only simple trimming and speed adjustment are supported. Track fu
 
 - **Record Management**
   - Assets include built-in Record management. Each time a user uses AI generation, a new Record is automatically created.
-  - Users can browse historical records, restore any previous record, or copy a new Asset from a historical record.
+  - Users can browse historical records, restore any previous record, or select an Asset and copy it into a new Asset.
 
 - **Asset Associations**
   - Assets support AI-automated association relationships. The system automatically references these related assets as context during generation or modification, improving the consistency of generated results.
@@ -206,7 +206,7 @@ A Record is a persistent history entry for an Asset. Each time a user confirms a
 A Record provides the following capabilities:
 
 - **Automatic Saving**
-  - Every creation or edit operation that requires user confirmation automatically generates a new Record, such as AI Generate, AI Edit, or confirmed manual edits.
+  - Every creation or save operation that requires user confirmation automatically generates a new Record, such as AI Generate, Save.
   - Users do not need to save manually — the system automatically persists the history, allowing users to focus on asset creation.
 
 - **Complete History**
@@ -326,13 +326,7 @@ Supported capabilities:
 
 ---
 
-### Feature 10: Asset Export
-
-Support exporting assets into common formats.
-
----
-
-### Feature 11: SDK
+### Feature 10: SDK
 
 Network games require assets such as images, audio, and animations to be hosted in object storage. The platform provides optimized built-in object storage services and packages a client SDK, allowing users to call assets directly in their code via the SDK — no need for "download assets → upload to own object bucket → configure access URLs".
 
@@ -343,7 +337,7 @@ Supported capabilities:
 
 ---
 
-### Feature 12: MCP Capabilities
+### Feature 11: MCP Capabilities
 
 To seamlessly integrate platform assets into the game development workflow, we introduce the **MCP (Model Context Protocol)** interface.
 
@@ -369,7 +363,7 @@ Supported capabilities:
 
 ---
 
-### Feature 13: Audio Generation
+### Feature 12: Audio Generation
 
 Provide standalone BGM, ambient sound, and other audio asset generation capabilities, solving the problem of the high barrier to creating music assets such as BGM.
 
