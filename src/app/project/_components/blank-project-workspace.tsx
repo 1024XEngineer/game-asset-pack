@@ -7,14 +7,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { ProjectDropdownField } from "./project-dropdown-field";
+
+const gameTypes = ["Role-playing game", "Platformer", "Puzzle", "Strategy", "Simulation", "Other"];
+const visualStyles = ["Top down", "Side on", "Isometric", "Other"];
+const platforms = ["PC", "Mobile", "Web", "Console", "Multi-platform"];
+
 export function BlankProjectWorkspace() {
   const [name, setName] = useState("");
   const [gameType, setGameType] = useState("");
+  const [customGameType, setCustomGameType] = useState("");
   const [visualStyle, setVisualStyle] = useState("");
+  const [customVisualStyle, setCustomVisualStyle] = useState("");
   const [platform, setPlatform] = useState("");
-
-  const selectClassName =
-    "h-9 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
   return (
     <main className="h-full overflow-y-auto px-5 py-8 sm:px-8">
@@ -55,53 +60,33 @@ export function BlankProjectWorkspace() {
                 Optional · leave any of these blank
               </p>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium">
-                  Game type
-                  <select
-                    className={selectClassName}
-                    value={gameType}
-                    onChange={(event) => setGameType(event.target.value)}
+                <ProjectDropdownField label="Game type" value={gameType} options={gameTypes} onChange={setGameType} />
+                <ProjectDropdownField label="Visual style" value={visualStyle} options={visualStyles} onChange={setVisualStyle} />
+                {gameType === "Other" ? (
+                  <label
+                    className={`grid gap-2 text-sm font-medium ${
+                      visualStyle === "Other" ? "" : "sm:col-span-2"
+                    }`}
                   >
-                    <option value="">Not specified</option>
-                    <option>Role-playing game</option>
-                    <option>Platformer</option>
-                    <option>Puzzle</option>
-                    <option>Strategy</option>
-                    <option>Simulation</option>
-                    <option>Other</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium">
-                  Visual style
-                  <select
-                    className={selectClassName}
-                    value={visualStyle}
-                    onChange={(event) => setVisualStyle(event.target.value)}
+                    Custom game type
+                    <Input placeholder="Describe the game type" value={customGameType} onChange={(event) => setCustomGameType(event.target.value)} />
+                  </label>
+                ) : null}
+                {visualStyle === "Other" ? (
+                  <label
+                    className={`grid gap-2 text-sm font-medium ${
+                      gameType === "Other" ? "" : "sm:col-span-2"
+                    }`}
                   >
-                    <option value="">Not specified</option>
-                    <option>Pixel art</option>
-                    <option>Hand-painted</option>
-                    <option>Cartoon</option>
-                    <option>Low-poly</option>
-                    <option>Retro</option>
-                    <option>Other</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium sm:col-span-2">
-                  Target platform
-                  <select
-                    className={selectClassName}
-                    value={platform}
-                    onChange={(event) => setPlatform(event.target.value)}
-                  >
-                    <option value="">Not specified</option>
-                    <option>PC</option>
-                    <option>Mobile</option>
-                    <option>Web</option>
-                    <option>Console</option>
-                    <option>Multi-platform</option>
-                  </select>
-                </label>
+                    Custom visual style
+                    <Input
+                      placeholder="Describe the visual style"
+                      value={customVisualStyle}
+                      onChange={(event) => setCustomVisualStyle(event.target.value)}
+                    />
+                  </label>
+                ) : null}
+                <ProjectDropdownField label="Target platform" value={platform} options={platforms} onChange={setPlatform} className="sm:col-span-2" />
               </div>
             </div>
           </section>

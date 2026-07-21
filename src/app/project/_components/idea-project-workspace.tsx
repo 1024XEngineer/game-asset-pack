@@ -17,9 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
+import { ProjectDropdownField } from "./project-dropdown-field";
+
 const fields = {
   gameType: ["Role-playing game", "Platformer", "Puzzle", "Strategy", "Simulation", "Other"],
-  visualStyle: ["Pixel art", "Hand-painted", "Cartoon", "Low-poly", "Retro", "Other"],
+  visualStyle: ["Top down", "Side on", "Isometric", "Other"],
   platform: ["PC", "Mobile", "Web", "Console", "Multi-platform"],
 };
 
@@ -27,7 +29,9 @@ export function IdeaProjectWorkspace() {
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [gameType, setGameType] = useState("");
+  const [customGameType, setCustomGameType] = useState("");
   const [visualStyle, setVisualStyle] = useState("");
+  const [customVisualStyle, setCustomVisualStyle] = useState("");
   const [platform, setPlatform] = useState("");
   const [description, setDescription] = useState("");
   const [generatedDescription, setGeneratedDescription] = useState("");
@@ -62,9 +66,6 @@ export function IdeaProjectWorkspace() {
     setUploadedImage(URL.createObjectURL(file));
     setGeneratedDescription(description.trim());
   }
-
-  const selectClassName =
-    "h-9 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
   return (
     <main className="h-full overflow-y-auto px-5 py-8 sm:px-8">
@@ -112,45 +113,33 @@ export function IdeaProjectWorkspace() {
                     onChange={(event) => setName(event.target.value)}
                   />
                 </label>
-                <label className="grid gap-2 text-sm font-medium">
-                  Game type
-                  <select
-                    className={selectClassName}
-                    value={gameType}
-                    onChange={(event) => setGameType(event.target.value)}
+                <ProjectDropdownField label="Game type" value={gameType} options={fields.gameType} onChange={setGameType} />
+                <ProjectDropdownField label="Visual style" value={visualStyle} options={fields.visualStyle} onChange={setVisualStyle} />
+                {gameType === "Other" ? (
+                  <label
+                    className={`grid gap-2 text-sm font-medium ${
+                      visualStyle === "Other" ? "" : "sm:col-span-2"
+                    }`}
                   >
-                    <option value="">Select a type</option>
-                    {fields.gameType.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium">
-                  Visual style
-                  <select
-                    className={selectClassName}
-                    value={visualStyle}
-                    onChange={(event) => setVisualStyle(event.target.value)}
+                    Custom game type
+                    <Input placeholder="Describe the game type" value={customGameType} onChange={(event) => setCustomGameType(event.target.value)} />
+                  </label>
+                ) : null}
+                {visualStyle === "Other" ? (
+                  <label
+                    className={`grid gap-2 text-sm font-medium ${
+                      gameType === "Other" ? "" : "sm:col-span-2"
+                    }`}
                   >
-                    <option value="">Select a style</option>
-                    {fields.visualStyle.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium sm:col-span-2">
-                  Target platform
-                  <select
-                    className={selectClassName}
-                    value={platform}
-                    onChange={(event) => setPlatform(event.target.value)}
-                  >
-                    <option value="">Select a platform</option>
-                    {fields.platform.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
+                    Custom visual style
+                    <Input
+                      placeholder="Describe the visual style"
+                      value={customVisualStyle}
+                      onChange={(event) => setCustomVisualStyle(event.target.value)}
+                    />
+                  </label>
+                ) : null}
+                <ProjectDropdownField label="Target platform" value={platform} options={fields.platform} onChange={setPlatform} className="sm:col-span-2" />
                 <label className="grid gap-2 text-sm font-medium sm:col-span-2">
                   Game description
                   <textarea
@@ -191,11 +180,13 @@ export function IdeaProjectWorkspace() {
                 Choose how you want to establish the project&apos;s visual direction.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {[name, gameType, visualStyle, platform].filter(Boolean).map((value) => (
+                {[name, gameType === "Other" ? customGameType : gameType, visualStyle === "Other" ? customVisualStyle : visualStyle, platform]
+                  .filter(Boolean)
+                  .map((value) => (
                   <Badge key={value} variant="secondary">
                     {value}
                   </Badge>
-                ))}
+                  ))}
               </div>
               <input
                 ref={fileInputRef}

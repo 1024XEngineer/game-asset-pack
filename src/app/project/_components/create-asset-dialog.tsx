@@ -133,6 +133,36 @@ export function CreateAssetDialog({
         </DialogHeader>
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
+          {kind === "background" ? (
+            <div
+              aria-label="Background asset type"
+              className="grid grid-cols-2 rounded-lg border bg-muted p-1"
+              role="tablist"
+            >
+              {(
+                [
+                  ["scenery", "Scenery"],
+                  ["tiles", "Tile set"],
+                ] as const
+              ).map(([type, label]) => (
+                <button
+                  key={type}
+                  type="button"
+                  role="tab"
+                  aria-selected={backgroundType === type}
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    backgroundType === type
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setBackgroundType(type)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
           <label className="grid gap-2 text-sm font-medium">
             Asset name
             <Input
@@ -190,18 +220,6 @@ export function CreateAssetDialog({
 
           {kind === "background" ? (
             <>
-              <div className="grid gap-2 text-sm font-medium">
-                <label htmlFor="background-type">Background type</label>
-                <NativeSelect
-                  id="background-type"
-                  className="w-full"
-                  value={backgroundType}
-                  onChange={(event) => setBackgroundType(event.target.value as "scenery" | "tiles")}
-                >
-                  <NativeSelectOption value="scenery">Scenery</NativeSelectOption>
-                  <NativeSelectOption value="tiles">Tiles</NativeSelectOption>
-                </NativeSelect>
-              </div>
               {backgroundType === "scenery" ? (
                 <>
                   <label className="grid gap-2 text-sm font-medium">

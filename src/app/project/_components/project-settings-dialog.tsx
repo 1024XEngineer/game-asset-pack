@@ -18,10 +18,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { ProjectSummary } from "../_data/project-demo-data";
+import { ProjectDropdownField } from "./project-dropdown-field";
 
 const options = {
   gameType: ["Role-playing game", "Platformer", "Puzzle", "Strategy", "Simulation", "Other"],
-  visualStyle: ["Pixel art", "Hand-painted", "Cartoon", "Low-poly", "Retro", "Other"],
+  visualStyle: ["Top down", "Side on", "Isometric", "Other"],
   platform: ["PC", "Mobile", "Web", "Console", "Multi-platform"],
 };
 
@@ -36,9 +37,17 @@ export function ProjectSettingsDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(project);
+  const [customGameType, setCustomGameType] = useState("");
+  const [customVisualStyle, setCustomVisualStyle] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setDraft(project), [project]);
+  useEffect(() => {
+    setDraft(project);
+    setCustomVisualStyle(
+      options.visualStyle.includes(project.visualStyle) ? "" : project.visualStyle,
+    );
+    setCustomGameType(options.gameType.includes(project.gameType) ? "" : project.gameType);
+  }, [project]);
 
   function update<K extends keyof ProjectSummary>(key: K, value: ProjectSummary[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -54,12 +63,16 @@ export function ProjectSettingsDialog({
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!draft.name.trim()) return;
-    onSave({ ...draft, name: draft.name.trim(), style: draft.visualStyle || draft.style });
+    const hasCustomVisualStyle =
+      draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle);
+    const hasCustomGameType = draft.gameType === "Other" || !options.gameType.includes(draft.gameType);
+    const visualStyle = hasCustomVisualStyle ? customVisualStyle.trim() : draft.visualStyle;
+    const gameType = hasCustomGameType ? customGameType.trim() : draft.gameType;
+    if (hasCustomVisualStyle && !visualStyle) return;
+    if (hasCustomGameType && !gameType) return;
+    onSave({ ...draft, name: draft.name.trim(), gameType, visualStyle, style: visualStyle || draft.style });
     setOpen(false);
   }
-
-  const selectClassName =
-    "h-9 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -97,25 +110,57 @@ export function ProjectSettingsDialog({
                 onChange={(event) => update("name", event.target.value)}
               />
             </label>
-            <SelectField
+            <ProjectDropdownField
               label="Game type"
-              value={draft.gameType}
+              value={options.gameType.includes(draft.gameType) ? draft.gameType : "Other"}
               options={options.gameType}
-              className={selectClassName}
-              onChange={(value) => update("gameType", value)}
+              onChange={(value) => {
+                update("gameType", value);
+                if (value !== "Other") setCustomGameType("");
+              }}
             />
-            <SelectField
+            <ProjectDropdownField
               label="Visual style"
-              value={draft.visualStyle}
+              value={options.visualStyle.includes(draft.visualStyle) ? draft.visualStyle : "Other"}
               options={options.visualStyle}
-              className={selectClassName}
-              onChange={(value) => update("visualStyle", value)}
+              onChange={(value) => {
+                update("visualStyle", value);
+                if (value !== "Other") setCustomVisualStyle("");
+              }}
             />
-            <SelectField
+            {draft.gameType === "Other" || !options.gameType.includes(draft.gameType) ? (
+              <label
+                className={`grid gap-2 text-sm font-medium ${
+                  draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle)
+                    ? ""
+                    : "sm:col-span-2"
+                }`}
+              >
+                Custom game type
+                <Input required placeholder="Describe the game type" value={customGameType} onChange={(event) => setCustomGameType(event.target.value)} />
+              </label>
+            ) : null}
+            {draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle) ? (
+              <label
+                className={`grid gap-2 text-sm font-medium ${
+                  draft.gameType === "Other" || !options.gameType.includes(draft.gameType)
+                    ? ""
+                    : "sm:col-span-2"
+                }`}
+              >
+                Custom visual style
+                <Input
+                  required
+                  placeholder="Describe the visual style"
+                  value={customVisualStyle}
+                  onChange={(event) => setCustomVisualStyle(event.target.value)}
+                />
+              </label>
+            ) : null}
+            <ProjectDropdownField
               label="Target platform"
               value={draft.platform}
               options={options.platform}
-              className={selectClassName}
               onChange={(value) => update("platform", value)}
             />
             <label className="grid gap-2 text-sm font-medium sm:col-span-2">
@@ -163,35 +208,5 @@ export function ProjectSettingsDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  options: values,
-  className,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  className: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="grid gap-2 text-sm font-medium">
-      {label}
-      <select
-        className={className}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="">Not specified</option>
-        {values.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-    </label>
   );
 }
