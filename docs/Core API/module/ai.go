@@ -11,6 +11,9 @@ type AIServiceModule interface {
 	// RegisterProject provides the Project module dependency.
 	RegisterProject(project ProjectModule)
 
+	// RegisterTask provides task orchestration, progress, replay, and cancellation.
+	RegisterTask(task TaskModule)
+
 	// RegisterCharacterService registers character generation capabilities.
 	RegisterCharacterService(service interfaces.CharacterService)
 
@@ -28,9 +31,6 @@ type AIServiceModule interface {
 
 	// RegisterUIService registers UI component generation capabilities.
 	RegisterUIService(service interfaces.UIService)
-
-	// RegisterGenerationService registers asynchronous generation lifecycle capabilities.
-	RegisterGenerationService(service interfaces.GenerationService)
 
 	// RegisterLLMClient registers the model-provider adapter.
 	RegisterLLMClient(client interfaces.LLMClient)
@@ -106,19 +106,4 @@ type AIServiceModule interface {
 		ctx context.Context,
 		request *interfaces.EditUIComponentRequest,
 	) (*interfaces.EditUIComponentResponse, error)
-
-	// GetGenerationProgress returns the current state of an asynchronous task.
-	GetGenerationProgress(
-		ctx context.Context,
-		taskID uint,
-	) (*interfaces.GenerationProgress, error)
-
-	// CancelGeneration requests cancellation of an asynchronous task.
-	CancelGeneration(ctx context.Context, taskID uint) error
-
-	// ConfirmGenerationResult accepts a generated candidate result.
-	ConfirmGenerationResult(
-		ctx context.Context,
-		request *interfaces.ConfirmGenerationResultRequest,
-	) error
 }

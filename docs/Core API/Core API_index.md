@@ -10,16 +10,15 @@ The CoreAPI module is the main module of the Core API. It contains the following
 - Project: Project lifecycle and project-level configuration management.
 - Login: User authentication, sessions, and access control.
 - Media: Media metadata, uploads, storage references, and associations.
-- Asset: Management of the current editable state of assets.
-- Record: Immutable asset versions, snapshots, and history restoration.
+- Asset: Management of the current editable state of assets, immutable versions, snapshots, and history restoration.
 - Task: Long-running task orchestration, progress tracking, retries, and cancellation.
 - Taxonomy: Tags, classifications, asset associations, search, and filtering.
 
 **AI**
 
-The AI module accepts AI-assisted generation and editing requests from clients and coordinates their execution with the external AI Service. It validates the referenced Project, Asset, and Media resources, creates the required Tasks, and exposes provider-independent progress and result data. The module does not run models directly or allow the AI Service to modify Core API business data.
+The AI module accepts AI-assisted generation and editing requests from clients and coordinates their execution with the external AI Service. It validates the referenced Project, Asset, and Media resources and submits long-running work through the Task module. Task progress, replay, cancellation, and state transitions remain owned by the Task module. The AI module does not run models directly or allow the AI Service to modify Core API business data.
 
-The service interfaces, request and response models, task handoff rules, and error behavior are defined in the [AI module](./module/ai_service.go).
+The service interfaces, request and response models, task handoff rules, and error behavior are defined in the [AI module](./module/ai.go).
 
 **Project**
 
@@ -41,21 +40,18 @@ The upload lifecycle, media metadata, storage-reference format, validation rules
 
 **Asset**
 
-The Asset module owns the current editable state of every Asset and the relationships between parent Assets, child Assets, and referenced resources. It applies type-specific validation and exposes the state used by editors, while immutable version history remains the responsibility of the Record module.
+The Asset module owns both the current editable state and the immutable version history of every Asset. It manages the relationships between parent Assets, child Assets, and referenced resources, applies type-specific validation, and maintains historical snapshots for comparison and restoration.
 
-The Asset CRUD operations, type-specific attributes, parent-child rules, resource dependencies, and serialization contract are defined in the [Asset module API design](./module_Asset.md).
+Each Asset has exactly one editable state and zero or more immutable Records. A Record captures the Asset snapshot and referenced resources at a specific version without becoming another editable copy of the Asset.
 
-**Record**
+The Asset CRUD operations, version creation rules, snapshot format, restoration behavior, type-specific attributes, parent-child rules, resource dependencies, and serialization contract are defined in the Asset module API design (./module_Asset.md).
 
-The Record module stores immutable versions of Asset state for history, comparison, and restoration. A Record captures the relevant Asset snapshot and resource references at a specific version without becoming a second editable copy of the Asset.
-
-The snapshot format, version creation rules, history queries, restoration behavior, and compatibility requirements are defined in the [Record module API design](./module_Record.md).
 
 **Task**
 
 The Task module coordinates long-running generation, processing, and export work. It owns task and step state transitions, dependency scheduling, progress reporting, retry, cancellation, idempotent result handling, and communication with workers through the configured messaging infrastructure.
 
-The task state machine, step dependencies, command and event contracts, retry behavior, and progress APIs are defined in the [Task module API design](./module_Task.md).
+The task state machine, step dependencies, command and event contracts, retry behavior, and progress APIs are defined in the [Task module](./module/task.go) and [Task service interfaces](./Interface/Task_service.go).
 
 **Taxonomy**
 

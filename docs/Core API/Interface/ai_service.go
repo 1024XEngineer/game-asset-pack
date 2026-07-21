@@ -80,21 +80,6 @@ type UIService interface {
 	) (*EditUIComponentResponse, error)
 }
 
-// GenerationService defines the lifecycle operations for asynchronous AI work.
-type GenerationService interface {
-	GetGenerationProgress(
-		ctx context.Context,
-		taskID uint,
-	) (*GenerationProgress, error)
-
-	CancelGeneration(ctx context.Context, taskID uint) error
-
-	ConfirmGenerationResult(
-		ctx context.Context,
-		request *ConfirmGenerationResultRequest,
-	) error
-}
-
 // LLMClient defines the provider adapter required by the AI module.
 type LLMClient interface {
 	Chat(ctx context.Context, request *LLMRequest) (*LLMResponse, error)
