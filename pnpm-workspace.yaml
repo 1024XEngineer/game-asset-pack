@@ -1,0 +1,7 @@
+allowBuilds:
+  sharp: true
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+overrides:
+  zod: 3.25.76
