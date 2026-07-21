@@ -2,54 +2,79 @@
 
 ## 1. Architecture Decision
 
-The system uses a Service-Based Architecture with four runtime components:
+The system uses a modular monolith with two application components:
 
-| Component | Deployment shape | Core responsibility |
-| --- | --- | --- |
-| Frontend | Static SPA | Project, asset, editor, progress, and confirmation UI |
-| Core API | Go modular monolith | Auth, business CRUD, orchestration, state persistence, SSE |
-| AI Service | Python API/Worker | Prompts, LLM planning, model calls, AI image/audio processing |
-| Asset Worker | Rust worker | Deterministic media processing, pixel normalization, export |
+| Component | Deployment shape    | Core responsibility                                                                                   |
+| --------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
+| Frontend  | Static SPA          | Project, asset, editor, progress, and confirmation UI                                                 |
+| Core API  | Go modular monolith | HTTP API, auth, business logic, AI integration, media processing, job execution, persistence, and SSE |
 
-Project, Asset, Record, and Media modules live inside Core API; they are not separate processes. AI Service and Asset Worker do not write the business database or schedule each other.
+AI generation and deterministic asset processing are modules inside Core API. They are not independently deployed services. PostgreSQL is the system of record and also backs River jobs, so the system does not require a message broker or Redis.
 
-### 1.1 Overall System Architecture
+### 1.1 Overall system architecture
 
-![Holonic-Asset System Architecture](<../image/holonic-Asset System Architecture.svg>)
+```mermaid
+flowchart LR
+    Browser[Browser] -->|HTTPS| Frontend[Frontend SPA]
 
-### 1.2 Communication boundaries
+    subgraph Core[Core API modular monolith]
+        HTTP[HTTP and auth]
+        Domain[Project, asset, record, and media]
+        Generation[Generation and orchestration]
+        AI[AI module]
+        Processing[asset-worker module]
+        Jobs[River workers]
 
-- The browser only talks to Caddy; business HTTP requests enter Core API.
-- Long-running work uses NATS JetStream, not Redis queues.
-- Core API is the only orchestrator: it publishes Steps, receives results, updates state, and schedules dependent Steps.
-- Binary media never goes through HTTP or NATS messages; services pass object references in S3.
-- Core API owns business data. AI Service and Asset Worker keep only runtime state and the object-storage access they need.
+        HTTP --> Domain
+        HTTP --> Generation
+        Generation --> Jobs
+        Jobs --> AI
+        Jobs --> Processing
+        AI --> Domain
+        Processing --> Domain
+    end
+
+    Frontend -->|REST / SSE| HTTP
+    Domain --> PostgreSQL[(PostgreSQL)]
+    Jobs --> PostgreSQL
+    Domain --> Storage[(S3-compatible object storage)]
+    AI -->|HTTPS| Providers[AI model providers]
+```
+
+PostgreSQL and object storage are infrastructure dependencies, not additional application services.
+
+### 1.2 Boundaries
+
+- The browser loads the Frontend and sends all business requests to Core API.
+- Core API owns all business data and state transitions.
+- The `ai` and `asset-worker` modules communicate with other modules through in-process interfaces.
+- Long-running work is persisted and executed with River using the same PostgreSQL database.
+- Binary media does not enter River job arguments. Jobs contain stable object-storage references and required parameters only.
+- AI provider SDKs and media libraries remain behind module adapters so domain code does not depend on vendor-specific APIs.
 
 ## 2. Technology Selection
 
-| Area | Technology |
-| --- | --- |
-| Frontend | React, TypeScript, Vite |
-| Routing/server state/forms | TanStack Router, TanStack Query, TanStack Form |
-| Client state/UI | Zustand, Tailwind CSS, shadcn/ui |
-| Core API | Go, Echo, GORM, PostgreSQL |
-| AI Service | Python, FastAPI, Pydantic |
-| Asset Worker | Rust, Tokio |
-| Jobs/events | NATS JetStream |
-| Cache/session | Redis |
-| Object storage | Replaceable S3 SDK |
-| Gateway | Caddy |
-| HTTP contract | OpenAPI 3.1 |
-| Code generation | Hey API, oapi-codegen |
-| Initial deployment | Docker Compose |
+| Area                       | Technology                                             |
+| -------------------------- | ------------------------------------------------------ |
+| Frontend                   | React, TypeScript, Vite                                |
+| Routing/server state/forms | TanStack Router, TanStack Query, TanStack Form         |
+| Client state/UI            | Zustand, Tailwind CSS, shadcn/ui                       |
+| Core API                   | Go, Echo, GORM, PostgreSQL                             |
+| Job processing             | River with the `riverdatabasesql` driver on PostgreSQL |
+| Object storage             | Replaceable S3 SDK                                     |
+| Gateway                    | Caddy                                                  |
+| HTTP contract              | OpenAPI 3.1                                            |
+| Code generation            | Hey API, oapi-codegen                                  |
+| Observability              | OpenTelemetry                                          |
+| Initial deployment         | Docker Compose                                         |
 
-Not introduced: Next.js, SSR, React Server Components, LangChain, LangGraph, Kafka, Kubernetes, or Redis task queues.
+Not introduced: separate AI or asset-worker services, NATS, Redis, Kafka, Kubernetes, Next.js, SSR, React Server Components, LangChain, or LangGraph.
 
 ## 3. Frontend
 
 ### 3.1 Responsibility
 
-Frontend is a static SPA with no Node.js server. It handles forms, asset lists and details, pixel previews, editor interactions, task progress, and candidate confirmation.
+Frontend is a static SPA with no Node.js server. It handles forms, asset lists and details, pixel previews, editor interactions, job progress, and candidate confirmation.
 
 ### 3.2 State boundaries
 
@@ -70,8 +95,8 @@ contracts/openapi/openapi.yaml
 
 ```text
 openapi.yaml
-├── oapi-codegen → Go DTOs and server interfaces
-└── Hey API → TypeScript SDK, Zod, and TanStack Query
+├── oapi-codegen -> Go DTOs and server interfaces
+└── Hey API -> TypeScript SDK, Zod, and TanStack Query
 ```
 
 Generated code lives in `generated` and is not edited manually. OpenAPI defines interface shape and basic validation; form grouping, widgets, previews, and complex interactions belong to frontend configuration and custom components.
@@ -80,87 +105,51 @@ Generated code lives in `generated` and is not edited manually. OpenAPI defines 
 
 ### 4.1 Stack and modules
 
-Core API uses Go, Echo, GORM, PostgreSQL, the NATS Go client, the AWS SDK for Go, goose, and OpenTelemetry.
+Core API uses Go, Echo, GORM, PostgreSQL, River with the `riverdatabasesql` driver, the AWS SDK for Go, goose, and OpenTelemetry.
 
-| Module | Responsibility |
-| --- | --- |
-| `iam`, `workspace` | Login, sessions, permissions, and membership |
-| `project` | Project lifecycle and project-level configuration |
-| `asset`, `record` | Current asset state, resource dependencies, version snapshots, and restoration |
-| `generation` | Generation requests, plans, Step state, retry, cancellation, and candidate confirmation |
-| `media` | Upload sessions, object keys, media metadata, access control, and associations |
-| `taxonomy` | Tags, asset associations, search, and filtering |
-| `export` | Export jobs, specifications, and manifests; Asset Worker performs packaging |
-| `outbox`, `event-consumer` | Reliable publication and idempotent consumption |
+| Module            | Responsibility                                                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `authentication`  | Login, sessions, permissions, and membership                                                                                     |
+| `project`         | Project lifecycle and project-level configuration                                                                                |
+| `asset`, `record` | Current asset state, resource dependencies, version snapshots, and restoration                                                   |
+| `generation`      | Generation requests, plans, Step state, dependency scheduling, retry, cancellation, and candidate confirmation                   |
+| `ai`              | Prompt construction, constrained LLM planning, provider calls, AI image/audio generation and editing, usage, and cost collection |
+| `asset-worker`    | Deterministic image/audio processing, pixel normalization, validation, animation and sheet building, and export packaging        |
+| `media`           | Upload sessions, object keys, media metadata, access control, and associations                                                   |
+| `taxonomy`        | Tags, asset associations, search, and filtering                                                                                  |
+| `export`          | Export specifications and manifests                                                                                              |
+| `jobs`            | River job definitions, insertion, execution, progress, retry policy, and cancellation                                            |
 
-### 4.2 Persistence constraints
+Module boundaries are code-ownership boundaries, not network boundaries. The `generation` module coordinates work through application interfaces and enqueues River jobs; job handlers call the `ai` or `asset-worker` application services directly.
 
-- Core API is the only business-data writer.
-- GORM handles normal CRUD, relationship queries, transactions, and pagination; complex cases may use Raw SQL.
-- Production does not use `AutoMigrate`; SQL migrations use goose.
-- Keep OpenAPI DTOs, domain models, and GORM entities separate:
+### 4.2 AI module
 
-```text
-OpenAPI DTO → Echo Handler → Application Service → Domain Model → GORM Entity
-```
-
-- Pass `context.Context` explicitly to all writes.
-- Guard critical state transitions with the previous state to prevent duplicate processing from overwriting state.
-
-### 4.3 Authoritative data structures
-
-This document defines service boundaries only. It does not redefine entity fields. Use the local documents as the source of truth:
-
-- [Project data structures](<data structure/project.md>) and [Project interfaces](interfaces/project.md)
-- [Asset data structures](<data structure/asset.md>) and [Asset interfaces](interfaces/asset.md)
-
-The current definitions are `Project`, `Asset`, `AssetResource`, `AssetSnapshot`, and `AssetRecord` in those documents. Replacement fields or new entity definitions from the attachment are not adopted here.
-
-## 5. AI Service
-
-### 5.1 Responsibility
-
-AI Service handles:
+The `ai` module handles:
 
 - Project Context assembly and Prompt templates.
 - LLM task decomposition with a constrained plan.
 - Image/audio generation, AI editing, complex background removal, semantic segmentation, and mask generation.
 - Provider adapters, model cost, and usage collection.
 
-It does not handle Project/Asset CRUD, version creation, export packaging, ordinary crop/resize, or direct writes to the Core API business database.
+Provider adapters isolate vendor SDKs. Plans must be validated for allowed Step types, dependencies, budget, retry count, and access scope. The module does not own Project or Asset CRUD, version creation, deterministic processing, or export packaging.
 
-### 5.2 Runtime modes
-
-The same codebase provides API and Worker entry points:
-
-```bash
-python -m app api
-python -m app worker
-```
-
-API mode exposes health/readiness, capability discovery, and administrative interfaces. Worker mode consumes JetStream jobs, calls providers, writes to S3, and publishes result events. Long-running work must not use FastAPI `BackgroundTasks`.
-
-Provider adapters isolate vendor SDKs. Business code must not depend directly on a provider SDK. LangChain and LangGraph are not used; plans must be validated for allowed Step types, dependencies, budget, retry count, and access scope.
-
-### 5.3 Data structures and interfaces
+Existing AI contracts remain the detailed source of truth:
 
 - [AI data structures](<data structure/ai.md>)
 - [AI interfaces](interfaces/ai.md)
 
-## 6. Asset Worker
+These contracts describe the internal module and its provider ports; references to an AI Service should be interpreted as the Core API `ai` module.
 
-### 6.1 Responsibility
+### 4.3 asset-worker module
 
-Asset Worker uses Rust, Tokio, S3 SDKs, and media-processing libraries for deterministic operations:
+The `asset-worker` module handles deterministic operations:
 
-- Image inspection, Alpha inspection, transparent-edge trimming, and color-key removal.
+- Image and Alpha inspection, transparent-edge trimming, and color-key removal.
 - Nearest-neighbor resize, pixel-grid alignment, binary Alpha, and PNG encoding.
-- GIF/APNG, Spritesheet, TileSet, audio trim/speed change.
+- GIF/APNG, Spritesheet, TileSet, audio trim, and speed change.
 - ZIP, Manifest, hashing, format, and dimension validation.
 
-It does not run LLMs, PyTorch, Diffusers, GPU segmentation models, or semantic models. AI Service handles complex backgrounds and semantic segmentation.
-
-### 6.2 Pixel rules
+It does not run LLMs or semantic models. Complex background removal and semantic segmentation belong to the `ai` module.
 
 Current support is limited to `render_style = pixel_art` and `alpha_mode = binary`:
 
@@ -170,56 +159,65 @@ Current support is limited to `render_style = pixel_art` and `alpha_mode = binar
 - Raw results are retained; post-processing creates new media objects.
 - Frames in one animation share Canvas, Pivot, and coordinate system.
 
-## 7. Orchestration and Messaging
+### 4.4 Persistence constraints
 
-### 7.1 Orchestration flow
+- Core API is the only business-data writer.
+- GORM handles normal CRUD, relationship queries, transactions, and pagination; complex cases may use Raw SQL.
+- Production does not use `AutoMigrate`; SQL migrations use goose.
+- Keep OpenAPI DTOs, domain models, and GORM entities separate:
 
 ```text
-Core API
-→ publish Step job
-→ AI Service / Asset Worker executes
-→ publish result event
-→ Core API updates state
-→ Core API schedules dependent Step
+OpenAPI DTO -> Echo Handler -> Application Service -> Domain Model -> GORM Entity
 ```
 
-AI Service cannot schedule Asset Worker, and Asset Worker cannot schedule AI Service.
+- Pass `context.Context` explicitly to all writes.
+- Guard critical state transitions with the previous state to prevent duplicate job execution from overwriting state.
+
+### 4.5 Authoritative data structures
+
+This document defines architecture boundaries only. It does not redefine entity fields. Use the local documents as the source of truth:
+
+- [Project data structures](<data structure/project.md>) and [Project interfaces](interfaces/project.md)
+- [Asset data structures](<data structure/asset.md>) and [Asset interfaces](interfaces/asset.md)
+
+The current definitions are `Project`, `Asset`, `AssetResource`, `AssetSnapshot`, and `AssetRecord` in those documents.
+
+## 5. Job Processing with River
+
+### 5.1 Execution flow
+
+```text
+Core API request
+-> validate request and persist business state
+-> insert a River job in the same PostgreSQL transaction
+-> River worker invokes an internal module
+-> persist result and progress
+-> enqueue the next ready Step when required
+-> publish progress to the Frontend through SSE
+```
 
 GenerationRun states:
 
 ```text
-pending → planning → planned → running → post_processing
-→ waiting_confirmation → completed
+pending -> planning -> planned -> running -> post_processing
+-> waiting_confirmation -> completed
 ```
 
 Terminal states are `failed` and `cancelled`. Step states are `pending`, `ready`, `running`, `succeeded`, `failed`, `retry_wait`, `cancelled`, and `skipped`.
 
-### 7.2 JetStream constraints
+### 5.2 Job constraints
 
-Streams: `JOBS`, `EVENTS`, and `DLQ`. Jobs use durable pull consumers, explicit acknowledgements, and WorkQueue retention.
+- Insert the business-state change and its River job in one database transaction. Configure River with `riverdatabasesql` so GORM writes and `InsertTx` share the same `*sql.Tx`. No transactional Outbox is needed.
+- Job arguments contain IDs, object keys, operation type, and bounded parameters; they do not contain binary media, provider credentials, oversized Prompts, or long-lived Presigned URLs.
+- Handlers must be idempotent because River jobs may be retried.
+- Use River's attempt limits and backoff for transient failures. Store domain-specific failure details on the GenerationRun or Step.
+- Cancellation updates domain state and prevents pending work from starting. Running provider calls should use `context.Context` cancellation where supported.
+- Limit worker concurrency separately for AI provider calls and CPU-heavy media processing.
+- Core API serves HTTP and runs River workers in the same deployment. A separate worker deployment is not part of the initial architecture.
 
-Specific subject names, versions, and consumer-group settings will be added after the message contracts are defined.
+## 6. Object Storage
 
-Messages contain event ID, type/version, trace ID, business IDs, object references, and required parameters only. Do not send binary data, oversized Prompts, long-lived Presigned URLs, or provider keys.
+The system uses a replaceable S3 SDK. The database stores stable identifiers such as bucket, object key, and checksum, not provider public URLs. Object keys are server-generated:
+`workspaces/{workspace_id}/projects/{project_id}/artifacts/{artifact_id}/{variant}.{extension}`
 
-Core API writes business state and an Outbox event in one database transaction, then publishes through an Outbox Publisher. Result events are consumed idempotently by event ID.
-
-## 8. Object Storage, Cache, and Deployment
-
-### 8.1 S3
-
-All services use a replaceable S3 SDK. The database stores stable identifiers such as bucket, object key, and checksum, not provider public URLs. Object keys are server-generated:
-
-```text
-workspaces/{workspace_id}/projects/{project_id}/artifacts/{artifact_id}/{variant}.{extension}
-```
-
-Upload flow: Frontend requests an upload from Core API → receives a Presigned URL → uploads directly to S3 → reports completion → Core API validates the object and stores media metadata. Large files do not pass through Core API or Caddy.
-
-### 8.2 Redis
-
-Redis is limited to sessions, rate limiting, verification codes, short-lived cache, temporary upload state, and short-lived idempotency keys. Generation state, version data, media metadata, and reliable queues remain in PostgreSQL/NATS.
-
-### 8.3 Initial deployment
-
-Docker Compose deploys Frontend, Caddy, Core API, AI Service, Asset Worker, PostgreSQL, Redis, NATS JetStream, and an S3-compatible object store. A heavier orchestration platform requires a separate decision.
+Upload flow: Frontend requests an upload from Core API -> receives a Presigned URL -> uploads directly to S3 -> reports completion -> Core API validates the object and stores media metadata. Large files do not pass through Core API or Caddy.
