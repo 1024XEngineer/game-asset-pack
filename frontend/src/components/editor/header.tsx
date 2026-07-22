@@ -1,7 +1,7 @@
 import { ArrowLeft, Redo2, Save, Undo2 } from "lucide-react";
 
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type EditorHeaderProps = {
   assetName: string;

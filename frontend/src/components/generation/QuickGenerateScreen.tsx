@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 
 import { useQuickGeneration } from "@/hooks/useQuickGeneration";
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
-import { Card } from "@/shared/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export function QuickGenerateScreen() {
   const {

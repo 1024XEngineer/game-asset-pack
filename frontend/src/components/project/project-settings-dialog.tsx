@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { DropdownField } from "@/shared/ui/dropdown-field";
+import { DropdownField } from "@/components/ui/dropdown-field";
 
 import type { ProjectSummary } from "@/models/project";
 

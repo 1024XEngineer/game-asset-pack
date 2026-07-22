@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useHoverDropdown } from "@/hooks/useHoverDropdown";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "@/shared/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { to: "/", label: "Home" },

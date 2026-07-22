@@ -13,10 +13,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/shared/ui/alert-dialog";
-import { Button } from "@/shared/ui/button";
-import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Separator } from "@/shared/ui/separator";
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import type { ProjectSummary } from "@/models/project";
 import { ProjectSettingsDialog } from "./project-settings-dialog";

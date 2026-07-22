@@ -1,4 +1,4 @@
-import { Button } from "@/shared/ui/button";
+import { Button } from "@/components/ui/button";
 
 import type { ProjectSummary } from "@/models/project";
 import { AssetTypeIcon } from "@/shared/types/AssetTypeIcon";
