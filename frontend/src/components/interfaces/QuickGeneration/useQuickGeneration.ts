@@ -1,5 +1,4 @@
-import type { DragEvent } from "react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import {
   initialQuickGenerationAssets,
@@ -17,10 +16,7 @@ export function useQuickGeneration() {
   const [description, setDescription] = useState("");
   const [referenceImage, setReferenceImage] = useState("");
   const [size, setSize] = useState(initialQuickGenerationAssets[0].size);
-  const [isDragging, setIsDragging] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragDepthRef = useRef(0);
   const currentAsset = assets.find((asset) => asset.id === currentAssetId);
 
   function selectAsset(asset: QuickGenerationAsset) {
@@ -89,30 +85,6 @@ export function useQuickGeneration() {
     setReferenceImage("");
   }
 
-  function handleDragEnter(event: DragEvent<HTMLElement>) {
-    event.preventDefault();
-    if (
-      !Array.from(event.dataTransfer.items).some((item) => item.kind === "file")
-    ) {
-      return;
-    }
-    dragDepthRef.current += 1;
-    setIsDragging(true);
-  }
-
-  function handleDragLeave(event: DragEvent<HTMLElement>) {
-    event.preventDefault();
-    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
-    if (dragDepthRef.current === 0) setIsDragging(false);
-  }
-
-  function handleDrop(event: DragEvent<HTMLElement>) {
-    event.preventDefault();
-    dragDepthRef.current = 0;
-    setIsDragging(false);
-    chooseReference(event.dataTransfer.files[0]);
-  }
-
   return {
     assets,
     chooseReference,
@@ -121,12 +93,7 @@ export function useQuickGeneration() {
     currentAssetId,
     deleteCurrentAsset,
     description,
-    fileInputRef,
     generate,
-    handleDragEnter,
-    handleDragLeave,
-    handleDrop,
-    isDragging,
     isGenerating,
     newAsset,
     quickGenerationSizes,

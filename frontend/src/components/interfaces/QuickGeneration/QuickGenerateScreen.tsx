@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  Download,
-  ImagePlus,
-  Plus,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+import { Download, Plus, RefreshCw, Sparkles, Trash2 } from "lucide-react";
 
 import { useQuickGeneration } from "./useQuickGeneration";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 
 export function QuickGenerateScreen() {
   const {
@@ -23,12 +17,7 @@ export function QuickGenerateScreen() {
     currentAssetId,
     deleteCurrentAsset,
     description,
-    fileInputRef,
     generate,
-    handleDragEnter,
-    handleDragLeave,
-    handleDrop,
-    isDragging,
     isGenerating,
     newAsset,
     quickGenerationSizes,
@@ -40,24 +29,7 @@ export function QuickGenerateScreen() {
   } = useQuickGeneration();
 
   return (
-    <main
-      className="relative flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col bg-muted/30"
-      onDragEnter={handleDragEnter}
-      onDragOver={(event) => event.preventDefault()}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      {isDragging ? (
-        <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/80 p-6 backdrop-blur-sm">
-          <div className="px-12 py-10 text-center">
-            <ImagePlus className="mx-auto size-8" />
-            <p className="mt-4 font-semibold">Drop image to attach</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              PNG, JPEG or WebP
-            </p>
-          </div>
-        </div>
-      ) : null}
+    <main className="relative flex min-h-[calc(100vh-3.5rem)] flex-1 flex-col bg-muted/30">
       <header className="border-b bg-background px-5 py-4">
         <div className="mx-auto max-w-[100rem]">
           <div>
@@ -211,35 +183,13 @@ export function QuickGenerateScreen() {
             </select>
           </label>
 
-          <input
-            ref={fileInputRef}
-            className="sr-only"
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => chooseReference(event.target.files?.[0])}
-          />
-
           <div className="mt-5 overflow-hidden rounded-2xl border bg-background shadow-sm focus-within:ring-3 focus-within:ring-ring/50">
-            {referenceImage ? (
-              <div className="border-b bg-muted/30 p-3">
-                <div className="relative w-fit">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={referenceImage}
-                    alt="Attached reference"
-                    className="size-20 rounded-xl object-cover outline -outline-offset-1 outline-black/10"
-                  />
-                  <button
-                    type="button"
-                    onClick={clearReference}
-                    className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border bg-background text-xs shadow-sm"
-                    aria-label="Remove reference image"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ) : null}
+            <ImageDropzone
+              className="m-3 min-h-20"
+              previewUrl={referenceImage || undefined}
+              onSelect={chooseReference}
+              onClear={clearReference}
+            />
             <textarea
               autoFocus
               className="min-h-44 w-full resize-none bg-transparent px-4 py-3 text-sm leading-6 outline-none placeholder:text-muted-foreground"
@@ -252,19 +202,9 @@ export function QuickGenerateScreen() {
               onChange={(event) => setDescription(event.target.value)}
             />
             <div className="flex items-center justify-between gap-3 p-3 pt-0">
-              <div className="flex min-w-0 items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 rounded-full"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Plus />
-                  <span className="sr-only">Attach reference image</span>
-                </Button>
-                <span className="text-xs leading-4 text-muted-foreground"></span>
-              </div>
+              <span className="text-xs leading-4 text-muted-foreground">
+                PNG, JPEG, or WebP
+              </span>
               <Button
                 disabled={!description.trim() || isGenerating}
                 onClick={generate}

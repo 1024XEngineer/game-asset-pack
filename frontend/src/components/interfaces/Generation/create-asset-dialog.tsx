@@ -1,6 +1,5 @@
 "use client";
 
-import { ImagePlus, X } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 
@@ -17,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 import {
   NativeSelect,
   NativeSelectOption,
@@ -336,9 +336,10 @@ export function CreateAssetDialog({
                       placeholder="e.g. 16:9"
                     />
                   </label>
-                  <ReferenceField
-                    reference={values.reference}
-                    onChange={(file) => form.setFieldValue("reference", file)}
+                  <ImageDropzone
+                    fileName={values.reference?.name}
+                    onSelect={(file) => form.setFieldValue("reference", file)}
+                    onClear={() => form.setFieldValue("reference", undefined)}
                   />
                 </>
               ) : (
@@ -398,14 +399,24 @@ export function CreateAssetDialog({
                             }
                           />
                         </label>
-                        <ReferenceField
-                          reference={tile.reference}
-                          onChange={(file) =>
+                        <ImageDropzone
+                          fileName={tile.reference?.name}
+                          onSelect={(file) =>
                             form.setFieldValue(
                               "tiles",
                               values.tiles.map((item, itemIndex) =>
                                 itemIndex === index
                                   ? { ...item, reference: file }
+                                  : item,
+                              ),
+                            )
+                          }
+                          onClear={() =>
+                            form.setFieldValue(
+                              "tiles",
+                              values.tiles.map((item, itemIndex) =>
+                                itemIndex === index
+                                  ? { ...item, reference: undefined }
                                   : item,
                               ),
                             )
@@ -507,9 +518,10 @@ export function CreateAssetDialog({
                   }
                 />
               </label>
-              <ReferenceField
-                reference={values.reference}
-                onChange={(file) => form.setFieldValue("reference", file)}
+              <ImageDropzone
+                fileName={values.reference?.name}
+                onSelect={(file) => form.setFieldValue("reference", file)}
+                onClear={() => form.setFieldValue("reference", undefined)}
               />
             </>
           ) : null}
@@ -544,37 +556,12 @@ export function CreateAssetDialog({
               </div>
 
               <div className="grid gap-2 text-sm font-medium">
-                <label htmlFor="create-asset-reference">Reference</label>
-                {values.reference ? (
-                  <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-                    <p className="min-w-0 truncate text-sm font-normal">
-                      {values.reference.name}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Remove reference image"
-                      onClick={() => form.setFieldValue("reference", undefined)}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted/50">
-                    <ImagePlus className="size-4" />
-                    Upload a reference image
-                    <Input
-                      id="create-asset-reference"
-                      className="sr-only"
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) =>
-                        form.setFieldValue("reference", event.target.files?.[0])
-                      }
-                    />
-                  </label>
-                )}
+                <span>Reference</span>
+                <ImageDropzone
+                  fileName={values.reference?.name}
+                  onSelect={(file) => form.setFieldValue("reference", file)}
+                  onClear={() => form.setFieldValue("reference", undefined)}
+                />
               </div>
             </>
           ) : null}
@@ -622,46 +609,5 @@ export function CreateAssetDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function ReferenceField({
-  reference,
-  onChange,
-}: {
-  reference?: File;
-  onChange: (file?: File) => void;
-}) {
-  return (
-    <div className="grid gap-2 text-sm font-medium">
-      <span>Reference</span>
-      {reference ? (
-        <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-          <p className="min-w-0 truncate text-sm font-normal">
-            {reference.name}
-          </p>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Remove reference image"
-            onClick={() => onChange(undefined)}
-          >
-            <X className="size-4" />
-          </Button>
-        </div>
-      ) : (
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted/50">
-          <ImagePlus className="size-4" />
-          Upload a reference image
-          <Input
-            className="sr-only"
-            type="file"
-            accept="image/*"
-            onChange={(event) => onChange(event.target.files?.[0])}
-          />
-        </label>
-      )}
-    </div>
   );
 }

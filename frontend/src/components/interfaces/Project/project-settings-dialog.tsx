@@ -1,8 +1,8 @@
 "use client";
 
-import { ImagePlus, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownField } from "@/components/ui/dropdown-field";
 
@@ -44,7 +45,6 @@ export function ProjectSettingsDialog({
   iconOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const form = useForm({
     defaultValues: {
       draft: project,
@@ -243,32 +243,12 @@ export function ProjectSettingsDialog({
           </div>
           <div>
             <p className="text-sm font-medium">Visual direction</p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              className="sr-only"
-              onChange={(event) => uploadDirection(event.target.files?.[0])}
+            <ImageDropzone
+              className="mt-2 h-28"
+              previewUrl={draft.visualDirection || undefined}
+              onSelect={uploadDirection}
+              onClear={() => update("visualDirection", "")}
             />
-            <button
-              type="button"
-              className="mt-2 flex h-28 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted/30 text-sm text-muted-foreground hover:bg-muted/60"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {draft.visualDirection ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={draft.visualDirection}
-                  alt="Project visual direction"
-                  className="size-full object-cover"
-                />
-              ) : (
-                <span className="flex items-center gap-2">
-                  <ImagePlus className="size-4" />
-                  Upload a reference image
-                </span>
-              )}
-            </button>
           </div>
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" />}>
