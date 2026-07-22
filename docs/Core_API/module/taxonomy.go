@@ -3,7 +3,7 @@ package module
 import (
 	"context"
 
-	interfaces "../Interface"
+	interfaces "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/Interface"
 )
 
 // TaxonomyModule describes public tag lookup, semantic discovery, search, and filtering capabilities.

@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	data "../data structure"
+	data "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/data_structure"
 )
 
 type AssetService interface {

@@ -3,7 +3,7 @@ package module
 import (
 	"context"
 
-	interfaces "../Interface"
+	interfaces "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/Interface"
 )
 
 // TaskModule describes the internal providers and public capabilities of the Task module.

@@ -3,8 +3,8 @@ package module
 import (
 	"context"
 
-	interfaces "../Interface"
-	data "../data structure"
+	interfaces "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/Interface"
+	data "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/data_structure"
 )
 
 // AIServiceModule describes the internal providers and public capabilities of the AI module.

@@ -44,7 +44,7 @@ The Asset module owns both the current editable state and the immutable version 
 
 Each Asset has exactly one editable state and zero or more immutable Records. A Record captures the Asset snapshot and referenced resources at a specific version without becoming another editable copy of the Asset.
 
-The Asset CRUD operations, version creation rules, snapshot format, restoration behavior, type-specific attributes, parent-child rules, resource dependencies, and serialization contract are defined in the [Asset module](./module/asset.go) and [Asset data structure](<./data structure/asset.go>).
+The Asset CRUD operations, version creation rules, snapshot format, restoration behavior, type-specific attributes, parent-child rules, resource dependencies, and serialization contract are defined in the [Asset module](./module/asset.go) and [Asset data structure](<./data_structure/asset.go>).
 
 
 **Task**
