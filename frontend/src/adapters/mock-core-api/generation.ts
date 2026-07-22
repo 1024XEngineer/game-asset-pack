@@ -11,7 +11,7 @@ export function completeMockGeneration(
   run: GenerationRun,
 ): Promise<MockGeneratedAsset> {
   return new Promise((resolve) => {
-    window.setTimeout(() => {
+    setTimeout(() => {
       resolve({
         kind: run.kind,
         asset: {

@@ -6,7 +6,7 @@ describe("cn utility", () => {
     expect(cn("bg-red-500", "text-white")).toBe("bg-red-500 text-white");
   });
 
-  it("handles conditional classes", () => {
-    expect(cn("p-4", false && "hidden", "flex")).toBe("p-4 flex");
+  it("ignores falsy classes", () => {
+    expect(cn("p-4", undefined, "flex")).toBe("p-4 flex");
   });
 });
