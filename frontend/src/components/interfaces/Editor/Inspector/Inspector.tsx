@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type { SaveHistoryEntry } from "@/state/editor-workspace-state";
 
 import { nodeMeta, type NodeId } from "../Editor.constants";
 
@@ -14,13 +15,6 @@ type InspectorProps = {
   onAction: (message: string) => void;
   saveHistory: SaveHistoryEntry[];
   selectedItems?: string[];
-};
-
-export type SaveHistoryEntry = {
-  id: string;
-  savedAt: string;
-  description: string;
-  selection: string;
 };
 
 export function Inspector({

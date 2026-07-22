@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useStore } from "zustand";
 
 import { Button } from "@/components/ui/button";
 import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
@@ -15,10 +16,11 @@ import {
   useSpriteSheetStageMachine,
 } from "./Canvas/StateMachine/spriteSheetStageMachine";
 import { EditorHeader } from "./Header/EditorHeader";
-import { Inspector, type SaveHistoryEntry } from "./Inspector/Inspector";
+import { Inspector } from "./Inspector/Inspector";
 import { AssetTree } from "./AssetTree/AssetTree";
 import { SceneryLayerTree } from "./AssetTree/SceneryLayerTree";
 import { StaticAssetTree } from "./AssetTree/StaticAssetTree";
+import { useEditorWorkspaceState } from "@/state/editor-workspace-state";
 
 export function EditorWorkspace({
   asset,
@@ -33,10 +35,21 @@ export function EditorWorkspace({
   const sceneryStage = useSceneryStageMachine();
   const spriteSheetStage = useSpriteSheetStageMachine();
   const [status, setStatus] = useState("All changes saved");
-  const [canUndo, setCanUndo] = useState(true);
-  const [canRedo, setCanRedo] = useState(false);
-  const [prompt, setPrompt] = useState(defaultEditorPrompt);
-  const [saveHistory, setSaveHistory] = useState<SaveHistoryEntry[]>([]);
+  const prompt = useEditorWorkspaceState((state) => state.prompt);
+  const saveHistory = useEditorWorkspaceState((state) => state.saveHistory);
+  const setPrompt = useEditorWorkspaceState((state) => state.setPrompt);
+  const addSaveHistory = useEditorWorkspaceState(
+    (state) => state.addSaveHistory,
+  );
+  const resetWorkspace = useEditorWorkspaceState((state) => state.reset);
+  const canUndo = useStore(
+    useEditorWorkspaceState.temporal,
+    (state) => state.pastStates.length > 0,
+  );
+  const canRedo = useStore(
+    useEditorWorkspaceState.temporal,
+    (state) => state.futureStates.length > 0,
+  );
   const usesCharacterEditor =
     asset?.kind === "character" || asset?.kind === "object";
   const usesSceneryEditor = asset?.kind === "scenery";
@@ -54,6 +67,11 @@ export function EditorWorkspace({
   const editorSelections = usesSceneryEditor
     ? sceneryStage.selectedLayers
     : staticSelections;
+
+  useEffect(() => {
+    resetWorkspace(defaultEditorPrompt);
+    useEditorWorkspaceState.temporal.getState().clear();
+  }, [asset?.id, resetWorkspace]);
 
   if (!projectName || !asset) {
     return (
@@ -78,21 +96,18 @@ export function EditorWorkspace({
       timeStyle: "short",
     });
 
-    setSaveHistory((current) => [
-      {
-        id: `${Date.now()}-${current.length}`,
-        savedAt: timestamp,
-        description: prompt.trim() || "No description provided.",
-        selection: editorSelections.length
-          ? editorSelections.join(", ")
-          : characterStage.selectedNodes.length
-            ? characterStage.selectedNodes
-                .map((node) => nodeMeta[node].label)
-                .join(", ")
-            : "Nothing selected",
-      },
-      ...current,
-    ]);
+    addSaveHistory({
+      id: `${Date.now()}-${saveHistory.length}`,
+      savedAt: timestamp,
+      description: prompt.trim() || "No description provided.",
+      selection: editorSelections.length
+        ? editorSelections.join(", ")
+        : characterStage.selectedNodes.length
+          ? characterStage.selectedNodes
+              .map((node) => nodeMeta[node].label)
+              .join(", ")
+          : "Nothing selected",
+    });
     handleAction("Saved just now");
   };
 
@@ -107,13 +122,11 @@ export function EditorWorkspace({
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={() => {
-          setCanUndo(false);
-          setCanRedo(true);
+          useEditorWorkspaceState.temporal.getState().undo();
           handleAction("Last edit reverted");
         }}
         onRedo={() => {
-          setCanUndo(true);
-          setCanRedo(false);
+          useEditorWorkspaceState.temporal.getState().redo();
           handleAction("Edit restored");
         }}
         onSave={handleSave}
