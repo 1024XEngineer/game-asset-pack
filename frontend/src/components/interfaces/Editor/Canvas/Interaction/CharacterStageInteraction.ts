@@ -5,7 +5,6 @@ import {
   type CanvasPosition,
 } from "../Canvas.constants";
 import {
-  clamp,
   contains,
   getExpandedHeight,
   getFrameBounds,
@@ -13,32 +12,20 @@ import {
   getNodeBounds,
   intersects,
   normalizeBounds,
-  zoomAt,
 } from "./CharacterStageGeometry";
 import {
   EXPANDED_WIDTH,
   FRAME_GAP,
   FRAME_SIZE,
   INITIAL_SCALE,
-  MAX_SCALE,
-  MIN_SCALE,
   NODE_WIDTH,
-  WORLD_HEIGHT,
-  WORLD_WIDTH,
 } from "../Runtime/CharacterStage.constants";
 import type {
   Bounds,
   CharacterStageContext,
-  Viewport,
 } from "../Runtime/CharacterStage.types";
 
 type DragState =
-  | {
-      kind: "pan";
-      pointerId: number;
-      start: CanvasPosition;
-      viewport: Viewport;
-    }
   | {
       kind: "node";
       pointerId: number;
@@ -70,23 +57,16 @@ type HitTarget =
 export class CharacterStageInteraction {
   private drag: DragState | null = null;
   private lastClick = { time: 0, x: 0, y: 0 };
-  private readonly host: HTMLElement;
   private readonly canvas: HTMLCanvasElement;
   private readonly context: CharacterStageContext;
 
-  constructor(
-    host: HTMLElement,
-    canvas: HTMLCanvasElement,
-    context: CharacterStageContext,
-  ) {
-    this.host = host;
+  constructor(canvas: HTMLCanvasElement, context: CharacterStageContext) {
     this.canvas = canvas;
     this.context = context;
     canvas.addEventListener("pointerdown", this.onPointerDown);
     canvas.addEventListener("pointermove", this.onPointerMove);
     canvas.addEventListener("pointerup", this.finishPointer);
     canvas.addEventListener("pointercancel", this.finishPointer);
-    canvas.addEventListener("wheel", this.onWheel, { passive: false });
     canvas.addEventListener("contextmenu", this.onContextMenu);
   }
 
@@ -95,7 +75,6 @@ export class CharacterStageInteraction {
     this.canvas.removeEventListener("pointermove", this.onPointerMove);
     this.canvas.removeEventListener("pointerup", this.finishPointer);
     this.canvas.removeEventListener("pointercancel", this.finishPointer);
-    this.canvas.removeEventListener("wheel", this.onWheel);
     this.canvas.removeEventListener("contextmenu", this.onContextMenu);
   }
 
@@ -103,7 +82,7 @@ export class CharacterStageInteraction {
     this.canvas.focus();
     const screen = this.screenPoint(event);
     const point = this.worldPoint(screen);
-    if (event.button === 1) return this.startPan(event, screen);
+    if (event.button === 1) return;
     if (event.button !== 0) return;
     if (this.handleDoubleClick(screen)) return;
 
@@ -146,16 +125,9 @@ export class CharacterStageInteraction {
   private onPointerMove = (event: PointerEvent) => {
     if (!this.drag || this.drag.pointerId !== event.pointerId) return;
     const screen = this.screenPoint(event);
-    if (this.drag.kind === "pan") {
-      this.context.state.viewport.x =
-        this.drag.viewport.x + screen.x - this.drag.start.x;
-      this.context.state.viewport.y =
-        this.drag.viewport.y + screen.y - this.drag.start.y;
-    } else {
-      const point = this.worldPoint(screen);
-      if (this.drag.kind === "node") this.moveNode(this.drag, point);
-      else this.drag.end = point;
-    }
+    const point = this.worldPoint(screen);
+    if (this.drag.kind === "node") this.moveNode(this.drag, point);
+    else this.drag.end = point;
     this.syncMarquee();
   };
 
@@ -171,21 +143,9 @@ export class CharacterStageInteraction {
         completed.end,
       );
     this.drag = null;
-    this.host.dataset.panning = "false";
     if (this.canvas.hasPointerCapture(event.pointerId))
       this.canvas.releasePointerCapture(event.pointerId);
     this.syncMarquee();
-  };
-
-  private onWheel = (event: WheelEvent) => {
-    event.preventDefault();
-    const scale = clamp(
-      this.context.state.viewport.scale * Math.exp(-event.deltaY * 0.0012),
-      MIN_SCALE,
-      MAX_SCALE,
-    );
-    zoomAt(this.screenPoint(event), scale, this.context.state.viewport);
-    this.context.render();
   };
 
   private onContextMenu = (event: MouseEvent) => event.preventDefault();
@@ -275,18 +235,6 @@ export class CharacterStageInteraction {
     this.context.render();
   }
 
-  private startPan(event: PointerEvent, screen: CanvasPosition) {
-    event.preventDefault();
-    this.capture(event);
-    this.drag = {
-      kind: "pan",
-      pointerId: event.pointerId,
-      start: screen,
-      viewport: { ...this.context.state.viewport },
-    };
-    this.host.dataset.panning = "true";
-  }
-
   private handleDoubleClick(screen: CanvasPosition) {
     const now = performance.now();
     const isDouble =
@@ -296,8 +244,10 @@ export class CharacterStageInteraction {
       ? { time: 0, x: 0, y: 0 }
       : { time: now, x: screen.x, y: screen.y };
     if (!isDouble) return false;
-    const scale = this.context.state.viewport.scale < 1 ? 1 : INITIAL_SCALE;
-    zoomAt(screen, scale, this.context.state.viewport);
+    const focus = this.context.viewport.toWorld(screen);
+    const scale = this.context.viewport.scale.x < 1 ? 1 : INITIAL_SCALE;
+    this.context.viewport.setZoom(scale);
+    this.context.viewport.moveCenter(focus);
     this.context.render();
     return true;
   }
@@ -306,20 +256,9 @@ export class CharacterStageInteraction {
     drag: Extract<DragState, { kind: "node" }>,
     point: CanvasPosition,
   ) {
-    const expanded = this.context.state.expanded.has(drag.node);
-    const width = expanded ? EXPANDED_WIDTH : NODE_WIDTH;
-    const height = expanded ? getExpandedHeight(drag.node) : 300;
     this.context.state.positions[drag.node] = {
-      x: clamp(
-        drag.position.x + point.x - drag.start.x,
-        24,
-        WORLD_WIDTH - width - 24,
-      ),
-      y: clamp(
-        drag.position.y + point.y - drag.start.y,
-        24,
-        WORLD_HEIGHT - height - 24,
-      ),
+      x: drag.position.x + point.x - drag.start.x,
+      y: drag.position.y + point.y - drag.start.y,
     };
   }
 
@@ -365,17 +304,13 @@ export class CharacterStageInteraction {
     this.context.render();
   }
 
-  private screenPoint(event: PointerEvent | WheelEvent): CanvasPosition {
+  private screenPoint(event: PointerEvent): CanvasPosition {
     const bounds = this.canvas.getBoundingClientRect();
     return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
   }
 
   private worldPoint(point: CanvasPosition): CanvasPosition {
-    const viewport = this.context.state.viewport;
-    return {
-      x: (point.x - viewport.x) / viewport.scale,
-      y: (point.y - viewport.y) / viewport.scale,
-    };
+    return this.context.viewport.toWorld(point);
   }
 
   private capture(event: PointerEvent) {

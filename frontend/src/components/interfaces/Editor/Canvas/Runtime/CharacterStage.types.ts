@@ -1,3 +1,5 @@
+import type { Viewport } from "pixi-viewport";
+
 import type { NodeId } from "../../Editor.constants";
 import type { CanvasPosition } from "../Canvas.constants";
 
@@ -16,11 +18,9 @@ export type CharacterStageActions = {
 
 export type CharacterStageProps = CharacterSelection & CharacterStageActions;
 
-export type Viewport = { x: number; y: number; scale: number };
 export type Bounds = CanvasPosition & { width: number; height: number };
 
 export type CharacterSceneState = {
-  viewport: Viewport;
   positions: Record<NodeId, CanvasPosition>;
   expanded: Set<NodeId>;
   playing: Set<NodeId>;
@@ -30,6 +30,7 @@ export type CharacterSceneState = {
 
 export type CharacterStageContext = {
   state: CharacterSceneState;
+  viewport: Viewport;
   getSelection: () => CharacterSelection;
   actions: CharacterStageActions;
   render: () => void;

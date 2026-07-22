@@ -25,8 +25,6 @@ export class CharacterStageRenderer {
     this.world
       .removeChildren()
       .forEach((child) => child.destroy({ children: true }));
-    this.world.position.set(state.viewport.x, state.viewport.y);
-    this.world.scale.set(state.viewport.scale);
     this.drawGrid();
 
     for (const node of CANVAS_NODES) {

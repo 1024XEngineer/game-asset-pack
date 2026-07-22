@@ -1,4 +1,5 @@
-import { Container, Rectangle } from "pixi.js";
+import { Viewport } from "pixi-viewport";
+import { Container } from "pixi.js";
 
 import { type NodeId } from "../../Editor.constants";
 import { DEFAULT_CANVAS_POSITIONS } from "../Canvas.constants";
@@ -7,6 +8,8 @@ import { getFrameCount } from "../Interaction/CharacterStageGeometry";
 import { CharacterStageRenderer } from "../Renderer/CharacterStageRenderer";
 import {
   INITIAL_SCALE,
+  MAX_SCALE,
+  MIN_SCALE,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "./CharacterStage.constants";
@@ -21,11 +24,11 @@ export class CharacterStageRuntime {
   private interaction?: CharacterStageInteraction;
   private resizeObserver?: ResizeObserver;
   private renderer?: CharacterStageRenderer;
+  private viewport?: Viewport;
   private props: CharacterStageProps;
   private lastAnimationFrame = performance.now();
 
   private readonly state: CharacterStageContext["state"] = {
-    viewport: { x: 0, y: 0, scale: INITIAL_SCALE },
     positions: structuredClone(DEFAULT_CANVAS_POSITIONS) as Record<
       NodeId,
       { x: number; y: number }
@@ -43,13 +46,29 @@ export class CharacterStageRuntime {
   async initialize(host: HTMLElement) {
     await this.runtime.initialize(host);
     const { app } = this.runtime;
+    const viewport = new Viewport({
+      screenWidth: app.screen.width,
+      screenHeight: app.screen.height,
+      worldWidth: WORLD_WIDTH,
+      worldHeight: WORLD_HEIGHT,
+      events: app.renderer.events,
+      ticker: app.ticker,
+    });
+    viewport.eventMode = "static";
+    viewport
+      .drag({ mouseButtons: "middle" })
+      .wheel()
+      .clamp({ direction: "all", underflow: "center" })
+      .clampZoom({ minScale: MIN_SCALE, maxScale: MAX_SCALE });
+    app.stage.addChild(viewport);
+    this.viewport = viewport;
     const world = new Container();
-    app.stage.addChild(world);
-    app.stage.eventMode = "static";
+    viewport.addChild(world);
     this.renderer = new CharacterStageRenderer(world);
 
     const context: CharacterStageContext = {
       state: this.state,
+      viewport,
       getSelection: () => this.props,
       actions: {
         onSelect: (node) => this.props.onSelect(node),
@@ -61,14 +80,9 @@ export class CharacterStageRuntime {
       },
       render: () => this.render(),
     };
-    this.interaction = new CharacterStageInteraction(host, app.canvas, context);
+    this.interaction = new CharacterStageInteraction(app.canvas, context);
     this.resizeObserver = new ResizeObserver(() => {
-      app.stage.hitArea = new Rectangle(
-        0,
-        0,
-        app.screen.width,
-        app.screen.height,
-      );
+      viewport.resize(app.screen.width, app.screen.height);
       this.render();
     });
     this.resizeObserver.observe(host);
@@ -92,11 +106,8 @@ export class CharacterStageRuntime {
   }
 
   private centerWorld() {
-    const { screen } = this.runtime.app;
-    this.state.viewport.x =
-      (screen.width - WORLD_WIDTH * this.state.viewport.scale) / 2;
-    this.state.viewport.y =
-      (screen.height - WORLD_HEIGHT * this.state.viewport.scale) / 2;
+    this.viewport?.setZoom(INITIAL_SCALE);
+    this.viewport?.moveCenter(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
   }
 
   private render() {

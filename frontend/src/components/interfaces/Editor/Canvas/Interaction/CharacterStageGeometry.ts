@@ -7,7 +7,7 @@ import {
   FRAME_SIZE,
   NODE_WIDTH,
 } from "../Runtime/CharacterStage.constants";
-import type { Bounds, Viewport } from "../Runtime/CharacterStage.types";
+import type { Bounds } from "../Runtime/CharacterStage.types";
 
 export function getFrameCount(node: NodeId) {
   return Number.parseInt(nodeMeta[node].count ?? "1", 10) || 1;
@@ -41,18 +41,6 @@ export function getFrameBounds(
     width: FRAME_SIZE,
     height: FRAME_SIZE,
   };
-}
-
-export function zoomAt(
-  point: CanvasPosition,
-  nextScale: number,
-  viewport: Viewport,
-) {
-  const worldX = (point.x - viewport.x) / viewport.scale;
-  const worldY = (point.y - viewport.y) / viewport.scale;
-  viewport.scale = nextScale;
-  viewport.x = point.x - worldX * nextScale;
-  viewport.y = point.y - worldY * nextScale;
 }
 
 export function contains(bounds: Bounds, point: CanvasPosition) {

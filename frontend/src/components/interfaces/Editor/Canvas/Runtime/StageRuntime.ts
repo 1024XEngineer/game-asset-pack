@@ -19,6 +19,7 @@ export class StageRuntime {
   }
 
   destroy() {
+    this.app.canvas.remove();
     this.app.destroy(true, { children: true });
   }
 }
