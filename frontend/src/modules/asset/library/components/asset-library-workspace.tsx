@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { ProjectSummary } from "@/modules/project/model";
-import type { AssetKind } from "@/shared/types/asset-kind";
+import { assetKinds, type AssetKind } from "@/shared/types/asset-kind";
 import type { AssetGroup } from "../model";
 import { AssetCard } from "./asset-card";
 import { AssetLibraryToolbar } from "./asset-library-toolbar";
@@ -34,19 +34,13 @@ export function AssetLibraryWorkspace({
   query,
 }: AssetLibraryWorkspaceProps) {
   const [selectedKinds, setSelectedKinds] = useState<AssetKind[]>([
-    "character",
-    "object",
-    "tiles",
-    "scenery",
+    ...assetKinds,
   ]);
   const filteredAssets = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return assetGroups
-      .filter(
-        (group) =>
-          group.kind === "scenery" || selectedKinds.includes(group.kind),
-      )
+      .filter((group) => selectedKinds.includes(group.kind))
       .flatMap((group) =>
         group.assets
           .filter((asset) =>

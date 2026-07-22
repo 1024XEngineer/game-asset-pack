@@ -12,10 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { getAssetTypeAdapter, type AssetKind } from "@/shared/types/asset-kind";
+import {
+  assetKinds,
+  getAssetTypeAdapter,
+  type AssetKind,
+} from "@/shared/types/asset-kind";
 import { AssetTypeIcon } from "@/shared/types/AssetTypeIcon";
 
-const filters: AssetKind[] = ["character", "object", "tiles"];
+const filters: AssetKind[] = [...assetKinds];
 
 export function AssetFilters({
   selectedKinds,
@@ -75,7 +79,7 @@ export function AssetFilters({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                onSelectedKindsChange([...filters, "scenery"]);
+                onSelectedKindsChange(filters);
               }}
             >
               <X />

@@ -1,11 +1,15 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-import type { AssetGroup } from "@/modules/asset/library/model";
+import type { AssetGroupsByProject } from "@/modules/asset/library/model";
+import type { ProjectAsset } from "@/modules/asset/model";
+import type { AssetKind } from "@/shared/types/asset-kind";
 
 type AssetLibraryStoreValue = {
-  assetGroups: AssetGroup[];
-  copyAsset: (assetId: string) => void;
-  deleteAsset: (assetId: string) => void;
+  assetGroupsByProject: AssetGroupsByProject;
+  addAsset: (projectId: string, kind: AssetKind, asset: ProjectAsset) => void;
+  copyAsset: (projectId: string, assetId: string) => void;
+  deleteAsset: (projectId: string, assetId: string) => void;
+  deleteProjectAssets: (projectId: string) => void;
 };
 
 const AssetLibraryStoreContext = createContext<AssetLibraryStoreValue | null>(
@@ -14,60 +18,105 @@ const AssetLibraryStoreContext = createContext<AssetLibraryStoreValue | null>(
 
 export function AssetLibraryStoreProvider({
   children,
-  initialAssetGroups,
+  initialAssetGroupsByProject,
 }: {
   children: React.ReactNode;
-  initialAssetGroups: AssetGroup[];
+  initialAssetGroupsByProject: AssetGroupsByProject;
 }) {
-  const [assetGroups, setAssetGroups] = useState(initialAssetGroups);
+  const [assetGroupsByProject, setAssetGroupsByProject] = useState(
+    initialAssetGroupsByProject,
+  );
 
   const value = useMemo<AssetLibraryStoreValue>(
     () => ({
-      assetGroups,
-      copyAsset: (assetId) => {
-        const copyId = `${assetId}-copy-${crypto.randomUUID()}`;
-        setAssetGroups((current) =>
-          current.map((group) => {
-            const assetIndex = group.assets.findIndex(
-              (asset) => asset.id === assetId,
-            );
-            if (assetIndex < 0) return group;
+      assetGroupsByProject,
+      addAsset: (projectId, kind, asset) =>
+        setAssetGroupsByProject((current) => {
+          const groups = current[projectId] ?? [];
+          const existingGroup = groups.find((group) => group.kind === kind);
 
-            const asset = group.assets[assetIndex];
-            const copiedAsset = {
-              ...asset,
-              id: copyId,
-              name: `${asset.name} Copy`,
-              history: asset.history.map((entry) => ({
-                ...entry,
-                id: `${copyId}-history-${entry.version}`,
-              })),
-              animations: asset.animations.map((animation) => ({
-                ...animation,
-                id: `${copyId}-animation-${animation.id}`,
-              })),
-            };
-
+          if (existingGroup) {
             return {
-              ...group,
-              assets: [
-                ...group.assets.slice(0, assetIndex + 1),
-                copiedAsset,
-                ...group.assets.slice(assetIndex + 1),
-              ],
+              ...current,
+              [projectId]: groups.map((group) =>
+                group.kind === kind
+                  ? { ...group, assets: [...group.assets, asset] }
+                  : group,
+              ),
             };
-          }),
-        );
+          }
+
+          return {
+            ...current,
+            [projectId]: [
+              ...groups,
+              {
+                kind,
+                title:
+                  kind === "ui"
+                    ? "UI"
+                    : `${kind[0].toUpperCase()}${kind.slice(1)}`,
+                accentClassName: "bg-slate-500",
+                assets: [asset],
+              },
+            ],
+          };
+        }),
+      copyAsset: (projectId, assetId) => {
+        const copyId = `${assetId}-copy-${crypto.randomUUID()}`;
+        setAssetGroupsByProject((current) => {
+          const groups = current[projectId] ?? [];
+
+          return {
+            ...current,
+            [projectId]: groups.map((group) => {
+              const assetIndex = group.assets.findIndex(
+                (asset) => asset.id === assetId,
+              );
+              if (assetIndex < 0) return group;
+
+              const asset = group.assets[assetIndex];
+              const copiedAsset = {
+                ...asset,
+                id: copyId,
+                name: `${asset.name} Copy`,
+                history: asset.history.map((entry) => ({
+                  ...entry,
+                  id: `${copyId}-history-${entry.version}`,
+                })),
+                animations: asset.animations.map((animation) => ({
+                  ...animation,
+                  id: `${copyId}-animation-${animation.id}`,
+                })),
+              };
+
+              return {
+                ...group,
+                assets: [
+                  ...group.assets.slice(0, assetIndex + 1),
+                  copiedAsset,
+                  ...group.assets.slice(assetIndex + 1),
+                ],
+              };
+            }),
+          };
+        });
       },
-      deleteAsset: (assetId) =>
-        setAssetGroups((current) =>
-          current.map((group) => ({
+      deleteAsset: (projectId, assetId) =>
+        setAssetGroupsByProject((current) => ({
+          ...current,
+          [projectId]: (current[projectId] ?? []).map((group) => ({
             ...group,
             assets: group.assets.filter((asset) => asset.id !== assetId),
           })),
-        ),
+        })),
+      deleteProjectAssets: (projectId) =>
+        setAssetGroupsByProject((current) => {
+          const { [projectId]: _, ...remaining } = current;
+          return remaining;
+        }),
     }),
-    [assetGroups],
+    [assetGroupsByProject],
   );
 
   return (

@@ -7,3 +7,5 @@ export type AssetGroup = {
   accentClassName: string;
   assets: ProjectAsset[];
 };
+
+export type AssetGroupsByProject = Record<string, AssetGroup[]>;

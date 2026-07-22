@@ -19,5 +19,6 @@ export type CreationRequest = {
 
 export type GenerationRun = CreationRequest & {
   id: string;
-  status: "queued";
+  projectId: string;
+  status: "queued" | "processing" | "failed";
 };

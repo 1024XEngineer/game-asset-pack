@@ -1,4 +1,7 @@
-import type { AssetGroup } from "@/modules/asset/library/model";
+import type {
+  AssetGroup,
+  AssetGroupsByProject,
+} from "@/modules/asset/library/model";
 import type { ProjectAsset } from "@/modules/asset/model";
 import type { AssetRecord } from "@/modules/asset/record/model";
 import type { ProjectSummary } from "@/modules/project/model";
@@ -54,20 +57,25 @@ function createHistory(
     "Initial generated concept",
   ];
 
-  return Array.from({ length: Math.min(3, Math.max(1, currentNumber)) }, (_, index) => {
-    const version = `v${currentNumber - index}`;
+  return Array.from(
+    { length: Math.min(3, Math.max(1, currentNumber)) },
+    (_, index) => {
+      const version = `v${currentNumber - index}`;
 
-    return {
-      id: `${assetId}-history-${version}`,
-      version,
-      description: descriptions[index],
-      status: "ready" as const,
-      isCurrent: index === 0,
-    };
-  });
+      return {
+        id: `${assetId}-history-${version}`,
+        version,
+        description: descriptions[index],
+        status: "ready" as const,
+        isCurrent: index === 0,
+      };
+    },
+  );
 }
 
-function createAsset(asset: Omit<ProjectAsset, "history" | "animations">): ProjectAsset {
+function createAsset(
+  asset: Omit<ProjectAsset, "history" | "animations">,
+): ProjectAsset {
   return {
     ...asset,
     history: createHistory(asset.id, asset.version, asset.description),
@@ -75,7 +83,7 @@ function createAsset(asset: Omit<ProjectAsset, "history" | "animations">): Proje
   };
 }
 
-export const assetGroups: AssetGroup[] = [
+const moonlitOrchardAssetGroups: AssetGroup[] = [
   {
     kind: "character",
     title: "Character",
@@ -195,3 +203,9 @@ export const assetGroups: AssetGroup[] = [
     ],
   },
 ];
+
+export const assetGroupsByProject: AssetGroupsByProject = {
+  "moonlit-orchard": moonlitOrchardAssetGroups,
+  "iron-harbor": [],
+  "mushroom-courier": [],
+};

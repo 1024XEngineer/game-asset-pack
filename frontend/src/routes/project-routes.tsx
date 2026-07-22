@@ -27,9 +27,11 @@ export function ProjectLibraryRoute() {
     select: (state) => state.location.pathname,
   });
   const { projects, deleteProject, updateProject } = useProjectStore();
-  const { assetGroups, copyAsset, deleteAsset } = useAssetLibraryStore();
+  const { assetGroupsByProject, copyAsset, deleteAsset, deleteProjectAssets } =
+    useAssetLibraryStore();
   const { enqueueRun, runs } = useGenerationStore();
   const project = projects.find((item) => item.id === search.project);
+  const assetGroups = project ? (assetGroupsByProject[project.id] ?? []) : [];
 
   const selectProject = (projectId: string | undefined, replace = false) =>
     navigate({
@@ -69,6 +71,7 @@ export function ProjectLibraryRoute() {
   const handleDeleteProject = (projectId: string) => {
     const nextProject = projects.find((item) => item.id !== projectId);
     deleteProject(projectId);
+    deleteProjectAssets(projectId);
     try {
       if (localStorage.getItem(LAST_PROJECT_STORAGE_KEY) === projectId) {
         localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
@@ -97,18 +100,28 @@ export function ProjectLibraryRoute() {
         assetGroups={assetGroups}
         project={project}
         query={search.q}
-        generationQueue={<GenerationQueue runs={runs} />}
+        generationQueue={
+          <GenerationQueue
+            runs={
+              project ? runs.filter((run) => run.projectId === project.id) : []
+            }
+          />
+        }
         creationControl={
           project ? (
             <CreateAssetToolbar
               assetKinds={creatableAssetKinds}
               project={project}
-              onCreate={enqueueRun}
+              onCreate={(request) => enqueueRun(project.id, request)}
             />
           ) : null
         }
-        onCopyAsset={copyAsset}
-        onDeleteAsset={deleteAsset}
+        onCopyAsset={(assetId) => {
+          if (project) copyAsset(project.id, assetId);
+        }}
+        onDeleteAsset={(assetId) => {
+          if (project) deleteAsset(project.id, assetId);
+        }}
         onOpenAsset={(assetId) => {
           if (project) {
             void navigate({
@@ -160,8 +173,9 @@ export function EditorRoute() {
     from: "/projects/$projectId/assets/$assetId",
   });
   const { projects } = useProjectStore();
-  const { assetGroups } = useAssetLibraryStore();
+  const { assetGroupsByProject } = useAssetLibraryStore();
   const project = projects.find((item) => item.id === projectId);
+  const assetGroups = assetGroupsByProject[projectId] ?? [];
   const group = assetGroups.find((item) =>
     item.assets.some((asset) => asset.id === assetId),
   );
