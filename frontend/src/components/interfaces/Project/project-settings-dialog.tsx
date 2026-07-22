@@ -1,6 +1,7 @@
 "use client";
 
 import { ImagePlus, Pencil } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -43,28 +44,63 @@ export function ProjectSettingsDialog({
   iconOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(project);
-  const [customGameType, setCustomGameType] = useState("");
-  const [customVisualStyle, setCustomVisualStyle] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setDraft(project);
-    setCustomVisualStyle(
-      options.visualStyle.includes(project.visualStyle)
+  const form = useForm({
+    defaultValues: {
+      draft: project,
+      customGameType: options.gameType.includes(project.gameType)
+        ? ""
+        : project.gameType,
+      customVisualStyle: options.visualStyle.includes(project.visualStyle)
         ? ""
         : project.visualStyle,
-    );
-    setCustomGameType(
-      options.gameType.includes(project.gameType) ? "" : project.gameType,
-    );
+    },
+    onSubmit: ({ value }) => {
+      const hasCustomVisualStyle =
+        value.draft.visualStyle === "Other" ||
+        !options.visualStyle.includes(value.draft.visualStyle);
+      const hasCustomGameType =
+        value.draft.gameType === "Other" ||
+        !options.gameType.includes(value.draft.gameType);
+      const visualStyle = hasCustomVisualStyle
+        ? value.customVisualStyle.trim()
+        : value.draft.visualStyle;
+      const gameType = hasCustomGameType
+        ? value.customGameType.trim()
+        : value.draft.gameType;
+      if (!value.draft.name.trim()) return;
+      if (hasCustomVisualStyle && !visualStyle) return;
+      if (hasCustomGameType && !gameType) return;
+      onSave({
+        ...value.draft,
+        name: value.draft.name.trim(),
+        gameType,
+        visualStyle,
+        style: visualStyle || value.draft.style,
+      });
+      setOpen(false);
+    },
+  });
+  const values = form.state.values;
+  const draft = values.draft;
+
+  useEffect(() => {
+    form.reset({
+      draft: project,
+      customVisualStyle: options.visualStyle.includes(project.visualStyle)
+        ? ""
+        : project.visualStyle,
+      customGameType: options.gameType.includes(project.gameType)
+        ? ""
+        : project.gameType,
+    });
   }, [project]);
 
   function update<K extends keyof ProjectSummary>(
     key: K,
     value: ProjectSummary[K],
   ) {
-    setDraft((current) => ({ ...current, [key]: value }));
+    form.setFieldValue("draft", { ...form.state.values.draft, [key]: value });
   }
 
   function uploadDirection(file: File | undefined) {
@@ -73,30 +109,6 @@ export function ProjectSettingsDialog({
     reader.onload = () =>
       update("visualDirection", String(reader.result ?? ""));
     reader.readAsDataURL(file);
-  }
-
-  function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!draft.name.trim()) return;
-    const hasCustomVisualStyle =
-      draft.visualStyle === "Other" ||
-      !options.visualStyle.includes(draft.visualStyle);
-    const hasCustomGameType =
-      draft.gameType === "Other" || !options.gameType.includes(draft.gameType);
-    const visualStyle = hasCustomVisualStyle
-      ? customVisualStyle.trim()
-      : draft.visualStyle;
-    const gameType = hasCustomGameType ? customGameType.trim() : draft.gameType;
-    if (hasCustomVisualStyle && !visualStyle) return;
-    if (hasCustomGameType && !gameType) return;
-    onSave({
-      ...draft,
-      name: draft.name.trim(),
-      gameType,
-      visualStyle,
-      style: visualStyle || draft.style,
-    });
-    setOpen(false);
   }
 
   return (
@@ -129,7 +141,13 @@ export function ProjectSettingsDialog({
             These defaults guide every asset generated inside this project.
           </DialogDescription>
         </DialogHeader>
-        <form className="grid gap-5" onSubmit={submit}>
+        <form
+          className="grid gap-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium sm:col-span-2">
               Project name
@@ -149,7 +167,7 @@ export function ProjectSettingsDialog({
               options={options.gameType}
               onChange={(value) => {
                 update("gameType", value);
-                if (value !== "Other") setCustomGameType("");
+                if (value !== "Other") form.setFieldValue("customGameType", "");
               }}
             />
             <DropdownField
@@ -162,7 +180,8 @@ export function ProjectSettingsDialog({
               options={options.visualStyle}
               onChange={(value) => {
                 update("visualStyle", value);
-                if (value !== "Other") setCustomVisualStyle("");
+                if (value !== "Other")
+                  form.setFieldValue("customVisualStyle", "");
               }}
             />
             {draft.gameType === "Other" ||
@@ -179,8 +198,10 @@ export function ProjectSettingsDialog({
                 <Input
                   required
                   placeholder="Describe the game type"
-                  value={customGameType}
-                  onChange={(event) => setCustomGameType(event.target.value)}
+                  value={values.customGameType}
+                  onChange={(event) =>
+                    form.setFieldValue("customGameType", event.target.value)
+                  }
                 />
               </label>
             ) : null}
@@ -198,8 +219,10 @@ export function ProjectSettingsDialog({
                 <Input
                   required
                   placeholder="Describe the visual style"
-                  value={customVisualStyle}
-                  onChange={(event) => setCustomVisualStyle(event.target.value)}
+                  value={values.customVisualStyle}
+                  onChange={(event) =>
+                    form.setFieldValue("customVisualStyle", event.target.value)
+                  }
                 />
               </label>
             ) : null}
