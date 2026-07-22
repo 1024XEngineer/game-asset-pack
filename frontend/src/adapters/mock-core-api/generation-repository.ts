@@ -1,4 +1,4 @@
-import type { GenerationRun } from "@/modules/generation/model";
+import type { GenerationRun } from "@/models/generation";
 
 let runs: GenerationRun[] = [];
 

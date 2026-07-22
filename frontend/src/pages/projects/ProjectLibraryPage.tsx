@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
-import { AppHeader } from "@/app/AppHeader";
+import { AppHeader } from "@components/AppHeader";
 import { useCopyAssetMutation } from "@/data/asset/asset-copy.mutation";
 import { useDeleteAssetMutation } from "@/data/asset/asset-delete.mutation";
 import { useAssetLibraryQuery } from "@/data/asset/asset-library.query";
@@ -10,14 +10,17 @@ import { useGenerationRunsQuery } from "@/data/generation/generation-runs.query"
 import { useDeleteProjectMutation } from "@/data/project/project-delete.mutation";
 import { useProjectListQuery } from "@/data/project/project-list.query";
 import { useUpdateProjectMutation } from "@/data/project/project-update.mutation";
-import { AssetLibraryWorkspace } from "@/modules/asset/library/components/asset-library-workspace";
-import { CreateAssetToolbar } from "@/modules/generation/components/create-asset-toolbar";
-import { GenerationQueue } from "@/modules/generation/components/generation-queue";
-import { ProjectChrome } from "@/modules/project/components/project-chrome";
-import { ProjectSidebar } from "@/modules/project/components/project-sidebar";
+import { AssetLibraryWorkspace } from "@components/asset-library/asset-library-workspace";
+import { CreateAssetToolbar } from "@components/generation/create-asset-toolbar";
+import { GenerationQueue } from "@components/generation/generation-queue";
+import { ProjectChrome } from "@components/project/project-chrome";
+import { ProjectSidebar } from "@components/project/project-sidebar";
 import { creatableAssetKinds } from "@/shared/types/asset-kind";
-
-const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
+import {
+  clearLastProjectId,
+  readLastProjectId,
+  writeLastProjectId,
+} from "@/states/project-selection";
 
 export function ProjectLibraryPage() {
   const navigate = useNavigate({ from: "/projects" });
@@ -40,43 +43,31 @@ export function ProjectLibraryPage() {
     });
 
   useEffect(() => {
-    try {
-      if (project) {
-        localStorage.setItem(LAST_PROJECT_STORAGE_KEY, project.id);
-        return;
-      }
+    if (project) {
+      writeLastProjectId(project.id);
+      return;
+    }
 
-      if (search.project) {
-        if (localStorage.getItem(LAST_PROJECT_STORAGE_KEY) === search.project) {
-          localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
-        }
-        return;
-      }
+    if (search.project) {
+      clearLastProjectId(search.project);
+      return;
+    }
 
-      const cachedProjectId = localStorage.getItem(LAST_PROJECT_STORAGE_KEY);
-      if (
-        cachedProjectId &&
-        projects.some((item) => item.id === cachedProjectId)
-      ) {
-        void selectProject(cachedProjectId, true);
-      } else if (cachedProjectId) {
-        localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
-      }
-    } catch {
-      // Keep the empty state when browser storage is unavailable.
+    const cachedProjectId = readLastProjectId();
+    if (
+      cachedProjectId &&
+      projects.some((item) => item.id === cachedProjectId)
+    ) {
+      void selectProject(cachedProjectId, true);
+    } else if (cachedProjectId) {
+      clearLastProjectId(cachedProjectId);
     }
   }, [project, projects, search.project]);
 
   const handleDeleteProject = (projectId: string) => {
     const nextProject = projects.find((item) => item.id !== projectId);
     deleteProject(projectId);
-    try {
-      if (localStorage.getItem(LAST_PROJECT_STORAGE_KEY) === projectId) {
-        localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
-      }
-    } catch {
-      // Navigation still works when browser storage is unavailable.
-    }
+    clearLastProjectId(projectId);
     if (search.project === projectId) void selectProject(nextProject?.id, true);
   };
 

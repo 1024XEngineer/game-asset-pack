@@ -13,7 +13,7 @@ import {
 import type {
   CreationRequest,
   GenerationRun,
-} from "@/modules/generation/model";
+} from "@/models/generation";
 import { assetKeys } from "@/data/asset/keys";
 import { generationKeys } from "./keys";
 

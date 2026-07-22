@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { addMockAsset } from "@/adapters/mock-core-api/repository";
-import type { ProjectAsset } from "@/modules/asset/model";
+import type { ProjectAsset } from "@/models/asset";
 import type { AssetKind } from "@/shared/types/asset-kind";
 import { assetKeys } from "./keys";
 

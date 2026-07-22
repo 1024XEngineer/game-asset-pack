@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { updateMockProject } from "@/adapters/mock-core-api/repository";
-import type { ProjectSummary } from "@/modules/project/model";
+import type { ProjectSummary } from "@/models/project";
 import { projectKeys } from "./keys";
 
 export function useUpdateProjectMutation() {

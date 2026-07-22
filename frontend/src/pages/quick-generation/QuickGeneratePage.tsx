@@ -1,5 +1,5 @@
-import { AppHeader } from "@/app/AppHeader";
-import { QuickGenerateScreen } from "@/modules/generation/QuickGenerateScreen";
+import { AppHeader } from "@components/AppHeader";
+import { QuickGenerateScreen } from "@components/generation/QuickGenerateScreen";
 
 export function QuickGeneratePage() {
   return (
