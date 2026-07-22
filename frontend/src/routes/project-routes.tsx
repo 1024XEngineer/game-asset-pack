@@ -6,16 +6,22 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 
+import { useCopyAssetMutation } from "@/data/asset/asset-copy.mutation";
+import { useDeleteAssetMutation } from "@/data/asset/asset-delete.mutation";
+import { useAssetLibraryQuery } from "@/data/asset/asset-library.query";
+import { useEnqueueGenerationMutation } from "@/data/generation/generation-run.mutation";
+import { useGenerationRunsQuery } from "@/data/generation/generation-runs.query";
+import { useCreateProjectMutation } from "@/data/project/project-create.mutation";
+import { useDeleteProjectMutation } from "@/data/project/project-delete.mutation";
+import { useProjectListQuery } from "@/data/project/project-list.query";
+import { useUpdateProjectMutation } from "@/data/project/project-update.mutation";
 import { AssetLibraryWorkspace } from "@/modules/asset/library/components/asset-library-workspace";
-import { useAssetLibraryStore } from "@/modules/asset/library/state/asset-library-store";
 import { EditorWorkspaceScreen } from "@/modules/editor/workspace/EditorWorkspaceScreen";
 import { CreateAssetToolbar } from "@/modules/generation/components/create-asset-toolbar";
 import { GenerationQueue } from "@/modules/generation/components/generation-queue";
-import { useGenerationStore } from "@/modules/generation/state/generation-store";
 import { NewProjectScreen } from "@/modules/project/NewProjectScreen";
 import { ProjectChrome } from "@/modules/project/components/project-chrome";
 import { ProjectSidebar } from "@/modules/project/components/project-sidebar";
-import { useProjectStore } from "@/modules/project/state/project-store";
 import { creatableAssetKinds } from "@/shared/types/asset-kind";
 
 const LAST_PROJECT_STORAGE_KEY = "game-asset-pack:last-project-id";
@@ -26,12 +32,15 @@ export function ProjectLibraryRoute() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const { projects, deleteProject, updateProject } = useProjectStore();
-  const { assetGroupsByProject, copyAsset, deleteAsset, deleteProjectAssets } =
-    useAssetLibraryStore();
-  const { enqueueRun, runs } = useGenerationStore();
+  const { data: projects = [] } = useProjectListQuery();
+  const { data: assetGroups = [] } = useAssetLibraryQuery(search.project);
+  const { data: runs = [] } = useGenerationRunsQuery(search.project);
+  const { mutate: copyAsset } = useCopyAssetMutation();
+  const { mutate: deleteAsset } = useDeleteAssetMutation();
+  const { mutate: enqueueRun } = useEnqueueGenerationMutation();
+  const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutate: updateProject } = useUpdateProjectMutation();
   const project = projects.find((item) => item.id === search.project);
-  const assetGroups = project ? (assetGroupsByProject[project.id] ?? []) : [];
 
   const selectProject = (projectId: string | undefined, replace = false) =>
     navigate({
@@ -71,7 +80,6 @@ export function ProjectLibraryRoute() {
   const handleDeleteProject = (projectId: string) => {
     const nextProject = projects.find((item) => item.id !== projectId);
     deleteProject(projectId);
-    deleteProjectAssets(projectId);
     try {
       if (localStorage.getItem(LAST_PROJECT_STORAGE_KEY) === projectId) {
         localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
@@ -92,7 +100,7 @@ export function ProjectLibraryRoute() {
           onCreateProject={() => void navigate({ to: "/projects/new" })}
           onDeleteProject={handleDeleteProject}
           onSelectProject={(projectId) => void selectProject(projectId)}
-          onUpdateProject={updateProject}
+          onUpdateProject={(project) => updateProject(project)}
         />
       }
     >
@@ -100,27 +108,23 @@ export function ProjectLibraryRoute() {
         assetGroups={assetGroups}
         project={project}
         query={search.q}
-        generationQueue={
-          <GenerationQueue
-            runs={
-              project ? runs.filter((run) => run.projectId === project.id) : []
-            }
-          />
-        }
+        generationQueue={<GenerationQueue runs={runs} />}
         creationControl={
           project ? (
             <CreateAssetToolbar
               assetKinds={creatableAssetKinds}
               project={project}
-              onCreate={(request) => enqueueRun(project.id, request)}
+              onCreate={(request) =>
+                enqueueRun({ projectId: project.id, request })
+              }
             />
           ) : null
         }
         onCopyAsset={(assetId) => {
-          if (project) copyAsset(project.id, assetId);
+          if (project) copyAsset({ projectId: project.id, assetId });
         }}
         onDeleteAsset={(assetId) => {
-          if (project) deleteAsset(project.id, assetId);
+          if (project) deleteAsset({ projectId: project.id, assetId });
         }}
         onOpenAsset={(assetId) => {
           if (project) {
@@ -144,7 +148,7 @@ export function ProjectLibraryRoute() {
 
 export function NewProjectRoute() {
   const navigate = useNavigate({ from: "/projects/new" });
-  const { addProject } = useProjectStore();
+  const { mutateAsync: createProject } = useCreateProjectMutation();
 
   return (
     <NewProjectScreen
@@ -155,7 +159,7 @@ export function NewProjectRoute() {
         })
       }
       onCreate={async (project) => {
-        addProject(project);
+        await createProject(project);
         await navigate({
           to: "/projects",
           search: { project: project.id, q: "" },
@@ -172,10 +176,9 @@ export function EditorRoute() {
   const navigate = useNavigate({
     from: "/projects/$projectId/assets/$assetId",
   });
-  const { projects } = useProjectStore();
-  const { assetGroupsByProject } = useAssetLibraryStore();
+  const { data: projects = [] } = useProjectListQuery();
+  const { data: assetGroups = [] } = useAssetLibraryQuery(projectId);
   const project = projects.find((item) => item.id === projectId);
-  const assetGroups = assetGroupsByProject[projectId] ?? [];
   const group = assetGroups.find((item) =>
     item.assets.some((asset) => asset.id === assetId),
   );
