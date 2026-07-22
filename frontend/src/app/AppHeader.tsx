@@ -1,4 +1,4 @@
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ChevronDown,
   CreditCard,
@@ -157,52 +157,44 @@ function AccountMenu() {
   );
 }
 
-export function AppShell() {
+export function AppHeader() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const isEditor = /^\/projects\/[^/]+\/assets\/[^/]+$/.test(pathname);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {!isEditor ? (
-        <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur">
-          <nav
-            aria-label="Main navigation"
-            className="grid min-h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 sm:px-6"
-          >
-            <div aria-hidden="true" />
-            <div className="flex items-center justify-center gap-1 sm:gap-2">
-              {navItems.map(({ to, label }) => {
-                const active = isActivePath(pathname, to);
-                return (
-                  <Link
-                    key={to}
-                    to={to}
-                    search={
-                      to === "/projects"
-                        ? { project: undefined, q: "" }
-                        : undefined
-                    }
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "inline-flex h-9 items-center rounded-md px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:px-3 sm:text-sm",
-                      active &&
-                        "bg-foreground text-background hover:bg-foreground hover:text-background",
-                    )}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="flex justify-end">
-              <AccountMenu />
-            </div>
-          </nav>
-        </header>
-      ) : null}
-      <Outlet />
-    </div>
+    <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur">
+      <nav
+        aria-label="Main navigation"
+        className="grid min-h-14 grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 sm:px-6"
+      >
+        <div aria-hidden="true" />
+        <div className="flex items-center justify-center gap-1 sm:gap-2">
+          {navItems.map(({ to, label }) => {
+            const active = isActivePath(pathname, to);
+            return (
+              <Link
+                key={to}
+                to={to}
+                search={
+                  to === "/projects" ? { project: undefined, q: "" } : undefined
+                }
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "inline-flex h-9 items-center rounded-md px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:px-3 sm:text-sm",
+                  active &&
+                    "bg-foreground text-background hover:bg-foreground hover:text-background",
+                )}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+        <div className="flex justify-end">
+          <AccountMenu />
+        </div>
+      </nav>
+    </header>
   );
 }

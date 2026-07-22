@@ -1,16 +1,18 @@
-import { createRootRoute, createRoute, redirect } from "@tanstack/react-router";
-
-import { AppShell } from "@/app/AppShell";
-import { SettingsScreen } from "@/app/settings/SettingsScreen";
-import { AudioStudioScreen } from "@/modules/editor/audio/AudioStudioScreen";
-import { QuickGenerateScreen } from "@/modules/generation/QuickGenerateScreen";
 import {
-  EditorRoute,
-  NewProjectRoute,
-  ProjectLibraryRoute,
-} from "./project-routes";
+  createRootRoute,
+  createRoute,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 
-const rootRoute = createRootRoute({ component: AppShell });
+import { AudioStudioPage } from "@/pages/audio/AudioStudioPage";
+import { QuickGeneratePage } from "@/pages/quick-generation/QuickGeneratePage";
+import { EditorPage } from "@/pages/projects/EditorPage";
+import { NewProjectPage } from "@/pages/projects/NewProjectPage";
+import { ProjectLibraryPage } from "@/pages/projects/ProjectLibraryPage";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
+
+const rootRoute = createRootRoute({ component: Outlet });
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -27,33 +29,33 @@ const projectsRoute = createRoute({
     project: typeof search.project === "string" ? search.project : undefined,
     q: typeof search.q === "string" ? search.q : "",
   }),
-  component: ProjectLibraryRoute,
+  component: ProjectLibraryPage,
 });
 
 const newProjectRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/projects/new",
-  component: NewProjectRoute,
+  component: NewProjectPage,
 });
 const editorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/projects/$projectId/assets/$assetId",
-  component: EditorRoute,
+  component: EditorPage,
 });
 const quickGenerateRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/generate",
-  component: QuickGenerateScreen,
+  component: QuickGeneratePage,
 });
 const audioRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/audio",
-  component: AudioStudioScreen,
+  component: AudioStudioPage,
 });
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings",
-  component: SettingsScreen,
+  component: SettingsPage,
 });
 
 export const routeTree = rootRoute.addChildren([
