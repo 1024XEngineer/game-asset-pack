@@ -3,21 +3,46 @@ package echox
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 const UserClaimsKey = "user_claims"
 
-type HandlerFunc[Resp any] func(echo.Context) (Resp, error)
+type Context struct {
+	echo.Context
+}
+
+func newContext(c echo.Context) *Context {
+	return &Context{Context: c}
+}
+
+func (c *Context) Deadline() (deadline time.Time, ok bool) {
+	return c.Request().Context().Deadline()
+}
+
+func (c *Context) Done() <-chan struct{} {
+	return c.Request().Context().Done()
+}
+
+func (c *Context) Err() error {
+	return c.Request().Context().Err()
+}
+
+func (c *Context) Value(key any) any {
+	return c.Request().Context().Value(key)
+}
+
+type HandlerFunc[Resp any] func(*Context) (Resp, error)
 
 type ReqHandlerFunc[Req any, Resp any] func(
-	echo.Context,
+	*Context,
 	Req,
 ) (Resp, error)
 
 type ClaimsHandlerFunc[Claims any, Resp any] func(
-	echo.Context,
+	*Context,
 	Claims,
 ) (Resp, error)
 
@@ -26,14 +51,14 @@ type ClaimsReqHandlerFunc[
 	Claims any,
 	Resp any,
 ] func(
-	echo.Context,
+	*Context,
 	Req,
 	Claims,
 ) (Resp, error)
 
 func Wrap[Resp any](fn HandlerFunc[Resp]) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		resp, err := fn(c)
+		resp, err := fn(newContext(c))
 		if err != nil {
 			return err
 		}
@@ -50,7 +75,7 @@ func WrapReq[Req any, Resp any](fn ReqHandlerFunc[Req, Resp]) echo.HandlerFunc {
 			return err
 		}
 
-		resp, err := fn(c, req)
+		resp, err := fn(newContext(c), req)
 		if err != nil {
 			return err
 		}
@@ -67,7 +92,7 @@ func WrapClaims[Claims any, Resp any](fn ClaimsHandlerFunc[Claims, Resp]) echo.H
 			return err
 		}
 
-		resp, err := fn(c, claims)
+		resp, err := fn(newContext(c), claims)
 		if err != nil {
 			return err
 		}
@@ -95,7 +120,7 @@ func WrapClaimsAndReq[
 			return err
 		}
 
-		resp, err := fn(c, req, claims)
+		resp, err := fn(newContext(c), req, claims)
 		if err != nil {
 			return err
 		}

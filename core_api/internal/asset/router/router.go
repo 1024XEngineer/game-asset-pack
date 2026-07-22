@@ -8,15 +8,15 @@ import (
 )
 
 type AssetRouter interface {
-	GetAssets(x echo.Context) ([]dto.GetAssetsResponse, error)
-	Detail(x echo.Context) (dto.AssetDetailResponse, error)
-	Record(x echo.Context, req dto.RecordAssetRequest) ([]dto.RecordAssetResponse, error)
-	CreateCharacterAsset(ctx echo.Context, req dto.CreateCharacterAssetRequest) (dto.CreateCharacterAssetResponse, error)
-	CreateObjectAsset(ctx echo.Context, req dto.CreateObjectAssetRequest) (dto.CreateObjectAssetResponse, error)
-	CreateTileSetAsset(ctx echo.Context, req dto.CreateTileSetAssetRequest) (dto.CreateTileSetAssetResponse, error)
-	CopyAsset(ctx echo.Context, req dto.CopyAssetRequest) (dto.CopyAssetResponse, error)
+	GetAssets(x *echox.Context) ([]dto.GetAssetsResponse, error)
+	Detail(x *echox.Context) (dto.AssetDetailResponse, error)
+	Record(x *echox.Context, req dto.RecordAssetRequest) ([]dto.RecordAssetResponse, error)
+	CreateCharacterAsset(ctx *echox.Context, req dto.CreateCharacterAssetRequest) (dto.CreateCharacterAssetResponse, error)
+	CreateObjectAsset(ctx *echox.Context, req dto.CreateObjectAssetRequest) (dto.CreateObjectAssetResponse, error)
+	CreateTileSetAsset(ctx *echox.Context, req dto.CreateTileSetAssetRequest) (dto.CreateTileSetAssetResponse, error)
+	CopyAsset(ctx *echox.Context, req dto.CopyAssetRequest) (dto.CopyAssetResponse, error)
 
-	Tags(ctx echo.Context, req dto.AddTagsRequest) (dto.AddTagsResponse, error)
+	Tags(ctx *echox.Context, req dto.AddTagsRequest) (dto.AddTagsResponse, error)
 }
 
 // RegisterRoutes registers all HTTP routes.

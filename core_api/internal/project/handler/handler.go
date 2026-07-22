@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/1024XEngineer/Holonic-Asset/pkg/echox"
 
 	"github.com/1024XEngineer/Holonic-Asset/internal/project/domain"
 	"github.com/1024XEngineer/Holonic-Asset/internal/project/dto"
@@ -17,7 +17,7 @@ func NewProjectHandler(projectService service.ProjectService) *ProjectHandler {
 	return &ProjectHandler{service: projectService}
 }
 
-func (h *ProjectHandler) Create(c echo.Context, request dto.CreateProjectRequest) (dto.CreateProjectResponse, error) {
+func (h *ProjectHandler) Create(c *echox.Context, request dto.CreateProjectRequest) (dto.CreateProjectResponse, error) {
 	project := &domain.Project{
 		UserID:         request.UserID,
 		Name:           request.Name,
@@ -28,21 +28,21 @@ func (h *ProjectHandler) Create(c echo.Context, request dto.CreateProjectRequest
 		Reference:      request.Reference,
 		Style:          request.Style,
 	}
-	err := h.service.Create(c.Request().Context(), project)
+	err := h.service.Create(c, project)
 	return dto.CreateProjectResponse{}, err
 }
 
-func (h *ProjectHandler) ListByUID(c echo.Context, request dto.ListProjectsRequest) (dto.ListProjectsResponse, error) {
-	_, err := h.service.ListByUID(c.Request().Context(), request.UserID)
+func (h *ProjectHandler) ListByUID(c *echox.Context, request dto.ListProjectsRequest) (dto.ListProjectsResponse, error) {
+	_, err := h.service.ListByUID(c, request.UserID)
 	return dto.ListProjectsResponse{}, err
 }
 
-func (h *ProjectHandler) GetDetail(c echo.Context, request dto.ProjectDetailRequest) (dto.ProjectDetailResponse, error) {
-	_, err := h.service.GetDetail(c.Request().Context(), request.ProjectID)
+func (h *ProjectHandler) GetDetail(c *echox.Context, request dto.ProjectDetailRequest) (dto.ProjectDetailResponse, error) {
+	_, err := h.service.GetDetail(c, request.ProjectID)
 	return dto.ProjectDetailResponse{}, err
 }
 
-func (h *ProjectHandler) Update(c echo.Context, request dto.UpdateProjectRequest) (dto.UpdateProjectResponse, error) {
+func (h *ProjectHandler) Update(c *echox.Context, request dto.UpdateProjectRequest) (dto.UpdateProjectResponse, error) {
 	project := &domain.Project{
 		ID:             request.ProjectID,
 		UserID:         request.UserID,
@@ -54,12 +54,12 @@ func (h *ProjectHandler) Update(c echo.Context, request dto.UpdateProjectRequest
 		Reference:      request.Reference,
 		Style:          request.Style,
 	}
-	err := h.service.Update(c.Request().Context(), project)
+	err := h.service.Update(c, project)
 	return dto.UpdateProjectResponse{}, err
 }
 
-func (h *ProjectHandler) Delete(c echo.Context, request dto.DeleteProjectRequest) (dto.DeleteProjectResponse, error) {
-	err := h.service.Delete(c.Request().Context(), request.ProjectID)
+func (h *ProjectHandler) Delete(c *echox.Context, request dto.DeleteProjectRequest) (dto.DeleteProjectResponse, error) {
+	err := h.service.Delete(c, request.ProjectID)
 	return dto.DeleteProjectResponse{}, err
 }
 
