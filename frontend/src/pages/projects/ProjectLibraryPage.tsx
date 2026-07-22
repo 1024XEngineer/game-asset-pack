@@ -15,7 +15,7 @@ import { CreateAssetToolbar } from "@components/generation/create-asset-toolbar"
 import { GenerationQueue } from "@components/generation/generation-queue";
 import { ProjectChrome } from "@components/project/project-chrome";
 import { ProjectSidebar } from "@components/project/project-sidebar";
-import { creatableAssetKinds } from "@/shared/types/asset-kind";
+import { creatableAssetKinds } from "@/types/asset-kind";
 import {
   clearLastProjectId,
   readLastProjectId,

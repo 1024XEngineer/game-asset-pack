@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useAssetLibraryQuery } from "@/data/asset/asset-library.query";
 import { useProjectListQuery } from "@/data/project/project-list.query";
-import { EditorWorkspaceScreen } from "@components/editor/EditorWorkspaceScreen";
+import { EditorWorkspaceScreen } from "@components/interfaces/Editor/EditorWorkspaceScreen";
 
 export function EditorPage() {
   const { assetId, projectId } = useParams({

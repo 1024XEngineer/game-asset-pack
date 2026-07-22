@@ -1,9 +1,9 @@
 import { assetGroupsByProject, projectSummaries } from "./project-demo-data";
 import { removeMockProjectGenerationRuns } from "./generation-repository";
-import type { AssetGroupsByProject } from "@/models/asset-library";
-import type { ProjectAsset } from "@/models/asset";
-import type { ProjectSummary } from "@/models/project";
-import type { AssetKind } from "@/shared/types/asset-kind";
+import type { AssetGroupsByProject } from "@/types/asset-library";
+import type { ProjectAsset } from "@/types/asset";
+import type { ProjectSummary } from "@/types/project";
+import type { AssetKind } from "@/types/asset-kind";
 
 const PROJECTS_STORAGE_KEY = "game-asset-pack:projects";
 

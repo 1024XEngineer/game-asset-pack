@@ -2,7 +2,7 @@ import type {
   MediaAsset,
   PresignedUploadRequest,
   PresignedUploadTarget,
-} from "@/models/media";
+} from "@/types/media";
 
 export const mockMediaAssets: MediaAsset[] = [
   {

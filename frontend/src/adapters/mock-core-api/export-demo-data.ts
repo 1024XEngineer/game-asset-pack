@@ -1,4 +1,4 @@
-import type { ExportJob, ExportSpecification } from "@/models/export";
+import type { ExportJob, ExportSpecification } from "@/types/export";
 
 export const mockExportJobs: ExportJob[] = [
   {

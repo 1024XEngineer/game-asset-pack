@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteMockProject } from "@/adapters/mock-core-api/repository";
 import { assetKeys } from "@/data/asset/keys";
 import { generationKeys } from "@/data/generation/keys";
-import type { ProjectSummary } from "@/models/project";
+import type { ProjectSummary } from "@/types/project";
 import { projectKeys } from "./keys";
 
 export function useDeleteProjectMutation() {
