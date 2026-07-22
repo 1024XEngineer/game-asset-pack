@@ -4,28 +4,21 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
-import {
-  defaultEditorPrompt,
-  nodeMeta,
-  type NodeId,
-  SCENERY_LAYERS,
-  type SceneryLayerId,
-} from "./Editor.constants";
-import { Canvas } from "./Canvas/Canvas";
+import { defaultEditorPrompt, nodeMeta } from "./Editor.constants";
+import { CharacterStage } from "./Canvas/CharacterStage";
 import { SceneryStage } from "./Canvas/SceneryStage";
 import { SpriteSheetStage } from "./Canvas/SpriteSheetStage";
+import { useCharacterStageMachine } from "./Canvas/StateMachine/characterStageMachine";
+import { useSceneryStageMachine } from "./Canvas/StateMachine/sceneryStageMachine";
+import {
+  STATIC_TILE_POSITIONS,
+  useSpriteSheetStageMachine,
+} from "./Canvas/StateMachine/spriteSheetStageMachine";
 import { EditorHeader } from "./Header/EditorHeader";
 import { Inspector, type SaveHistoryEntry } from "./Inspector/Inspector";
 import { AssetTree } from "./AssetTree/AssetTree";
 import { SceneryLayerTree } from "./AssetTree/SceneryLayerTree";
 import { StaticAssetTree } from "./AssetTree/StaticAssetTree";
-
-const STATIC_TILE_POSITIONS: Record<string, string[]> = {
-  Bed: ["Top left", "Top right", "Bottom left", "Bottom right"],
-  "Street lamp": ["Top", "Center", "Bottom"],
-  "Street fence": ["Left end", "Center left", "Center right", "Right end"],
-  Object: ["Center"],
-};
 
 export function EditorWorkspace({
   asset,
@@ -36,30 +29,20 @@ export function EditorWorkspace({
   projectName?: string;
   onBack: () => void;
 }) {
-  const [selectedNode, setSelectedNode] = useState<NodeId | null>(null);
-  const [selectedNodes, setSelectedNodes] = useState<NodeId[]>([]);
-  const [selectedFrames, setSelectedFrames] = useState<
-    Array<{ node: NodeId; index: number }>
-  >([]);
+  const characterStage = useCharacterStageMachine();
+  const sceneryStage = useSceneryStageMachine();
+  const spriteSheetStage = useSpriteSheetStageMachine();
   const [status, setStatus] = useState("All changes saved");
   const [canUndo, setCanUndo] = useState(true);
   const [canRedo, setCanRedo] = useState(false);
   const [prompt, setPrompt] = useState(defaultEditorPrompt);
   const [saveHistory, setSaveHistory] = useState<SaveHistoryEntry[]>([]);
-  const [selectedStaticItems, setSelectedStaticItems] = useState<string[]>([]);
-  const [selectedStaticTiles, setSelectedStaticTiles] = useState<string[]>([]);
-  const [selectedSceneryLayers, setSelectedSceneryLayers] = useState<
-    SceneryLayerId[]
-  >([]);
-  const [visibleSceneryLayers, setVisibleSceneryLayers] = useState<
-    SceneryLayerId[]
-  >(() => SCENERY_LAYERS.map((layer) => layer.id));
   const usesCharacterEditor =
     asset?.kind === "character" || asset?.kind === "object";
   const usesSceneryEditor = asset?.kind === "scenery";
   const staticSelections = [
-    ...selectedStaticItems,
-    ...selectedStaticTiles.map((tile) => {
+    ...spriteSheetStage.selectedItems,
+    ...spriteSheetStage.selectedTiles.map((tile) => {
       const separator = tile.lastIndexOf(":");
       const item = tile.slice(0, separator);
       const tileIndex = Number(tile.slice(separator + 1));
@@ -69,7 +52,7 @@ export function EditorWorkspace({
     }),
   ];
   const editorSelections = usesSceneryEditor
-    ? selectedSceneryLayers
+    ? sceneryStage.selectedLayers
     : staticSelections;
 
   if (!projectName || !asset) {
@@ -89,101 +72,6 @@ export function EditorWorkspace({
     setStatus(message);
     window.setTimeout(() => setStatus("All changes saved"), 2200);
   };
-  const handleSelectNode = (node: NodeId) => {
-    setSelectedNode(node);
-    setSelectedNodes([node]);
-    setSelectedFrames([]);
-  };
-  const handleSelectFrame = (node: NodeId, index: number) => {
-    setSelectedNode(node);
-    setSelectedNodes([node]);
-    setSelectedFrames([{ node, index }]);
-  };
-  const handleSelectFrames = (node: NodeId, indexes: number[]) => {
-    setSelectedNode(node);
-    setSelectedNodes([node]);
-    setSelectedFrames(indexes.map((index) => ({ node, index })));
-  };
-  const handleSelectNodes = (nodes: NodeId[]) => {
-    setSelectedNodes(nodes);
-    setSelectedNode(nodes[0] ?? null);
-    setSelectedFrames([]);
-  };
-  const handleToggleStaticTile = (tile: string) => {
-    const separator = tile.lastIndexOf(":");
-    const item = tile.slice(0, separator);
-
-    if (item !== "Canvas" && selectedStaticItems.includes(item)) {
-      const remainingTiles = (STATIC_TILE_POSITIONS[item] ?? [])
-        .map((_, index) => `${item}:${index}`)
-        .filter((itemTile) => itemTile !== tile);
-
-      setSelectedStaticItems((current) =>
-        current.filter((selectedItem) => selectedItem !== item),
-      );
-      setSelectedStaticTiles((current) => [
-        ...current.filter(
-          (selectedTile) => !selectedTile.startsWith(`${item}:`),
-        ),
-        ...remainingTiles,
-      ]);
-      return;
-    }
-
-    const itemTiles = (STATIC_TILE_POSITIONS[item] ?? []).map(
-      (_, index) => `${item}:${index}`,
-    );
-    const restoresCompleteItem =
-      item !== "Canvas" &&
-      !selectedStaticTiles.includes(tile) &&
-      itemTiles.length > 0 &&
-      itemTiles.every((itemTile) =>
-        itemTile === tile ? true : selectedStaticTiles.includes(itemTile),
-      );
-
-    if (restoresCompleteItem) {
-      setSelectedStaticTiles((current) =>
-        current.filter((selectedTile) => !selectedTile.startsWith(`${item}:`)),
-      );
-      setSelectedStaticItems((current) =>
-        current.includes(item) ? current : [...current, item],
-      );
-      return;
-    }
-
-    setSelectedStaticTiles((current) =>
-      current.includes(tile)
-        ? current.filter((selectedTile) => selectedTile !== tile)
-        : [...current, tile],
-    );
-  };
-  const handleToggleStaticItem = (item: string) => {
-    if (selectedStaticItems.includes(item)) {
-      setSelectedStaticItems((current) =>
-        current.filter((selectedItem) => selectedItem !== item),
-      );
-      return;
-    }
-
-    setSelectedStaticItems((current) => [...current, item]);
-    setSelectedStaticTiles((current) =>
-      current.filter((selectedTile) => !selectedTile.startsWith(`${item}:`)),
-    );
-  };
-  const handleToggleSceneryLayer = (layer: SceneryLayerId) => {
-    setSelectedSceneryLayers((current) =>
-      current.includes(layer)
-        ? current.filter((selectedLayer) => selectedLayer !== layer)
-        : [...current, layer],
-    );
-  };
-  const handleToggleSceneryVisibility = (layer: SceneryLayerId) => {
-    setVisibleSceneryLayers((current) =>
-      current.includes(layer)
-        ? current.filter((visibleLayer) => visibleLayer !== layer)
-        : [...current, layer],
-    );
-  };
   const handleSave = () => {
     const timestamp = new Date().toLocaleString("en-US", {
       dateStyle: "medium",
@@ -197,8 +85,10 @@ export function EditorWorkspace({
         description: prompt.trim() || "No description provided.",
         selection: editorSelections.length
           ? editorSelections.join(", ")
-          : selectedNodes.length
-            ? selectedNodes.map((node) => nodeMeta[node].label).join(", ")
+          : characterStage.selectedNodes.length
+            ? characterStage.selectedNodes
+                .map((node) => nodeMeta[node].label)
+                .join(", ")
             : "Nothing selected",
       },
       ...current,
@@ -232,56 +122,52 @@ export function EditorWorkspace({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {usesCharacterEditor ? (
           <AssetTree
-            selectedNode={selectedNode}
-            selectedFrames={selectedFrames}
-            onSelect={handleSelectNode}
-            onSelectFrame={handleSelectFrame}
+            selectedNode={characterStage.selectedNode}
+            selectedFrames={characterStage.selectedFrames}
+            onSelect={characterStage.selectNode}
+            onSelectFrame={characterStage.selectFrame}
           />
         ) : usesSceneryEditor ? (
           <SceneryLayerTree
-            selectedLayers={selectedSceneryLayers}
-            visibleLayers={visibleSceneryLayers}
-            onToggleLayer={handleToggleSceneryLayer}
-            onToggleVisibility={handleToggleSceneryVisibility}
+            selectedLayers={sceneryStage.selectedLayers}
+            visibleLayers={sceneryStage.visibleLayers}
+            onToggleLayer={sceneryStage.toggleLayer}
+            onToggleVisibility={sceneryStage.toggleVisibility}
           />
         ) : (
           <StaticAssetTree
             kind={asset.kind === "tiles" ? "tiles" : "object"}
-            selectedItems={selectedStaticItems}
-            selectedTiles={selectedStaticTiles}
-            onToggleItem={handleToggleStaticItem}
-            onToggleTile={handleToggleStaticTile}
+            selectedItems={spriteSheetStage.selectedItems}
+            selectedTiles={spriteSheetStage.selectedTiles}
+            onToggleItem={spriteSheetStage.toggleItem}
+            onToggleTile={spriteSheetStage.toggleTile}
           />
         )}
         {usesCharacterEditor ? (
-          <Canvas
-            selectedNodes={selectedNodes}
-            selectedFrames={selectedFrames}
-            onSelect={handleSelectNode}
-            onSelectFrame={handleSelectFrame}
-            onSelectFrames={handleSelectFrames}
-            onSelectNodes={handleSelectNodes}
-            onClearSelection={() => {
-              setSelectedNode(null);
-              setSelectedNodes([]);
-              setSelectedFrames([]);
-            }}
+          <CharacterStage
+            selectedNodes={characterStage.selectedNodes}
+            selectedFrames={characterStage.selectedFrames}
+            onSelect={characterStage.selectNode}
+            onSelectFrame={characterStage.selectFrame}
+            onSelectFrames={characterStage.selectFrames}
+            onSelectNodes={characterStage.selectNodes}
+            onClearSelection={characterStage.clearSelection}
           />
         ) : usesSceneryEditor ? (
           <SceneryStage
-            selectedLayers={selectedSceneryLayers}
-            visibleLayers={visibleSceneryLayers}
+            selectedLayers={sceneryStage.selectedLayers}
+            visibleLayers={sceneryStage.visibleLayers}
           />
         ) : (
           <SpriteSheetStage
-            selectedItems={selectedStaticItems}
-            selectedTiles={selectedStaticTiles}
-            onToggleTile={handleToggleStaticTile}
+            selectedItems={spriteSheetStage.selectedItems}
+            selectedTiles={spriteSheetStage.selectedTiles}
+            onToggleTile={spriteSheetStage.toggleTile}
           />
         )}
         <Inspector
-          selectedNodes={selectedNodes}
-          selectedFrames={selectedFrames}
+          selectedNodes={characterStage.selectedNodes}
+          selectedFrames={characterStage.selectedFrames}
           prompt={prompt}
           onPromptChange={setPrompt}
           onAction={handleAction}

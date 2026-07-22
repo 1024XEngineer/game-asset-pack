@@ -40,14 +40,21 @@ export function SpriteSheetStage({
   return (
     <main className="min-h-0 min-w-0 flex-1 overflow-hidden bg-[#eeece7] p-6 lg:p-8">
       <div className="flex h-full min-h-[36rem] flex-col gap-4">
-        <section aria-label="Tileset canvas" className="flex min-h-0 flex-1 flex-col">
+        <section
+          aria-label="Tileset canvas"
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <div className="grid min-h-0 flex-1 grid-cols-8 grid-rows-8 gap-1">
             {Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => {
-              const mappedTile = Object.entries(ITEM_TILE_CELLS).find(([, tiles]) =>
-                tiles.some((cells) => cells.includes(index)),
+              const mappedTile = Object.entries(ITEM_TILE_CELLS).find(
+                ([, tiles]) => tiles.some((cells) => cells.includes(index)),
               );
-              const mappedTileIndex = mappedTile?.[1].findIndex((cells) => cells.includes(index));
-              const tileId = mappedTile ? `${mappedTile[0]}:${mappedTileIndex}` : `Canvas:${index}`;
+              const mappedTileIndex = mappedTile?.[1].findIndex((cells) =>
+                cells.includes(index),
+              );
+              const tileId = mappedTile
+                ? `${mappedTile[0]}:${mappedTileIndex}`
+                : `Canvas:${index}`;
 
               return (
                 <button

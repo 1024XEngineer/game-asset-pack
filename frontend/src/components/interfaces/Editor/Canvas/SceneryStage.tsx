@@ -53,7 +53,10 @@ export function SceneryStage({
         {selectedLayers.length ? (
           <div className="pointer-events-none absolute left-4 top-4 z-20 rounded-full border border-white/30 bg-black/35 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
             {selectedLayers
-              .map((layerId) => SCENERY_LAYERS.find((layer) => layer.id === layerId)?.label)
+              .map(
+                (layerId) =>
+                  SCENERY_LAYERS.find((layer) => layer.id === layerId)?.label,
+              )
               .filter(Boolean)
               .join(", ")}{" "}
             selected

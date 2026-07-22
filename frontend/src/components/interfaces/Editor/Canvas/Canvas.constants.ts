@@ -22,7 +22,10 @@ export const ANIMATION_NODES = new Set<NodeId>([
   "celebrate",
 ]);
 
-export const DEFAULT_CANVAS_POSITIONS: Record<(typeof CANVAS_NODES)[number], CanvasPosition> = {
+export const DEFAULT_CANVAS_POSITIONS: Record<
+  (typeof CANVAS_NODES)[number],
+  CanvasPosition
+> = {
   prototype: { x: 160, y: 160 },
   idle: { x: 490, y: 160 },
   walk: { x: 900, y: 160 },
