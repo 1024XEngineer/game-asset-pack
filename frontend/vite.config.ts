@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -11,5 +12,8 @@ export default defineConfig({
       "@/lib": new URL("./src/shared/lib", import.meta.url).pathname,
       "@": new URL("./src", import.meta.url).pathname,
     },
+  },
+  test: {
+    environment: "node",
   },
 });
