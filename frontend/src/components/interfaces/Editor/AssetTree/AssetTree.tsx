@@ -1,4 +1,11 @@
-import { ChevronDown, Folder, ImagePlus, Music2, Play, Plus } from "lucide-react";
+import {
+  ChevronDown,
+  Folder,
+  ImagePlus,
+  Music2,
+  Play,
+  Plus,
+} from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -101,16 +108,23 @@ export function AssetTree({
           </FolderItem>
         </div>
       </ScrollArea>
-      <Dialog open={isCreateAnimationOpen} onOpenChange={setIsCreateAnimationOpen}>
+      <Dialog
+        open={isCreateAnimationOpen}
+        onOpenChange={setIsCreateAnimationOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New animation</DialogTitle>
             <DialogDescription>
-              Add a named animation to this asset. You can add frames after it is created.
+              Add a named animation to this asset. You can add frames after it
+              is created.
             </DialogDescription>
           </DialogHeader>
           <form className="grid gap-5" onSubmit={handleCreateAnimation}>
-            <label className="grid gap-2 text-sm font-medium" htmlFor="animation-name">
+            <label
+              className="grid gap-2 text-sm font-medium"
+              htmlFor="animation-name"
+            >
               Animation name
               <Input
                 id="animation-name"
@@ -122,7 +136,9 @@ export function AssetTree({
               />
             </label>
             <DialogFooter>
-              <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
+              <DialogClose render={<Button type="button" variant="outline" />}>
+                Cancel
+              </DialogClose>
               <Button type="submit">Create animation</Button>
             </DialogFooter>
           </form>
@@ -159,7 +175,9 @@ function FolderItem({
           <Plus className="size-3.5" />
         </button>
       </div>
-      <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">{children}</div>
+      <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">
+        {children}
+      </div>
     </div>
   );
 }
@@ -172,7 +190,9 @@ function AddedAnimationTreeItem({ label }: { label: string }) {
         <span className="-mx-0.5 inline-flex cursor-pointer rounded p-0.5 text-[#a9a29a] transition-all hover:bg-black/[.06] hover:text-[#71685d] active:scale-90">
           <Music2 className="size-3.5" aria-label="No audio" />
         </span>
-        <span className="min-w-0 flex-1 truncate text-xs font-medium">{label}</span>
+        <span className="min-w-0 flex-1 truncate text-xs font-medium">
+          {label}
+        </span>
       </div>
       <ChevronDown className="mr-1 size-3.5 -rotate-90 text-[#81786d]" />
     </div>
@@ -200,7 +220,13 @@ function TreeItem({
     neutral: "text-[#786f64]",
   };
   const meta = nodeMeta[node];
-  const isFrameBasedAsset = ["idle", "walk", "harvest", "jump", "celebrate"].includes(node);
+  const isFrameBasedAsset = [
+    "idle",
+    "walk",
+    "harvest",
+    "jump",
+    "celebrate",
+  ].includes(node);
 
   return (
     <button
@@ -209,9 +235,13 @@ function TreeItem({
       className={`group flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors ${selectedNode === node ? "bg-black/5 text-[#2d2923]" : "text-[#71685d] hover:bg-black/[.04] hover:text-[#2d2923]"}`}
     >
       <span className={colors[accent]}>{icon}</span>
-      <span className="min-w-0 flex-1 truncate text-xs font-medium">{meta.label}</span>
+      <span className="min-w-0 flex-1 truncate text-xs font-medium">
+        {meta.label}
+      </span>
       {meta.count && !isFrameBasedAsset ? (
-        <span className="font-mono text-[10px] text-[#81786d]">{meta.count}</span>
+        <span className="font-mono text-[10px] text-[#81786d]">
+          {meta.count}
+        </span>
       ) : null}
     </button>
   );
@@ -252,7 +282,10 @@ function AnimationTreeItem({
           <span
             className={`-mx-0.5 inline-flex cursor-pointer rounded p-0.5 transition-all hover:bg-black/[.06] active:scale-90 ${audio ? "text-[#c36d6c] hover:text-[#a84f50]" : "text-[#a9a29a] hover:text-[#71685d]"}`}
           >
-            <Music2 className="size-3.5" aria-label={audio ? "Has audio" : "No audio"} />
+            <Music2
+              className="size-3.5"
+              aria-label={audio ? "Has audio" : "No audio"}
+            />
           </span>
           <span className="min-w-0 flex-1 truncate text-xs font-medium">
             {nodeMeta[node].label}
@@ -274,7 +307,8 @@ function AnimationTreeItem({
         <div className="ml-4 mt-1 space-y-0.5 border-l border-black/10 pl-2">
           {frames.map((frame, index) => {
             const isSelected = selectedFrames.some(
-              (selectedFrame) => selectedFrame.node === node && selectedFrame.index === index,
+              (selectedFrame) =>
+                selectedFrame.node === node && selectedFrame.index === index,
             );
 
             return (

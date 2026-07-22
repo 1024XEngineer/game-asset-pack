@@ -2,7 +2,7 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { useAssetLibrary } from "@/hooks/useAssetLibrary";
+import { useAssetLibrary } from "./useAssetLibrary";
 import type { ProjectSummary } from "@/types/project";
 import type { AssetGroup } from "@/types/asset-library";
 import { AssetCard } from "./asset-card";

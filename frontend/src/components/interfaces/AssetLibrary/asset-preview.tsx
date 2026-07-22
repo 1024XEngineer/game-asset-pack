@@ -20,7 +20,11 @@ export function AssetPreview({
             key={index}
             className={cn(
               "rounded-[2px]",
-              index % 3 === 0 ? accentClassName : index % 2 === 0 ? "bg-muted" : "bg-card",
+              index % 3 === 0
+                ? accentClassName
+                : index % 2 === 0
+                  ? "bg-muted"
+                  : "bg-card",
             )}
           />
         ))}

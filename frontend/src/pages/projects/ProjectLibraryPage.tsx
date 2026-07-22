@@ -1,7 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
-import { AppHeader } from "@components/AppHeader";
+import { AssetLibraryWorkspace } from "@/components/interfaces/AssetLibrary/asset-library-workspace";
+import { CreateAssetToolbar } from "@/components/interfaces/Generation/create-asset-toolbar";
+import { GenerationQueue } from "@/components/interfaces/Generation/generation-queue";
+import { ProjectSidebar } from "@/components/interfaces/Project/project-sidebar";
+import { AppHeader } from "@/components/layouts/AppHeader";
+import { ProjectChrome } from "@/components/layouts/ProjectChrome";
 import { useCopyAssetMutation } from "@/data/asset/asset-copy.mutation";
 import { useDeleteAssetMutation } from "@/data/asset/asset-delete.mutation";
 import { useAssetLibraryQuery } from "@/data/asset/asset-library.query";
@@ -10,17 +15,12 @@ import { useGenerationRunsQuery } from "@/data/generation/generation-runs.query"
 import { useDeleteProjectMutation } from "@/data/project/project-delete.mutation";
 import { useProjectListQuery } from "@/data/project/project-list.query";
 import { useUpdateProjectMutation } from "@/data/project/project-update.mutation";
-import { AssetLibraryWorkspace } from "@components/asset-library/asset-library-workspace";
-import { CreateAssetToolbar } from "@components/generation/create-asset-toolbar";
-import { GenerationQueue } from "@components/generation/generation-queue";
-import { ProjectChrome } from "@components/project/project-chrome";
-import { ProjectSidebar } from "@components/project/project-sidebar";
 import { creatableAssetKinds } from "@/types/asset-kind";
 import {
   clearLastProjectId,
   readLastProjectId,
   writeLastProjectId,
-} from "@/states/project-selection";
+} from "@/data/project/project-selection.storage";
 
 export function ProjectLibraryPage() {
   const navigate = useNavigate({ from: "/projects" });

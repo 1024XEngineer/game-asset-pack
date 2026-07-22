@@ -1,4 +1,11 @@
-export type NodeId = "prototype" | "idle" | "walk" | "harvest" | "jump" | "celebrate" | "metadata";
+export type NodeId =
+  | "prototype"
+  | "idle"
+  | "walk"
+  | "harvest"
+  | "jump"
+  | "celebrate"
+  | "metadata";
 
 export type NodeMeta = {
   label: string;
@@ -11,7 +18,14 @@ export type AudioCue = {
   time: string;
 };
 
-export const frameColors = ["#f6c66e", "#f09b5b", "#91c7a5", "#7d9bd0", "#f2c17a", "#e68c67"];
+export const frameColors = [
+  "#f6c66e",
+  "#f09b5b",
+  "#91c7a5",
+  "#7d9bd0",
+  "#f2c17a",
+  "#e68c67",
+];
 
 export const nodeMeta: Record<NodeId, NodeMeta> = {
   prototype: { label: "Prototype", eyebrow: "Source" },

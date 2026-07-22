@@ -5,7 +5,7 @@ import {
   initialQuickGenerationAssets,
   quickGenerationSizes,
   type QuickGenerationAsset,
-} from "@/states/quick-generation";
+} from "./QuickGeneration.constants";
 
 export function useQuickGeneration() {
   const [assets, setAssets] = useState<QuickGenerationAsset[]>(

@@ -21,7 +21,14 @@ import { DropdownField } from "@/components/ui/dropdown-field";
 import type { ProjectSummary } from "@/types/project";
 
 const options = {
-  gameType: ["Role-playing game", "Platformer", "Puzzle", "Strategy", "Simulation", "Other"],
+  gameType: [
+    "Role-playing game",
+    "Platformer",
+    "Puzzle",
+    "Strategy",
+    "Simulation",
+    "Other",
+  ],
   visualStyle: ["Top down", "Side on", "Isometric", "Other"],
   platform: ["PC", "Mobile", "Web", "Console", "Multi-platform"],
 };
@@ -44,19 +51,27 @@ export function ProjectSettingsDialog({
   useEffect(() => {
     setDraft(project);
     setCustomVisualStyle(
-      options.visualStyle.includes(project.visualStyle) ? "" : project.visualStyle,
+      options.visualStyle.includes(project.visualStyle)
+        ? ""
+        : project.visualStyle,
     );
-    setCustomGameType(options.gameType.includes(project.gameType) ? "" : project.gameType);
+    setCustomGameType(
+      options.gameType.includes(project.gameType) ? "" : project.gameType,
+    );
   }, [project]);
 
-  function update<K extends keyof ProjectSummary>(key: K, value: ProjectSummary[K]) {
+  function update<K extends keyof ProjectSummary>(
+    key: K,
+    value: ProjectSummary[K],
+  ) {
     setDraft((current) => ({ ...current, [key]: value }));
   }
 
   function uploadDirection(file: File | undefined) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => update("visualDirection", String(reader.result ?? ""));
+    reader.onload = () =>
+      update("visualDirection", String(reader.result ?? ""));
     reader.readAsDataURL(file);
   }
 
@@ -64,13 +79,23 @@ export function ProjectSettingsDialog({
     event.preventDefault();
     if (!draft.name.trim()) return;
     const hasCustomVisualStyle =
-      draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle);
-    const hasCustomGameType = draft.gameType === "Other" || !options.gameType.includes(draft.gameType);
-    const visualStyle = hasCustomVisualStyle ? customVisualStyle.trim() : draft.visualStyle;
+      draft.visualStyle === "Other" ||
+      !options.visualStyle.includes(draft.visualStyle);
+    const hasCustomGameType =
+      draft.gameType === "Other" || !options.gameType.includes(draft.gameType);
+    const visualStyle = hasCustomVisualStyle
+      ? customVisualStyle.trim()
+      : draft.visualStyle;
     const gameType = hasCustomGameType ? customGameType.trim() : draft.gameType;
     if (hasCustomVisualStyle && !visualStyle) return;
     if (hasCustomGameType && !gameType) return;
-    onSave({ ...draft, name: draft.name.trim(), gameType, visualStyle, style: visualStyle || draft.style });
+    onSave({
+      ...draft,
+      name: draft.name.trim(),
+      gameType,
+      visualStyle,
+      style: visualStyle || draft.style,
+    });
     setOpen(false);
   }
 
@@ -91,7 +116,11 @@ export function ProjectSettingsDialog({
         }
       >
         <Pencil data-icon={iconOnly ? undefined : "inline-start"} />
-        {iconOnly ? <span className="sr-only">Edit project</span> : "Edit project"}
+        {iconOnly ? (
+          <span className="sr-only">Edit project</span>
+        ) : (
+          "Edit project"
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
@@ -112,7 +141,11 @@ export function ProjectSettingsDialog({
             </label>
             <DropdownField
               label="Game type"
-              value={options.gameType.includes(draft.gameType) ? draft.gameType : "Other"}
+              value={
+                options.gameType.includes(draft.gameType)
+                  ? draft.gameType
+                  : "Other"
+              }
               options={options.gameType}
               onChange={(value) => {
                 update("gameType", value);
@@ -121,29 +154,42 @@ export function ProjectSettingsDialog({
             />
             <DropdownField
               label="Visual style"
-              value={options.visualStyle.includes(draft.visualStyle) ? draft.visualStyle : "Other"}
+              value={
+                options.visualStyle.includes(draft.visualStyle)
+                  ? draft.visualStyle
+                  : "Other"
+              }
               options={options.visualStyle}
               onChange={(value) => {
                 update("visualStyle", value);
                 if (value !== "Other") setCustomVisualStyle("");
               }}
             />
-            {draft.gameType === "Other" || !options.gameType.includes(draft.gameType) ? (
+            {draft.gameType === "Other" ||
+            !options.gameType.includes(draft.gameType) ? (
               <label
                 className={`grid gap-2 text-sm font-medium ${
-                  draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle)
+                  draft.visualStyle === "Other" ||
+                  !options.visualStyle.includes(draft.visualStyle)
                     ? ""
                     : "sm:col-span-2"
                 }`}
               >
                 Custom game type
-                <Input required placeholder="Describe the game type" value={customGameType} onChange={(event) => setCustomGameType(event.target.value)} />
+                <Input
+                  required
+                  placeholder="Describe the game type"
+                  value={customGameType}
+                  onChange={(event) => setCustomGameType(event.target.value)}
+                />
               </label>
             ) : null}
-            {draft.visualStyle === "Other" || !options.visualStyle.includes(draft.visualStyle) ? (
+            {draft.visualStyle === "Other" ||
+            !options.visualStyle.includes(draft.visualStyle) ? (
               <label
                 className={`grid gap-2 text-sm font-medium ${
-                  draft.gameType === "Other" || !options.gameType.includes(draft.gameType)
+                  draft.gameType === "Other" ||
+                  !options.gameType.includes(draft.gameType)
                     ? ""
                     : "sm:col-span-2"
                 }`}
@@ -202,7 +248,9 @@ export function ProjectSettingsDialog({
             </button>
           </div>
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
+            <DialogClose render={<Button type="button" variant="outline" />}>
+              Cancel
+            </DialogClose>
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>

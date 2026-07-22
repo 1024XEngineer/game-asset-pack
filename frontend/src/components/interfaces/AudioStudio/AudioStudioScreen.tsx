@@ -12,7 +12,7 @@ import {
   VolumeX,
 } from "lucide-react";
 
-import { useAudioStudio } from "@/hooks/useAudioStudio";
+import { useAudioStudio } from "./useAudioStudio";
 
 export function AudioStudioScreen() {
   const {

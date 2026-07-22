@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { initialAudioTracks } from "@/states/audio-studio";
+import { initialAudioTracks } from "./AudioStudio.constants";
 
 export function useAudioStudio() {
   const [tracks, setTracks] = useState(initialAudioTracks);

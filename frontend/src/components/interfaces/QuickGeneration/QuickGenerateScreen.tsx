@@ -9,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { useQuickGeneration } from "@/hooks/useQuickGeneration";
+import { useQuickGeneration } from "./useQuickGeneration";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

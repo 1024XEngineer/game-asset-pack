@@ -33,7 +33,11 @@ export function DropdownField({
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
           render={
-            <Button type="button" variant="outline" className="h-9 w-full justify-between px-3 font-normal" />
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9 w-full justify-between px-3 font-normal"
+            />
           }
         >
           {value || "Not specified"}

@@ -6,7 +6,7 @@ import {
   Settings,
   UserRound,
 } from "lucide-react";
-import { useHoverDropdown } from "@/hooks/useHoverDropdown";
+import { useHoverDropdown } from "./AppHeader.useHoverDropdown";
 import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -48,10 +48,7 @@ function AccountMenu() {
     pathname === "/settings" || pathname.startsWith("/settings/");
 
   return (
-    <DropdownMenu
-      open={isOpen}
-      onOpenChange={onOpenChange}
-    >
+    <DropdownMenu open={isOpen} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger
         onMouseEnter={openFromHover}
         onMouseLeave={closeFromHover}

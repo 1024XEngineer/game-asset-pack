@@ -16,12 +16,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { ProjectSummary } from "@/types/project";
 import type { CreationRequest } from "@/types/generation";
-import { getAssetTypeAdapter, type CreatableAssetKind } from "@/types/asset-kind";
+import {
+  getAssetTypeAdapter,
+  type CreatableAssetKind,
+} from "@/types/asset-kind";
 
 export function CreateAssetDialog({
   children,
@@ -38,24 +44,32 @@ export function CreateAssetDialog({
   const [kind, setKind] = useState<CreatableAssetKind>("character");
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
-  const [perspective, setPerspective] = useState<CreationRequest["perspective"]>("top-down");
-  const [directionCount, setDirectionCount] = useState<CreationRequest["directionCount"]>("4");
+  const [perspective, setPerspective] =
+    useState<CreationRequest["perspective"]>("top-down");
+  const [directionCount, setDirectionCount] =
+    useState<CreationRequest["directionCount"]>("4");
   const [reference, setReference] = useState<File>();
   const [useProjectContext, setUseProjectContext] = useState(true);
   const isSpriteAsset = kind === "character" || kind === "object";
-  const [backgroundType, setBackgroundType] = useState<"scenery" | "tiles">("scenery");
+  const [backgroundType, setBackgroundType] = useState<"scenery" | "tiles">(
+    "scenery",
+  );
   const [style, setStyle] = useState("");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [layers, setLayers] = useState([{ description: "" }]);
   const [tiles, setTiles] = useState([
     { description: "", reference: undefined as File | undefined },
   ]);
-  const [components, setComponents] = useState([{ name: "", description: "", isCustom: false }]);
+  const [components, setComponents] = useState([
+    { name: "", description: "", isCustom: false },
+  ]);
   const [canvasSize, setCanvasSize] = useState("32 × 32 px");
 
   const openDialog = (nextKind: CreatableAssetKind) => {
     setKind(nextKind);
-    setCanvasSize(getAssetTypeAdapter(nextKind).defaultCanvasSize ?? "32 × 32 px");
+    setCanvasSize(
+      getAssetTypeAdapter(nextKind).defaultCanvasSize ?? "32 × 32 px",
+    );
     setPrompt(initialPrompt.trim());
     setPerspective("top-down");
     setDirectionCount("4");
@@ -102,8 +116,10 @@ export function CreateAssetDialog({
         <DialogHeader>
           <DialogTitle>Create {getAssetTypeAdapter(kind).label}</DialogTitle>
           <DialogDescription>
-            Set the production details for this {getAssetTypeAdapter(kind).label.toLowerCase()}. Project defaults will
-            guide its {kind === "audio" ? "tone and atmosphere" : "visual style"}.
+            Set the production details for this{" "}
+            {getAssetTypeAdapter(kind).label.toLowerCase()}. Project defaults
+            will guide its{" "}
+            {kind === "audio" ? "tone and atmosphere" : "visual style"}.
           </DialogDescription>
         </DialogHeader>
 
@@ -171,7 +187,10 @@ export function CreateAssetDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-medium">
                 Canvas size
-                <Input value={canvasSize} onChange={(event) => setCanvasSize(event.target.value)} />
+                <Input
+                  value={canvasSize}
+                  onChange={(event) => setCanvasSize(event.target.value)}
+                />
               </label>
               <div className="grid gap-2 text-sm font-medium">
                 <label htmlFor="create-asset-perspective">Perspective</label>
@@ -181,13 +200,21 @@ export function CreateAssetDialog({
                   value={perspective}
                   onChange={(event) =>
                     setPerspective(
-                      event.target.value as NonNullable<CreationRequest["perspective"]>,
+                      event.target.value as NonNullable<
+                        CreationRequest["perspective"]
+                      >,
                     )
                   }
                 >
-                  <NativeSelectOption value="top-down">Top down</NativeSelectOption>
-                  <NativeSelectOption value="side-on">Side on</NativeSelectOption>
-                  <NativeSelectOption value="isometric">Isometric</NativeSelectOption>
+                  <NativeSelectOption value="top-down">
+                    Top down
+                  </NativeSelectOption>
+                  <NativeSelectOption value="side-on">
+                    Side on
+                  </NativeSelectOption>
+                  <NativeSelectOption value="isometric">
+                    Isometric
+                  </NativeSelectOption>
                 </NativeSelect>
               </div>
             </div>
@@ -233,7 +260,10 @@ export function CreateAssetDialog({
                   </label>
                   <div className="grid gap-3">
                     {layers.map((layer, index) => (
-                      <label key={index} className="grid gap-2 text-sm font-medium">
+                      <label
+                        key={index}
+                        className="grid gap-2 text-sm font-medium"
+                      >
                         Layer {index + 1} description
                         <Textarea
                           required
@@ -260,7 +290,10 @@ export function CreateAssetDialog({
                       placeholder="e.g. 16:9"
                     />
                   </label>
-                  <ReferenceField reference={reference} onChange={setReference} />
+                  <ReferenceField
+                    reference={reference}
+                    onChange={setReference}
+                  />
                 </>
               ) : (
                 <>
@@ -275,7 +308,10 @@ export function CreateAssetDialog({
                           Array.from(
                             { length: count },
                             (_, index) =>
-                              current[index] ?? { description: "", reference: undefined },
+                              current[index] ?? {
+                                description: "",
+                                reference: undefined,
+                              },
                           ),
                         );
                       }}
@@ -291,7 +327,10 @@ export function CreateAssetDialog({
                   </label>
                   <div className="grid gap-4">
                     {tiles.map((tile, index) => (
-                      <div key={index} className="grid gap-2 rounded-lg border p-3">
+                      <div
+                        key={index}
+                        className="grid gap-2 rounded-lg border p-3"
+                      >
                         <label className="grid gap-2 text-sm font-medium">
                           Tile {index + 1} description
                           <Textarea
@@ -301,7 +340,10 @@ export function CreateAssetDialog({
                               setTiles((current) =>
                                 current.map((item, itemIndex) =>
                                   itemIndex === index
-                                    ? { ...item, description: event.target.value }
+                                    ? {
+                                        ...item,
+                                        description: event.target.value,
+                                      }
                                     : item,
                                 ),
                               )
@@ -313,7 +355,9 @@ export function CreateAssetDialog({
                           onChange={(file) =>
                             setTiles((current) =>
                               current.map((item, itemIndex) =>
-                                itemIndex === index ? { ...item, reference: file } : item,
+                                itemIndex === index
+                                  ? { ...item, reference: file }
+                                  : item,
                               ),
                             )
                           }
@@ -332,14 +376,19 @@ export function CreateAssetDialog({
                 <p className="text-sm font-medium">Layout components</p>
                 <div className="grid max-h-80 gap-3 overflow-y-auto pr-1">
                   {components.map((component, index) => (
-                    <div key={index} className="grid gap-2 rounded-lg border p-3">
+                    <div
+                      key={index}
+                      className="grid gap-2 rounded-lg border p-3"
+                    >
                       <label className="flex items-center gap-2 text-sm">
                         <Checkbox
                           checked={component.isCustom}
                           onCheckedChange={(checked) =>
                             setComponents((current) =>
                               current.map((item, itemIndex) =>
-                                itemIndex === index ? { ...item, isCustom: checked } : item,
+                                itemIndex === index
+                                  ? { ...item, isCustom: checked }
+                                  : item,
                               ),
                             )
                           }
@@ -353,7 +402,9 @@ export function CreateAssetDialog({
                         onChange={(event) =>
                           setComponents((current) =>
                             current.map((item, itemIndex) =>
-                              itemIndex === index ? { ...item, name: event.target.value } : item,
+                              itemIndex === index
+                                ? { ...item, name: event.target.value }
+                                : item,
                             ),
                           )
                         }
@@ -409,20 +460,28 @@ export function CreateAssetDialog({
           {isSpriteAsset ? (
             <>
               <div className="grid gap-2 text-sm font-medium">
-                <label htmlFor="create-asset-direction-count">Direction count</label>
+                <label htmlFor="create-asset-direction-count">
+                  Direction count
+                </label>
                 <NativeSelect
                   id="create-asset-direction-count"
                   className="w-full"
                   value={directionCount}
                   onChange={(event) =>
                     setDirectionCount(
-                      event.target.value as NonNullable<CreationRequest["directionCount"]>,
+                      event.target.value as NonNullable<
+                        CreationRequest["directionCount"]
+                      >,
                     )
                   }
                 >
                   <NativeSelectOption value="1">1 direction</NativeSelectOption>
-                  <NativeSelectOption value="4">4 directions</NativeSelectOption>
-                  <NativeSelectOption value="8">8 directions</NativeSelectOption>
+                  <NativeSelectOption value="4">
+                    4 directions
+                  </NativeSelectOption>
+                  <NativeSelectOption value="8">
+                    8 directions
+                  </NativeSelectOption>
                 </NativeSelect>
               </div>
 
@@ -430,7 +489,9 @@ export function CreateAssetDialog({
                 <label htmlFor="create-asset-reference">Reference</label>
                 {reference ? (
                   <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-                    <p className="min-w-0 truncate text-sm font-normal">{reference.name}</p>
+                    <p className="min-w-0 truncate text-sm font-normal">
+                      {reference.name}
+                    </p>
                     <Button
                       type="button"
                       variant="ghost"
@@ -450,7 +511,9 @@ export function CreateAssetDialog({
                       className="sr-only"
                       type="file"
                       accept="image/*"
-                      onChange={(event) => setReference(event.target.files?.[0])}
+                      onChange={(event) =>
+                        setReference(event.target.files?.[0])
+                      }
                     />
                   </label>
                 )}
@@ -459,13 +522,18 @@ export function CreateAssetDialog({
           ) : null}
 
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Checkbox checked={useProjectContext} onCheckedChange={setUseProjectContext} />
+            <Checkbox
+              checked={useProjectContext}
+              onCheckedChange={setUseProjectContext}
+            />
             Use {project.name} project context
           </label>
 
           {useProjectContext ? (
             <div className="rounded-lg border bg-muted/40 p-3">
-              <p className="text-xs font-medium text-muted-foreground">Generation context</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Generation context
+              </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {[project.gameType, project.visualStyle, project.platform]
                   .filter(Boolean)
@@ -484,8 +552,12 @@ export function CreateAssetDialog({
           ) : null}
 
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
-            <Button type="submit">Create {getAssetTypeAdapter(kind).label}</Button>
+            <DialogClose render={<Button type="button" variant="outline" />}>
+              Cancel
+            </DialogClose>
+            <Button type="submit">
+              Create {getAssetTypeAdapter(kind).label}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -505,7 +577,9 @@ function ReferenceField({
       <span>Reference</span>
       {reference ? (
         <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-          <p className="min-w-0 truncate text-sm font-normal">{reference.name}</p>
+          <p className="min-w-0 truncate text-sm font-normal">
+            {reference.name}
+          </p>
           <Button
             type="button"
             variant="ghost"

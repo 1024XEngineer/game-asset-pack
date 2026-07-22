@@ -10,10 +10,7 @@ import {
   addMockAsset,
   hasMockProject,
 } from "@/adapters/mock-core-api/repository";
-import type {
-  CreationRequest,
-  GenerationRun,
-} from "@/types/generation";
+import type { CreationRequest, GenerationRun } from "@/types/generation";
 import { assetKeys } from "@/data/asset/keys";
 import { generationKeys } from "./keys";
 

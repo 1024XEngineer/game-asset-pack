@@ -18,5 +18,7 @@ export function EditorWorkspaceScreen({
   projectName?: string;
   onBack: () => void;
 }) {
-  return <EditorWorkspace asset={asset} projectName={projectName} onBack={onBack} />;
+  return (
+    <EditorWorkspace asset={asset} projectName={projectName} onBack={onBack} />
+  );
 }

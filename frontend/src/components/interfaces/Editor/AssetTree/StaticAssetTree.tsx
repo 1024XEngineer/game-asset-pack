@@ -1,6 +1,13 @@
 "use client";
 
-import { BedDouble, ChevronDown, Fence, Grid2X2, LampDesk, PackageOpen } from "lucide-react";
+import {
+  BedDouble,
+  ChevronDown,
+  Fence,
+  Grid2X2,
+  LampDesk,
+  PackageOpen,
+} from "lucide-react";
 import { useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,8 +29,16 @@ export function StaticAssetTree({
   const objects =
     kind === "tiles"
       ? [
-          { name: "Bed", icon: BedDouble, tiles: ["Headboard", "Pillow", "Blanket", "Footboard"] },
-          { name: "Street lamp", icon: LampDesk, tiles: ["Lamp top", "Lamp post", "Stone base"] },
+          {
+            name: "Bed",
+            icon: BedDouble,
+            tiles: ["Headboard", "Pillow", "Blanket", "Footboard"],
+          },
+          {
+            name: "Street lamp",
+            icon: LampDesk,
+            tiles: ["Lamp top", "Lamp post", "Stone base"],
+          },
           {
             name: "Street fence",
             icon: Fence,
@@ -58,7 +73,9 @@ export function StaticAssetTree({
                         className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left text-xs font-medium"
                       >
                         <Icon className="size-4 text-[#4c7e5e]" />
-                        <span className="min-w-0 flex-1 truncate">{object.name}</span>
+                        <span className="min-w-0 flex-1 truncate">
+                          {object.name}
+                        </span>
                         <span className="font-mono text-[10px] text-[#81786d]">
                           {object.tiles.length}
                         </span>

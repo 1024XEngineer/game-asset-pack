@@ -57,7 +57,11 @@ export function Inspector({
         </div>
         <div className="p-4">
           {activeTab === "ai-edit" ? (
-            <div role="tabpanel" aria-labelledby="ai-edit-tab" id="ai-edit-panel">
+            <div
+              role="tabpanel"
+              aria-labelledby="ai-edit-tab"
+              id="ai-edit-panel"
+            >
               <SelectionSummary
                 selectedNodes={selectedNodes}
                 selectedFrames={selectedFrames}
@@ -74,7 +78,10 @@ export function Inspector({
                     onChange={(event) => onPromptChange(event.target.value)}
                   />
                   <div className="flex justify-end p-3 pt-0">
-                    <Button disabled={!prompt.trim()} onClick={() => onAction("Generation queued")}>
+                    <Button
+                      disabled={!prompt.trim()}
+                      onClick={() => onAction("Generation queued")}
+                    >
                       <Sparkles />
                       Generate asset
                     </Button>
@@ -142,7 +149,9 @@ function SelectionSummary({
       <div className="mb-4 rounded-xl border border-black/10 bg-[#f7f5f0] p-3 text-xs text-[#51493f]">
         <span className="font-semibold text-[#2d2923]">Target:</span>{" "}
         {node ? `${nodeMeta[node].label} (` : ""}
-        {selectedFrames.map((selectedFrame) => `Frame ${selectedFrame.index + 1}`).join(", ")}
+        {selectedFrames
+          .map((selectedFrame) => `Frame ${selectedFrame.index + 1}`)
+          .join(", ")}
         {node ? ")" : ""}
       </div>
     );
@@ -185,7 +194,9 @@ function SaveHistory({ entries }: { entries: SaveHistoryEntry[] }) {
             <span>{entry.savedAt}</span>
           </div>
           <p className="mt-1 font-medium text-[#2d2923]">{entry.description}</p>
-          <p className="mt-1 text-[11px] text-[#786f64]">Selection: {entry.selection}</p>
+          <p className="mt-1 text-[11px] text-[#786f64]">
+            Selection: {entry.selection}
+          </p>
         </div>
       ))}
     </div>
