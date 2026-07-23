@@ -17,6 +17,7 @@ type AssetRouter interface {
 	CreateCharacterAsset(ctx *echox.Context, req dto.CreateCharacterAssetRequest) (dto.CreateCharacterAssetResponse, error)
 	CreateObjectAsset(ctx *echox.Context, req dto.CreateObjectAssetRequest) (dto.CreateObjectAssetResponse, error)
 	CreateTileSetAsset(ctx *echox.Context, req dto.CreateTileSetAssetRequest) (dto.CreateTileSetAssetResponse, error)
+	CreateAnimation(ctx *echox.Context, req dto.CreateAnimationRequest) (dto.CreateAnimationResponse, error)
 	CopyAsset(ctx *echox.Context, req dto.CopyAssetRequest) (dto.CopyAssetResponse, error)
 	RollBackAsset(ctx *echox.Context, req dto.RollBackAssetRequest) (dto.RollBackAssetResponse, error)
 
@@ -46,6 +47,8 @@ func RegisterRoutes(e *echo.Group, r AssetRouter) {
 	asset.POST("/objects", echox.WrapReq(r.CreateObjectAsset))
 
 	asset.POST("/tilesets", echox.WrapReq(r.CreateTileSetAsset))
+
+	asset.POST("/animations", echox.WrapReq(r.CreateAnimation))
 
 	asset.POST("/copy", echox.WrapReq(r.CopyAsset))
 

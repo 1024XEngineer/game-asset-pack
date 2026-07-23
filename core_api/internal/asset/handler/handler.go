@@ -80,3 +80,8 @@ func (h *Handler) Tags(ctx *echox.Context, req dto.AddTagsRequest) (dto.AddTagsR
 	_, err := h.AssetService.UpdateTags(ctx, req.AssetID, req.Tags)
 	return dto.AddTagsResponse{}, err
 }
+
+func (h *Handler) CreateAnimation(ctx *echox.Context, req dto.CreateAnimationRequest) (dto.CreateAnimationResponse, error) {
+	_, err := h.AssetResourceService.CreateAnimationResource(ctx, &domain.AssetResource{AssetID: req.AssetID, Name: req.Name, Type: domain.AssetResourceType(req.Type)})
+	return dto.CreateAnimationResponse{}, err
+}

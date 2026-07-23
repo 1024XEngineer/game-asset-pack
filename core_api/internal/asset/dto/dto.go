@@ -50,6 +50,16 @@ type CreateTileSetAssetResponse struct {
 	ID uint
 }
 
+type CreateAnimationRequest struct {
+	Name    string
+	AssetID uint
+	Type    domain.AssetType
+}
+
+type CreateAnimationResponse struct {
+	ID uint
+}
+
 type RecordAssetRequest struct {
 	AssetID uint
 }

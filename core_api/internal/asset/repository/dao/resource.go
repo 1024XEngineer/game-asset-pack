@@ -14,7 +14,6 @@ type AssetResourceDao interface {
 	GetItemResources(ctx context.Context, assetID uint, version uint) ([]AssetResource, error)
 	UpdateFrameResources(ctx context.Context, resource []AssetResource) error
 	DeleteFrameResourcesByAnimationID(ctx context.Context, id uint) error
-	UpdateProtoTypeResources(ctx context.Context, resource []AssetResource) error
 	GetResourcesByAssetVersion(ctx context.Context, assetID uint, version uint) ([]AssetResource, error)
 	CopyResourcesToVersion(ctx context.Context, resources []AssetResource, version uint) error
 	DeleteResourcesByVersion(ctx context.Context, assetID uint, version uint) error

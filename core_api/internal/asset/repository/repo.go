@@ -23,7 +23,6 @@ type AssetRepository interface {
 
 	UpdateFrameResources(ctx context.Context, resource []domain.AssetResource) error
 	DeleteFrameResourcesByAnimationID(ctx context.Context, id uint) error
-	UpdateProtoTypeResources(ctx context.Context, resource []domain.AssetResource) error
 
 	GetAnimations(ctx context.Context, assetID uint, version uint) ([]domain.AssetResource, error)
 	GetProtoTypeResource(ctx context.Context, assetID uint, version uint) ([]domain.AssetResource, error)
@@ -168,10 +167,6 @@ func (r *AssetRepositoryImpl) UpdateFrameResources(ctx context.Context, resource
 
 func (r *AssetRepositoryImpl) DeleteFrameResourcesByAnimationID(ctx context.Context, id uint) error {
 	return r.ResourceDao.DeleteFrameResourcesByAnimationID(ctx, id)
-}
-
-func (r *AssetRepositoryImpl) UpdateProtoTypeResources(ctx context.Context, resource []domain.AssetResource) error {
-	return r.ResourceDao.UpdateProtoTypeResources(ctx, []dao.AssetResource{})
 }
 
 func (r *AssetRepositoryImpl) CreateRecord(ctx context.Context, version *domain.AssetVersion) (*domain.AssetVersion, error) {
