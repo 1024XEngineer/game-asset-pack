@@ -3,7 +3,7 @@ package module
 import (
 	"context"
 
-	interfaces "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/Interface"
+	interfaces "github.com/1024XEngineer/Holonic-Asset/docs/core_api/interface"
 )
 
 // MediaModule describes the public upload capability of the Media module.

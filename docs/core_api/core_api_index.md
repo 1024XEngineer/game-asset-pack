@@ -1,5 +1,9 @@
 **Tech design for** [**Core API**](./core-api.md)
 
+**File naming**
+
+Paths under `docs/core_api` use lowercase `snake_case`. Directory names, Go contract filenames, and index filenames must not contain uppercase letters or spaces. Rename references in Go imports and Markdown links together with the target path.
+
 **Modules**
 
 **CoreAPI**
@@ -51,7 +55,7 @@ The Asset CRUD operations, version creation rules, snapshot format, restoration 
 
 The Task module coordinates long-running generation, processing, and export work. It owns task and step state transitions, dependency scheduling, progress reporting, retry, cancellation, idempotent result handling, and communication with workers through the configured messaging infrastructure.
 
-The task state machine, step dependencies, command and event contracts, retry behavior, and progress APIs are defined in the [Task module](./module/task.go) and [Task service interfaces](./Interface/Task_service.go).
+The task state machine, step dependencies, command and event contracts, retry behavior, and progress APIs are defined in the [Task module](./module/task.go) and [Task service interfaces](./interface/task_service.go).
 
 **Taxonomy**
 

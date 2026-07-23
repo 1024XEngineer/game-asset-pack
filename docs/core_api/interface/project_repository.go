@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	data "github.com/1024XEngineer/Holonic-Asset/docs/Core_API/data_structure"
+	data "github.com/1024XEngineer/Holonic-Asset/docs/core_api/data_structure"
 )
 
 // ProjectRepository defines the persistence operations required by ProjectService.
