@@ -46,15 +46,14 @@ type ProjectDetailResponse struct {
 }
 
 type UpdateProjectRequest struct {
-	ProjectID      uint                `json:"projectID"`
-	UserID         uint                `json:"userID"`
-	Name           string              `json:"name"`
-	GameType       domain.GameType     `json:"gameType"`
-	ViewType       domain.ViewType     `json:"viewType"`
-	TargetPlatform domain.PlatformType `json:"targetPlatform"`
-	Description    string              `json:"description"`
-	Reference      string              `json:"reference"`
-	Style          string              `json:"style"`
+	ProjectID      uint                 `json:"projectID"`
+	Name           *string              `json:"name,omitempty"`
+	GameType       *domain.GameType     `json:"gameType,omitempty"`
+	ViewType       *domain.ViewType     `json:"viewType,omitempty"`
+	TargetPlatform *domain.PlatformType `json:"targetPlatform,omitempty"`
+	Description    *string              `json:"description,omitempty"`
+	Reference      *string              `json:"reference,omitempty"`
+	Style          *string              `json:"style,omitempty"`
 }
 
 type UpdateProjectResponse struct {

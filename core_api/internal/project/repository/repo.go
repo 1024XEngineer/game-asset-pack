@@ -11,7 +11,7 @@ type ProjectRepository interface {
 	Insert(ctx context.Context, project *domain.Project) error
 	FindByID(ctx context.Context, projectID uint) (*domain.Project, error)
 	FindByUserID(ctx context.Context, userID uint) ([]*domain.Project, error)
-	Save(ctx context.Context, project *domain.Project) error
+	Update(ctx context.Context, update *domain.ProjectUpdate) error
 	Remove(ctx context.Context, projectID uint) error
 }
 
@@ -53,8 +53,8 @@ func (r *projectRepository) FindByUserID(ctx context.Context, userID uint) ([]*d
 	return result, nil
 }
 
-func (r *projectRepository) Save(ctx context.Context, project *domain.Project) error {
-	return r.projectDao.Update(ctx, convertProjectToDao(project))
+func (r *projectRepository) Update(ctx context.Context, update *domain.ProjectUpdate) error {
+	return r.projectDao.Update(ctx, convertProjectUpdateToDao(update))
 }
 
 func (r *projectRepository) Remove(ctx context.Context, projectID uint) error {
@@ -76,6 +76,32 @@ func convertProjectToDao(project *domain.Project) *dao.Project {
 		Reference:      project.Reference,
 		Style:          project.Style,
 	}
+}
+
+func convertProjectUpdateToDao(update *domain.ProjectUpdate) *dao.ProjectUpdate {
+	if update == nil {
+		return nil
+	}
+	converted := &dao.ProjectUpdate{
+		ID:          update.ID,
+		Name:        update.Name,
+		Description: update.Description,
+		Reference:   update.Reference,
+		Style:       update.Style,
+	}
+	if update.GameType != nil {
+		value := string(*update.GameType)
+		converted.GameType = &value
+	}
+	if update.ViewType != nil {
+		value := string(*update.ViewType)
+		converted.ViewType = &value
+	}
+	if update.TargetPlatform != nil {
+		value := string(*update.TargetPlatform)
+		converted.TargetPlatform = &value
+	}
+	return converted
 }
 
 func convertProjectToDomain(project *dao.Project) *domain.Project {

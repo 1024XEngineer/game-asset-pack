@@ -16,7 +16,7 @@ import (
 func TestAIRoutesReturnPlaceholderResponses(t *testing.T) {
 	aiService := service.NewAIService()
 	aiHandler := handler.NewAIHandler(aiService)
-	e := internal.Register(nil, nil, aiHandler)
+	e := internal.Register(nil, nil, aiHandler, nil)
 
 	routes := []string{
 		"/api/v1/ai/tile-set/item/edit",
@@ -46,7 +46,7 @@ func TestAIRoutesReturnPlaceholderResponses(t *testing.T) {
 func TestAIRoutesDoNotExposeUnsupportedOperations(t *testing.T) {
 	aiService := service.NewAIService()
 	aiHandler := handler.NewAIHandler(aiService)
-	e := internal.Register(nil, nil, aiHandler)
+	e := internal.Register(nil, nil, aiHandler, nil)
 
 	routes := []string{
 		"/api/v1/ai/character/generate",

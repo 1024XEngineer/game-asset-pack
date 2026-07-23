@@ -43,9 +43,8 @@ func (h *ProjectHandler) GetDetail(c *echox.Context, request dto.ProjectDetailRe
 }
 
 func (h *ProjectHandler) Update(c *echox.Context, request dto.UpdateProjectRequest) (dto.UpdateProjectResponse, error) {
-	project := &domain.Project{
+	update := &domain.ProjectUpdate{
 		ID:             request.ProjectID,
-		UserID:         request.UserID,
 		Name:           request.Name,
 		GameType:       request.GameType,
 		ViewType:       request.ViewType,
@@ -54,8 +53,8 @@ func (h *ProjectHandler) Update(c *echox.Context, request dto.UpdateProjectReque
 		Reference:      request.Reference,
 		Style:          request.Style,
 	}
-	err := h.service.Update(c, project)
-	return dto.UpdateProjectResponse{}, err
+	err := h.service.Update(c, update)
+	return dto.UpdateProjectResponse{Success: err == nil}, err
 }
 
 func (h *ProjectHandler) Delete(c *echox.Context, request dto.DeleteProjectRequest) (dto.DeleteProjectResponse, error) {

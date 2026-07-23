@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrProjectNotFound = errors.New("project not found")
+var (
+	ErrProjectNotFound  = errors.New("project not found")
+	ErrProjectUpdateNil = errors.New("project update is nil")
+)
 
 type MemoryProjectDao struct {
 	mu       sync.RWMutex
@@ -74,18 +77,42 @@ func (d *MemoryProjectDao) FindByUserID(ctx context.Context, userID uint) ([]*Pr
 	return projects, nil
 }
 
-func (d *MemoryProjectDao) Update(ctx context.Context, project *Project) error {
+func (d *MemoryProjectDao) Update(ctx context.Context, update *ProjectUpdate) error {
 	if err := ctx.Err(); err != nil {
 		return err
+	}
+	if update == nil {
+		return ErrProjectUpdateNil
 	}
 
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	if _, ok := d.projects[project.ID]; !ok {
+	project, ok := d.projects[update.ID]
+	if !ok {
 		return ErrProjectNotFound
 	}
-	d.projects[project.ID] = cloneProject(project)
+	if update.Name != nil {
+		project.Name = *update.Name
+	}
+	if update.GameType != nil {
+		project.GameType = *update.GameType
+	}
+	if update.ViewType != nil {
+		project.ViewType = *update.ViewType
+	}
+	if update.TargetPlatform != nil {
+		project.TargetPlatform = *update.TargetPlatform
+	}
+	if update.Description != nil {
+		project.Description = *update.Description
+	}
+	if update.Reference != nil {
+		project.Reference = *update.Reference
+	}
+	if update.Style != nil {
+		project.Style = *update.Style
+	}
 	return nil
 }
 
