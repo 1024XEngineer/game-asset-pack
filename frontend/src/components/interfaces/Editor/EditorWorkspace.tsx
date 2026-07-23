@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 
 import { Button } from "@/components/ui/button";
+import { useTimeout } from "@/hooks/use-timeout";
+import { useEditorWorkspaceStore } from "@/store/editor-workspace-store";
 import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
 import { defaultEditorPrompt } from "./Editor.constants";
 import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
 import { SpriteSheetEditorMode } from "./EditorModes/SpriteSheetEditorMode";
 import { EditorHeader } from "./Header/EditorHeader";
-import { useEditorWorkspaceStore } from "@/store/editor-workspace-store";
 
 export function EditorWorkspace({
   asset,
@@ -22,6 +23,7 @@ export function EditorWorkspace({
   onBack: () => void;
 }) {
   const [status, setStatus] = useState("All changes saved");
+  const { schedule: scheduleStatusReset } = useTimeout();
   const prompt = useEditorWorkspaceStore((state) => state.prompt);
   const saveHistory = useEditorWorkspaceStore((state) => state.saveHistory);
   const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
@@ -58,7 +60,7 @@ export function EditorWorkspace({
 
   const handleAction = (message: string) => {
     setStatus(message);
-    window.setTimeout(() => setStatus("All changes saved"), 2200);
+    scheduleStatusReset(() => setStatus("All changes saved"), 2200);
   };
   const handleSave = (selection: string) => {
     const timestamp = new Date().toLocaleString("en-US", {

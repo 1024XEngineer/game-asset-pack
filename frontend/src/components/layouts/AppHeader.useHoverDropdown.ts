@@ -1,26 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+
+import { useTimeout } from "@/hooks/use-timeout";
 
 export function useHoverDropdown() {
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
-
-  function clearCloseTimer() {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = null;
-  }
-
-  useEffect(() => clearCloseTimer, []);
+  const { cancel: cancelClose, schedule: scheduleClose } = useTimeout();
 
   function openFromHover() {
-    clearCloseTimer();
+    cancelClose();
     setIsOpen(true);
   }
 
   function closeFromHover() {
     if (isPinned) return;
-    clearCloseTimer();
-    closeTimer.current = setTimeout(() => setIsOpen(false), 120);
+    scheduleClose(() => setIsOpen(false), 120);
   }
 
   function onOpenChange(nextOpen: boolean) {
@@ -29,7 +23,7 @@ export function useHoverDropdown() {
   }
 
   function togglePinned() {
-    clearCloseTimer();
+    cancelClose();
     setIsPinned((current) => {
       const next = !current;
       setIsOpen((isOpen) => next || !isOpen);
@@ -38,7 +32,7 @@ export function useHoverDropdown() {
   }
 
   function releaseMenu() {
-    clearCloseTimer();
+    cancelClose();
     setIsPinned(false);
     setIsOpen(false);
   }

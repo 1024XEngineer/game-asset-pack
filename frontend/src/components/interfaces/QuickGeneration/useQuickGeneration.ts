@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { useTimeout } from "@/hooks/use-timeout";
 import {
   initialQuickGenerationAssets,
   quickGenerationSizes,
@@ -7,6 +8,7 @@ import {
 } from "./QuickGeneration.constants";
 
 export function useQuickGeneration() {
+  const { schedule: scheduleGeneration } = useTimeout();
   const [assets, setAssets] = useState<QuickGenerationAsset[]>(
     initialQuickGenerationAssets,
   );
@@ -37,7 +39,7 @@ export function useQuickGeneration() {
   function generate() {
     if (!description.trim()) return;
     setIsGenerating(true);
-    window.setTimeout(() => {
+    scheduleGeneration(() => {
       if (currentAsset) {
         setAssets((items) =>
           items.map((asset) =>
