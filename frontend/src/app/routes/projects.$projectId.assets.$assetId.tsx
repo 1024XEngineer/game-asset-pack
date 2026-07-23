@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { EditorPage } from "@/pages/projects/EditorPage";
+import { EditorPage } from "@/pages/projects/asset/EditorPage";
 
 export const Route = createFileRoute("/projects/$projectId/assets/$assetId")({
   component: EditorPage,
