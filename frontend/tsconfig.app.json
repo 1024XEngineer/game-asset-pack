@@ -9,7 +9,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
-      "@/lib/*": ["src/shared/lib/*"]
+      "@/lib/*": ["src/lib/*"]
     },
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,

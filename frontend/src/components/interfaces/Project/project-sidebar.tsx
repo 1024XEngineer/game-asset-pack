@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 import type { ProjectSummary } from "@/types/project";
 import { ProjectSettingsDialog } from "./project-settings-dialog";
 

@@ -2,7 +2,7 @@ import { ImagePlus, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 const imageAccept = {
   "image/jpeg": [".jpg", ".jpeg"],

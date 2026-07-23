@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function ProjectChrome({
   children,
