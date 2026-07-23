@@ -1,9 +1,9 @@
-import { ImageDropzone } from "@/components/ui/image-dropzone";
+import { ImageDropzone } from "@/components/custom/image-dropzone";
 import { Input } from "@/components/ui/input";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
+} from "@/components/custom/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { BackgroundAssetCreationDraft } from "./create-asset-draft";

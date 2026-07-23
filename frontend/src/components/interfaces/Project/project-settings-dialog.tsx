@@ -16,9 +16,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ImageDropzone } from "@/components/ui/image-dropzone";
+import { ImageDropzone } from "@/components/custom/image-dropzone";
 import { Textarea } from "@/components/ui/textarea";
-import { DropdownField } from "@/components/ui/dropdown-field";
+import { DropdownField } from "@/components/custom/dropdown-field";
 
 import type { ProjectSummary } from "@/types/project";
 import {

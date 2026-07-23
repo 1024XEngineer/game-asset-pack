@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 
 import type { ProjectSummary } from "@/types/project";
-import { AssetTypeIcon } from "@/components/ui/AssetTypeIcon";
-import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
+import { AssetTypeIcon } from "@/components/custom/AssetTypeIcon";
+import { getAssetTypeConfig } from "@/components/custom/asset-type-config";
 import type { CreatableAssetKind } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 import { CreateAssetDialog } from "./create-asset-dialog";

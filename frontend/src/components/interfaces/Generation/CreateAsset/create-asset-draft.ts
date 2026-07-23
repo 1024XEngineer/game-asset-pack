@@ -1,4 +1,4 @@
-import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
+import { getAssetTypeConfig } from "@/components/custom/asset-type-config";
 import type { CreatableAssetKind } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 
