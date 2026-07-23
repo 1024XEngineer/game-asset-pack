@@ -58,7 +58,8 @@ PostgreSQL 和对象存储是基础设施依赖，不是额外的应用服务。
 | --- | --- |
 | Frontend | React、TypeScript、Vite |
 | 路由/服务端状态/表单 | TanStack Router、TanStack Query、TanStack Form |
-| 客户端状态/UI | Zustand、Tailwind CSS、shadcn/ui |
+| 客户端状态/UI | Zustand（配合 Zundo）、Tailwind CSS、shadcn/ui（基于 Base UI） |
+| 画布渲染 | PixiJS（配合 pixi-viewport） |
 | Core API | Go、Echo、GORM、PostgreSQL |
 | 任务处理 | River + `riverdatabasesql` 驱动 + PostgreSQL |
 | 对象存储 | 可替换的 S3 SDK |
@@ -73,18 +74,44 @@ PostgreSQL 和对象存储是基础设施依赖，不是额外的应用服务。
 
 ### 3.1 职责
 
-Frontend 是静态 SPA，不运行 Node.js 服务端。负责表单、资产列表与详情、像素预览、编辑器交互、任务进度和候选结果确认。
+Frontend 是静态 Vite SPA，不运行 Node.js 服务端。负责提供项目与资产工作区、生成表单与队列、资产预览、编辑器交互、设置以及路由级别的加载、错误与未找到（Not-Found）状态。前端绝不承载业务状态转换：业务状态转换统一归属于 Core API。
 
-### 3.2 状态边界
+### 3.2 应用架构
 
-- TanStack Router：路由、Asset 类型、分页、搜索、Tag 筛选、当前 Record 和编辑 Tab。
-- TanStack Query：Project、Asset、Record、任务和媒体资源等服务端状态。
-- TanStack Form：创建和编辑表单、动态字段、异步校验、数组和嵌套字段。
-- Zustand：选中 Sprite、画布缩放、图层显示、当前帧、播放速度、未提交编辑和侧边栏等客户端状态。
+前端采用应用外壳（Application Shell）、功能接口（Feature Interface）、数据访问（Data Access）和适配器（Adapter）分层结构：
 
-Query 数据不复制到 Zustand；适合放入 URL 的状态不放入 Zustand。
+```text
+src/
+├── app/                         # React 入口、Provider、Router、自动生成的路由树、全局样式
+├── app/routes/                  # 文件路由：仅负责 URL 解析与页面选择
+├── pages/                       # 路由适配器：将 params/search 参数映射至功能界面
+├── components/
+│   ├── layouts/                 # 应用框架与项目 Chrome 布局
+│   ├── ui/                      # 可复用的基础 UI 组件
+│   └── interfaces/              # 功能工作区：Project、Asset Library、Generation、Editor 等
+├── data/                        # 按领域划分的 Query Key 以及 TanStack Query 查询与变更 Hooks
+├── adapters/                    # 可替换的 Core API 实现；前端开发期间使用 Mock 适配器
+├── types/                       # 前端领域类型定义
+└── store/                       # 仅存放跨功能的全局用户偏好设置
+```
 
-### 3.3 OpenAPI 与代码生成
+`app/` 创建全局唯一的 Router 和 Query Client。文件路由保持轻量：仅校验 URL 输入并选择对应页面。Page 组件获取路由参数并组合功能接口（interfaces）；功能接口负责具体的展示与交互细节。画布渲染器和编辑器交互状态机保留在 Editor 接口内部，避免泄漏至通用 UI 基础组件中。
+
+`data/` 层是功能代码使用 TanStack Query 的唯一场所。每个领域暴露稳定的 Query Keys、查询 Hook 和 Mutation Hook。Mutation 执行后会更新或失效受影响的 Query 缓存，从而使各界面读取统一的最新服务端状态。
+
+`adapters/` 将传输层和开发 Mock 数据与应用其余部分隔离开来。当前的 Mock Core API 适配器仅在浏览器存储中持久化 Demo 数据。未来替换为生成的 Core API 客户端时，必须保留 `data/` Hook 和功能接口层；Mock 导入切勿渗入 Page 或 UI 组件。
+
+### 3.3 路由与状态边界
+
+- TanStack Router：掌控 Pathname、路由参数以及可分享的 Search 状态（如当前选中项目、资产库查询条件等）。路由切勿在 Store 中重复记录此类状态。
+- TanStack Query：掌控 Core API 缓存数据（项目、资产组与记录、生成任务、媒体元数据等）。默认查询策略为 30 秒 Stale Time 且窗口聚焦时不自动重新拉取。
+- TanStack Form：掌控创建与编辑流程中的表单值、字段校验、动态字段、数组及嵌套表单状态。
+- Zustand：仅掌控非服务端状态且非 URL 状态的客户端纯状态。编辑器工作区 Store 保存当前活动草稿和上次保存的文档；Zundo 提供有界的撤销/重做（Undo/Redo）历史。当打开的资产发生变更时重置工作区，并通过 Mutation 将编辑保存为资产版本（Asset Revision）。
+- 组件局部状态：掌控短生命的展示状态（如对话框显示、悬停控件、临时状态提示及画布视图交互等）。浏览器 LocalStorage/SessionStorage 可记录非权威的用户偏好和上次选中项目，但绝不替代服务端数据。
+
+Query 数据切勿复制到 Zustand 或浏览器存储中；属于 URL 的状态不放入 Zustand；保存的编辑器内容作为 Revision 提交回 Core API，而非仅留存在客户端。
+
+### 3.4 API 集成与代码生成
 
 唯一 HTTP 契约来源：
 
@@ -98,7 +125,7 @@ openapi.yaml
 └── Hey API → TypeScript SDK、Zod、TanStack Query
 ```
 
-生成代码统一放入 `generated` 目录，禁止手动编辑。OpenAPI 负责接口结构和基础校验；表单分组、Widget、预览和复杂交互由前端配置及自定义组件负责。
+生成代码统一放入 `generated` 目录，禁止手动编辑。OpenAPI 负责传输类型与基础校验；适配器层（Adapter）将这些 API 调用映射接入 `data/` Hook 中。表单分组、Widget、预览、画布渲染及复杂编辑器交互保持在功能接口与自定义组件中实现。
 
 ## 4. Core API
 

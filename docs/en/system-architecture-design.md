@@ -58,7 +58,8 @@ PostgreSQL and object storage are infrastructure dependencies, not additional ap
 | -------------------------- | ------------------------------------------------------ |
 | Frontend                   | React, TypeScript, Vite                                |
 | Routing/server state/forms | TanStack Router, TanStack Query, TanStack Form         |
-| Client state/UI            | Zustand, Tailwind CSS, shadcn/ui                       |
+| Client state/UI            | Zustand with Zundo, Tailwind CSS, shadcn/ui on Base UI  |
+| Canvas rendering           | PixiJS with pixi-viewport                              |
 | Core API                   | Go, Echo, GORM, PostgreSQL                             |
 | Job processing             | River with the `riverdatabasesql` driver on PostgreSQL |
 | Object storage             | Replaceable S3 SDK                                     |
@@ -73,18 +74,44 @@ Not introduced: separate AI or asset-worker services, NATS, Redis, Kafka, Kubern
 
 ### 3.1 Responsibility
 
-Frontend is a static SPA with no Node.js server. It handles forms, asset lists and details, pixel previews, editor interactions, job progress, and candidate confirmation.
+Frontend is a static Vite SPA with no Node.js server. It provides project and asset workspaces, generation forms and queues, asset previews, editor interactions, settings, and route-level loading, error, and not-found states. It never owns business state transitions: those belong to Core API.
 
-### 3.2 State boundaries
+### 3.2 Application structure
 
-- TanStack Router: routes, Asset type, pagination, search, Tag filters, current Record, and editor tab.
-- TanStack Query: server state for Project, Asset, Record, jobs, and media resources.
-- TanStack Form: create/edit forms, dynamic fields, async validation, arrays, and nested fields.
-- Zustand: selected Sprite, canvas zoom, layer visibility, current frame, playback speed, local unsubmitted edits, and sidebar state.
+The frontend follows an application-shell, feature-interface, data-access, and adapter structure:
 
-Do not copy Query data into Zustand. State that belongs in the URL should stay out of Zustand.
+```text
+src/
+├── app/                         # React entry point, providers, router, generated route tree, global styles
+├── app/routes/                  # File routes: URL parsing and page selection only
+├── pages/                       # Route adapters: params/search to feature screens
+├── components/
+│   ├── layouts/                 # Application and project chrome
+│   ├── ui/                      # Reusable primitive UI components
+│   └── interfaces/              # Feature workspaces: Project, Asset Library, Generation, Editor, etc.
+├── data/                        # Query keys plus TanStack Query query and mutation hooks by domain
+├── adapters/                    # Replaceable Core API implementations; mock adapter during frontend development
+├── types/                       # Frontend domain types
+└── store/                       # Cross-feature user preferences only
+```
 
-### 3.3 OpenAPI and code generation
+`app/` creates one router and one Query Client. File routes remain thin: they validate URL input and select a page. Pages obtain route parameters and compose feature interfaces; feature interfaces own presentation and interaction details. Canvas renderers and editor interaction state machines remain inside the Editor interface rather than leaking into shared UI primitives.
+
+The `data/` layer is the only place feature code uses TanStack Query. Each domain exposes stable query keys, query hooks, and mutation hooks. A mutation updates or invalidates the affected query cache so screens read a single current representation of server state.
+
+`adapters/` isolate transport and development fixtures from the rest of the application. The current mock Core API adapter persists only demo data in browser storage. Replacing it with the generated Core API client must preserve the `data/` hooks and feature interfaces; mock imports must not spread into pages or UI components.
+
+### 3.3 Routing and state boundaries
+
+- TanStack Router owns pathname, route parameters, and shareable search state such as selected project and library query. Routes must not duplicate this state in a store.
+- TanStack Query owns cached Core API data: projects, asset groups and records, generation runs, and media metadata. The default query policy is a 30-second stale time with no refetch on window focus.
+- TanStack Form owns form values, field validation, dynamic fields, arrays, and nested form state for create and edit flows.
+- Zustand owns only client-side state that is not server state or URL state. The editor workspace store holds the active draft and last saved document; Zundo provides a bounded undo/redo history. The workspace is reset when the opened asset changes and is saved as an asset revision through a mutation.
+- Component state owns short-lived presentation state such as dialogs, hover controls, temporary status messages, and canvas view interactions. Browser storage may remember non-authoritative user preferences and the last selected project, but never replaces server data.
+
+Do not copy Query data into Zustand or browser storage. State that belongs in a URL stays out of Zustand; saved editor content returns to the Core API as a revision rather than remaining only in the client.
+
+### 3.4 API integration and code generation
 
 The only HTTP contract source is:
 
@@ -98,7 +125,7 @@ openapi.yaml
 └── Hey API → TypeScript SDK, Zod, and TanStack Query
 ```
 
-Generated code lives in `generated` and is not edited manually. OpenAPI defines interface shape and basic validation; form grouping, widgets, previews, and complex interactions belong to frontend configuration and custom components.
+Generated code lives in `generated` and is not edited manually. OpenAPI defines transport types and basic validation; the adapter layer maps those calls into the `data/` hooks. Form grouping, widgets, previews, canvas rendering, and complex editor interactions remain in feature interfaces and custom components.
 
 ## 4. Core API
 
