@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 
 import type { ProjectSummary } from "@/types/project";
 import { AssetTypeIcon } from "@/components/ui/AssetTypeIcon";
-import {
-  getAssetTypeAdapter,
-  type CreatableAssetKind,
-} from "@/types/asset-kind";
+import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
+import type { CreatableAssetKind } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 import { CreateAssetDialog } from "./create-asset-dialog";
 
@@ -31,7 +29,7 @@ export function CreateAssetToolbar({
               onClick={() => openDialog(kind)}
             >
               <AssetTypeIcon kind={kind} className="size-5" />
-              Create {getAssetTypeAdapter(kind).label}
+              Create {getAssetTypeConfig(kind).label}
             </Button>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 
 import type { GenerationRun } from "@/types/generation";
 import { AssetTypeIcon } from "@/components/ui/AssetTypeIcon";
-import { getAssetTypeAdapter } from "@/types/asset-kind";
+import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
 
 export function GenerationQueue({ runs }: { runs: GenerationRun[] }) {
   if (runs.length === 0) return null;
@@ -48,7 +48,7 @@ export function GenerationQueue({ runs }: { runs: GenerationRun[] }) {
                 </span>
               ) : null}
               <Badge variant="outline">
-                {getAssetTypeAdapter(item.kind).label}
+                {getAssetTypeConfig(item.kind).label}
               </Badge>
               <Badge
                 variant={item.status === "failed" ? "destructive" : "secondary"}

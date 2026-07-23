@@ -12,11 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  assetKinds,
-  getAssetTypeAdapter,
-  type AssetKind,
-} from "@/types/asset-kind";
+import { assetKinds, type AssetKind } from "@/types/asset-kind";
+import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
 import { AssetTypeIcon } from "@/components/ui/AssetTypeIcon";
 
 const filters: AssetKind[] = [...assetKinds];
@@ -70,7 +67,7 @@ export function AssetFilters({
               onCheckedChange={(checked) => toggleKind(kind, checked)}
             >
               <AssetTypeIcon kind={kind} />
-              {getAssetTypeAdapter(kind).label}
+              {getAssetTypeConfig(kind).label}
             </DropdownMenuCheckboxItem>
           ))}
         </DropdownMenuGroup>

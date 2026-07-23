@@ -1,7 +1,5 @@
-import {
-  getAssetTypeAdapter,
-  type CreatableAssetKind,
-} from "@/types/asset-kind";
+import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
+import type { CreatableAssetKind } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 
 type CommonAssetCreationDraft<K extends CreatableAssetKind> = {
@@ -51,7 +49,7 @@ export function createAssetDraft(
   const common = {
     name: "",
     prompt: initialPrompt.trim(),
-    canvasSize: getAssetTypeAdapter(kind).defaultCanvasSize ?? "32 × 32 px",
+    canvasSize: getAssetTypeConfig(kind).defaultCanvasSize ?? "32 × 32 px",
     useProjectContext: true,
   };
 

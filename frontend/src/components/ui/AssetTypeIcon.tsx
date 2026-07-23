@@ -1,16 +1,14 @@
 import type { ComponentProps } from "react";
-import {
-  getAssetTypeAdapter,
-  type CreatableAssetKind,
-} from "@/types/asset-kind";
+import type { CreatableAssetKind } from "@/types/asset-kind";
+import { getAssetTypeConfig } from "./asset-type-config";
 
 export function AssetTypeIcon({
   kind,
   ...props
 }: { kind: CreatableAssetKind } & ComponentProps<
-  ReturnType<typeof getAssetTypeAdapter>["icon"]
+  ReturnType<typeof getAssetTypeConfig>["icon"]
 >) {
-  const Icon = getAssetTypeAdapter(kind).icon;
+  const Icon = getAssetTypeConfig(kind).icon;
 
   return <Icon {...props} />;
 }

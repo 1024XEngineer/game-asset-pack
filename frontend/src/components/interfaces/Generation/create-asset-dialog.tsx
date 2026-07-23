@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { getAssetTypeConfig } from "@/components/ui/asset-type-config";
 import type { CreatableAssetKind } from "@/types/asset-kind";
-import { getAssetTypeAdapter } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 import type { ProjectSummary } from "@/types/project";
 
@@ -68,11 +68,11 @@ export function CreateAssetDialog({
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            Create {getAssetTypeAdapter(draft.kind).label}
+            Create {getAssetTypeConfig(draft.kind).label}
           </DialogTitle>
           <DialogDescription>
             Set the production details for this{" "}
-            {getAssetTypeAdapter(draft.kind).label.toLowerCase()}. Project
+            {getAssetTypeConfig(draft.kind).label.toLowerCase()}. Project
             defaults will guide its{" "}
             {draft.kind === "audio" ? "tone and atmosphere" : "visual style"}.
           </DialogDescription>
@@ -167,7 +167,7 @@ export function CreateAssetDialog({
               Cancel
             </DialogClose>
             <Button type="submit">
-              Create {getAssetTypeAdapter(draft.kind).label}
+              Create {getAssetTypeConfig(draft.kind).label}
             </Button>
           </DialogFooter>
         </form>
