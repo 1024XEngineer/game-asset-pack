@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { SaveHistoryEntry } from "@/state/editor-workspace-state";
+import type { SaveHistoryEntry } from "@/store/editor-workspace-store";
 
 import { nodeMeta, type NodeId } from "../Editor.constants";
 

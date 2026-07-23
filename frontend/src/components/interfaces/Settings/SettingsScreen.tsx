@@ -1,10 +1,14 @@
 import { Bell, CreditCard, Palette, ShieldCheck } from "lucide-react";
 
-import { useSettingsPreferences } from "./useSettingsPreferences";
+import { usePreferencesStore } from "@/store/preferences-store";
 
 export function SettingsScreen() {
-  const { compact, notifications, toggleCompact, toggleNotifications } =
-    useSettingsPreferences();
+  const compact = usePreferencesStore((state) => state.compact);
+  const notifications = usePreferencesStore((state) => state.notifications);
+  const toggleCompact = usePreferencesStore((state) => state.toggleCompact);
+  const toggleNotifications = usePreferencesStore(
+    (state) => state.toggleNotifications,
+  );
   return (
     <main className="settings-page">
       <header>

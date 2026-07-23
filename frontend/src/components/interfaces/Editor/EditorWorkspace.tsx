@@ -10,7 +10,7 @@ import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
 import { SpriteSheetEditorMode } from "./EditorModes/SpriteSheetEditorMode";
 import { EditorHeader } from "./Header/EditorHeader";
-import { useEditorWorkspaceState } from "@/state/editor-workspace-state";
+import { useEditorWorkspaceStore } from "@/store/editor-workspace-store";
 
 export function EditorWorkspace({
   asset,
@@ -22,25 +22,25 @@ export function EditorWorkspace({
   onBack: () => void;
 }) {
   const [status, setStatus] = useState("All changes saved");
-  const prompt = useEditorWorkspaceState((state) => state.prompt);
-  const saveHistory = useEditorWorkspaceState((state) => state.saveHistory);
-  const setPrompt = useEditorWorkspaceState((state) => state.setPrompt);
-  const addSaveHistory = useEditorWorkspaceState(
+  const prompt = useEditorWorkspaceStore((state) => state.prompt);
+  const saveHistory = useEditorWorkspaceStore((state) => state.saveHistory);
+  const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
+  const addSaveHistory = useEditorWorkspaceStore(
     (state) => state.addSaveHistory,
   );
-  const resetWorkspace = useEditorWorkspaceState((state) => state.reset);
+  const resetWorkspace = useEditorWorkspaceStore((state) => state.reset);
   const canUndo = useStore(
-    useEditorWorkspaceState.temporal,
+    useEditorWorkspaceStore.temporal,
     (state) => state.pastStates.length > 0,
   );
   const canRedo = useStore(
-    useEditorWorkspaceState.temporal,
+    useEditorWorkspaceStore.temporal,
     (state) => state.futureStates.length > 0,
   );
 
   useEffect(() => {
     resetWorkspace(defaultEditorPrompt);
-    useEditorWorkspaceState.temporal.getState().clear();
+    useEditorWorkspaceStore.temporal.getState().clear();
   }, [asset?.id, resetWorkspace]);
 
   if (!projectName || !asset) {
@@ -85,11 +85,11 @@ export function EditorWorkspace({
       canUndo={canUndo}
       canRedo={canRedo}
       onUndo={() => {
-        useEditorWorkspaceState.temporal.getState().undo();
+        useEditorWorkspaceStore.temporal.getState().undo();
         handleAction("Last edit reverted");
       }}
       onRedo={() => {
-        useEditorWorkspaceState.temporal.getState().redo();
+        useEditorWorkspaceStore.temporal.getState().redo();
         handleAction("Edit restored");
       }}
       onSave={() => handleSave(selection)}

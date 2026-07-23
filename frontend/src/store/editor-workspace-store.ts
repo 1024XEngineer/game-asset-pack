@@ -8,7 +8,7 @@ export type SaveHistoryEntry = {
   selection: string;
 };
 
-type EditorWorkspaceState = {
+type EditorWorkspaceStore = {
   prompt: string;
   saveHistory: SaveHistoryEntry[];
   setPrompt: (prompt: string) => void;
@@ -16,7 +16,7 @@ type EditorWorkspaceState = {
   reset: (prompt: string) => void;
 };
 
-export const useEditorWorkspaceState = create<EditorWorkspaceState>()(
+export const useEditorWorkspaceStore = create<EditorWorkspaceStore>()(
   temporal(
     (set) => ({
       prompt: "",
