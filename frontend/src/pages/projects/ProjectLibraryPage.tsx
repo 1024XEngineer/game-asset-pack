@@ -80,7 +80,12 @@ export function ProjectLibraryPage() {
             isProjectRoute
             projects={projects}
             selectedProjectId={search.project}
-            onCreateProject={() => void navigate({ to: "/projects/new" })}
+            onCreateProject={() =>
+              void navigate({
+                to: "/projects/new",
+                search: { project: search.project, q: search.q },
+              })
+            }
             onDeleteProject={handleDeleteProject}
             onSelectProject={(projectId) => void selectProject(projectId)}
             onUpdateProject={(project) => updateProject(project)}
@@ -90,7 +95,7 @@ export function ProjectLibraryPage() {
         <AssetLibraryWorkspace
           assetGroups={assetGroups}
           project={project}
-          query={search.q}
+          query={search.q ?? ""}
           generationQueue={<GenerationQueue runs={runs} />}
           creationControl={
             project ? (
@@ -114,6 +119,7 @@ export function ProjectLibraryPage() {
               void navigate({
                 to: "/projects/$projectId/assets/$assetId",
                 params: { projectId: project.id, assetId },
+                search: { project: search.project, q: search.q },
               });
             }
           }}
