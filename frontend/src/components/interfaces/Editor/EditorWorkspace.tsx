@@ -1,17 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useStore } from "zustand";
-
 import { Button } from "@/components/ui/button";
-import { useTimeout } from "@/hooks/use-timeout";
-import { useEditorWorkspaceStore } from "@/store/editor-workspace-store";
 import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
-import { defaultEditorPrompt } from "./Editor.constants";
 import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
 import { SpriteSheetEditorMode } from "./EditorModes/SpriteSheetEditorMode";
 import { EditorHeader } from "./Header/EditorHeader";
+import { useEditorWorkspaceSession } from "./useEditorWorkspaceSession";
 
 export function EditorWorkspace({
   asset,
@@ -22,28 +15,7 @@ export function EditorWorkspace({
   projectName?: string;
   onBack: () => void;
 }) {
-  const [status, setStatus] = useState("All changes saved");
-  const { schedule: scheduleStatusReset } = useTimeout();
-  const prompt = useEditorWorkspaceStore((state) => state.prompt);
-  const saveHistory = useEditorWorkspaceStore((state) => state.saveHistory);
-  const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
-  const addSaveHistory = useEditorWorkspaceStore(
-    (state) => state.addSaveHistory,
-  );
-  const resetWorkspace = useEditorWorkspaceStore((state) => state.reset);
-  const canUndo = useStore(
-    useEditorWorkspaceStore.temporal,
-    (state) => state.pastStates.length > 0,
-  );
-  const canRedo = useStore(
-    useEditorWorkspaceStore.temporal,
-    (state) => state.futureStates.length > 0,
-  );
-
-  useEffect(() => {
-    resetWorkspace(defaultEditorPrompt);
-    useEditorWorkspaceStore.temporal.getState().clear();
-  }, [asset?.id, resetWorkspace]);
+  const workspace = useEditorWorkspaceSession(asset?.id);
 
   if (!projectName || !asset) {
     return (
@@ -58,50 +30,25 @@ export function EditorWorkspace({
     );
   }
 
-  const handleAction = (message: string) => {
-    setStatus(message);
-    scheduleStatusReset(() => setStatus("All changes saved"), 2200);
-  };
-  const handleSave = (selection: string) => {
-    const timestamp = new Date().toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-
-    addSaveHistory({
-      id: `${Date.now()}-${saveHistory.length}`,
-      savedAt: timestamp,
-      description: prompt.trim() || "No description provided.",
-      selection,
-    });
-    handleAction("Saved just now");
-  };
-
   const renderHeader = (selection: string) => (
     <EditorHeader
       assetName={asset.name}
       version={asset.version}
       projectName={projectName}
       onBack={onBack}
-      status={status}
-      canUndo={canUndo}
-      canRedo={canRedo}
-      onUndo={() => {
-        useEditorWorkspaceStore.temporal.getState().undo();
-        handleAction("Last edit reverted");
-      }}
-      onRedo={() => {
-        useEditorWorkspaceStore.temporal.getState().redo();
-        handleAction("Edit restored");
-      }}
-      onSave={() => handleSave(selection)}
+      status={workspace.status}
+      canUndo={workspace.canUndo}
+      canRedo={workspace.canRedo}
+      onUndo={workspace.undo}
+      onRedo={workspace.redo}
+      onSave={() => workspace.save(selection)}
     />
   );
   const modeProps = {
-    prompt,
-    saveHistory,
-    onAction: handleAction,
-    onPromptChange: setPrompt,
+    prompt: workspace.prompt,
+    saveHistory: workspace.saveHistory,
+    onAction: workspace.reportAction,
+    onPromptChange: workspace.setPrompt,
     renderHeader,
   };
 

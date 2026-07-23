@@ -35,3 +35,31 @@ export const useEditorWorkspaceStore = create<EditorWorkspaceStore>()(
     },
   ),
 );
+
+export function initializeEditorWorkspace(prompt: string) {
+  useEditorWorkspaceStore.getState().reset(prompt);
+  useEditorWorkspaceStore.temporal.getState().clear();
+}
+
+export function saveEditorWorkspace(selection: string, savedAt = new Date()) {
+  const { prompt, saveHistory, addSaveHistory } =
+    useEditorWorkspaceStore.getState();
+
+  addSaveHistory({
+    id: `${savedAt.getTime()}-${saveHistory.length}`,
+    savedAt: savedAt.toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }),
+    description: prompt.trim() || "No description provided.",
+    selection,
+  });
+}
+
+export function undoEditorWorkspace() {
+  useEditorWorkspaceStore.temporal.getState().undo();
+}
+
+export function redoEditorWorkspace() {
+  useEditorWorkspaceStore.temporal.getState().redo();
+}

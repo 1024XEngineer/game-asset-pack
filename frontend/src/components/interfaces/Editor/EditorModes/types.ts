@@ -1,4 +1,4 @@
-import type { SaveHistoryEntry } from "@/store/editor-workspace-store";
+import type { SaveHistoryEntry } from "../editor-workspace-store";
 
 export type EditorModeProps = {
   prompt: string;
