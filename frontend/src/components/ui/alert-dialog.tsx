@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Alert Dialog
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/alert-dialog
+ */
+
 import * as React from "react";
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 

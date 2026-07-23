@@ -1,3 +1,8 @@
+/**
+ * Custom Component: NativeSelect
+ * Styled wrapper component for the native HTML <select> element.
+ */
+
 import { ChevronDownIcon } from "lucide-react";
 import * as React from "react";
 

@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Button
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/button
+ */
+
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 

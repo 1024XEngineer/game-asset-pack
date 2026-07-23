@@ -1,3 +1,8 @@
+/**
+ * Custom Component: ImageDropzone
+ * Image upload and preview dropzone component built with react-dropzone.
+ */
+
 import { ImagePlus, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 

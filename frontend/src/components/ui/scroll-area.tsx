@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * shadcn/ui Component: Scroll Area
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/scroll-area
+ */
+
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 
 import { cn } from "@/lib/utils";

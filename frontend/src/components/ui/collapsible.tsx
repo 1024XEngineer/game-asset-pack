@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * shadcn/ui Component: Collapsible
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/collapsible
+ */
+
 import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
 
 function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {

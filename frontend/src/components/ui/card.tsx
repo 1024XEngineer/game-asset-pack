@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Card
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/card
+ */
+
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

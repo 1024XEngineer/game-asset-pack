@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * shadcn/ui Component: Dropdown Menu
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/dropdown-menu
+ */
+
 import * as React from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 

@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Textarea
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/textarea
+ */
+
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

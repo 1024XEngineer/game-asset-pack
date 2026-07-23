@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Checkbox
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/checkbox
+ */
+
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 
 import { cn } from "@/lib/utils";

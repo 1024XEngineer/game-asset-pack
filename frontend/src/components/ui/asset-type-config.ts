@@ -1,3 +1,8 @@
+/**
+ * Custom Config Module: asset-type-config
+ * Configures labels, Lucide icons, and default canvas sizes for each asset kind.
+ */
+
 import type { LucideIcon } from "lucide-react";
 import {
   Box,

@@ -1,3 +1,8 @@
+/**
+ * shadcn/ui Component: Separator
+ * Official documentation & preview: https://ui.shadcn.com/docs/components/separator
+ */
+
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
 
 import { cn } from "@/lib/utils";
