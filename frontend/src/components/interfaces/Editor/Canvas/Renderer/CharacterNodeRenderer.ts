@@ -2,17 +2,9 @@ import { Container, Graphics, Text } from "pixi.js";
 
 import { animationAudio, nodeMeta, type NodeId } from "../../Editor.constants";
 import { ANIMATION_NODES, type CanvasPosition } from "../Canvas.constants";
-import {
-  getExpandedHeight,
-  getFrameBounds,
-  getFrameCount,
-} from "../Interaction/CharacterStageGeometry";
-import {
-  ACCENT,
-  EXPANDED_WIDTH,
-  FRAME_SIZE,
-  NODE_WIDTH,
-} from "../Runtime/CharacterStage.constants";
+import { getCharacterNodeLayout } from "../Interaction/CharacterStageGeometry";
+import { ACCENT } from "../Runtime/CharacterStage.constants";
+import type { Bounds } from "../Runtime/CharacterStage.types";
 
 export function drawCharacterNode({
   node,
@@ -32,21 +24,13 @@ export function drawCharacterNode({
   previewFrame: number;
 }) {
   const container = new Container({ x: position.x, y: position.y });
-  const width = expanded ? EXPANDED_WIDTH : NODE_WIDTH;
-  const height = expanded ? getExpandedHeight(node) : 300;
-  drawLabel(container, nodeMeta[node].label, width, selected);
+  const layout = getCharacterNodeLayout(node, { x: 0, y: 0 }, expanded);
+  drawLabel(container, nodeMeta[node].label, layout.bounds.width, selected);
 
   if (expanded) {
-    for (let index = 0; index < getFrameCount(node); index += 1) {
-      const frame = getFrameBounds({ x: 0, y: 0 }, index);
-      drawFrame(
-        container,
-        frame.x,
-        frame.y,
-        index,
-        selectedFrames.includes(index),
-      );
-    }
+    layout.frames.forEach((frame, index) => {
+      drawFrame(container, frame, index, selectedFrames.includes(index));
+    });
   } else {
     drawCharacter(container, 64, 48, previewFrame, 8);
   }
@@ -55,21 +39,24 @@ export function drawCharacterNode({
   if (audio && !expanded) drawAudioWaveform(container, audio.label);
 
   if (ANIMATION_NODES.has(node)) {
-    const controlsY = expanded ? height - 40 : 252;
+    const playControl = layout.playControl!;
+    const expandControl = layout.expandControl!;
     drawControl(
       container,
-      37,
-      controlsY,
-      68,
+      playControl.x,
+      playControl.y,
+      playControl.width,
+      playControl.height,
       playing ? "Pause" : "Play",
       playing ? "||" : ">",
-      expanded,
+      !layout.playEnabled,
     );
     drawControl(
       container,
-      113,
-      controlsY,
-      84,
+      expandControl.x,
+      expandControl.y,
+      expandControl.width,
+      expandControl.height,
       expanded ? "Collapse" : "Expand",
       expanded ? "-" : "+",
       false,
@@ -110,19 +97,24 @@ function drawLabel(
 
 function drawFrame(
   container: Container,
-  x: number,
-  y: number,
+  bounds: Bounds,
   index: number,
   selected: boolean,
 ) {
   if (selected) {
     container.addChild(
       new Graphics()
-        .roundRect(x - 3, y - 3, FRAME_SIZE + 6, FRAME_SIZE + 6, 5)
+        .roundRect(
+          bounds.x - 3,
+          bounds.y - 3,
+          bounds.width + 6,
+          bounds.height + 6,
+          5,
+        )
         .stroke({ color: ACCENT, width: 2 }),
     );
   }
-  drawCharacter(container, x + 28, y + 8, index, 4);
+  drawCharacter(container, bounds.x + 28, bounds.y + 8, index, 4);
 }
 
 function drawCharacter(
@@ -196,13 +188,14 @@ function drawControl(
   x: number,
   y: number,
   width: number,
+  height: number,
   label: string,
   icon: string,
   disabled: boolean,
 ) {
   container.addChild(
     new Graphics()
-      .roundRect(x, y, width, 32, 5)
+      .roundRect(x, y, width, height, 5)
       .fill({ color: 0xffffff, alpha: 0.4 })
       .stroke({ color: 0x000000, alpha: 0.1, width: 1 }),
   );

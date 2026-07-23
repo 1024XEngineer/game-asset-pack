@@ -24,6 +24,17 @@ export type CharacterStageProps = CharacterSelection &
 
 export type Bounds = CanvasPosition & { width: number; height: number };
 
+export type CharacterSceneSnapshot = {
+  readonly positions: Readonly<Record<NodeId, Readonly<CanvasPosition>>>;
+  readonly expanded: ReadonlySet<NodeId>;
+  readonly playing: ReadonlySet<NodeId>;
+  readonly previewFrames: ReadonlyMap<NodeId, number>;
+  readonly marquee: {
+    readonly start: CanvasPosition;
+    readonly end: CanvasPosition;
+  } | null;
+};
+
 export type CharacterSceneState = {
   positions: Record<NodeId, CanvasPosition>;
   expanded: Set<NodeId>;
@@ -33,9 +44,12 @@ export type CharacterSceneState = {
 };
 
 export type CharacterStageContext = {
-  state: CharacterSceneState;
   viewport: Viewport;
-  getSelection: () => CharacterSelection;
   actions: CharacterStageActions;
+  getScene: () => CharacterSceneSnapshot;
+  moveNode: (node: NodeId, position: CanvasPosition) => void;
+  setMarquee: (marquee: CharacterSceneState["marquee"]) => void;
+  toggleExpanded: (node: NodeId) => void;
+  togglePlaying: (node: NodeId) => void;
   render: () => void;
 };

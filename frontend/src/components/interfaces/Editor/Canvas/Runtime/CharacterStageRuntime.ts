@@ -14,6 +14,7 @@ import {
   WORLD_WIDTH,
 } from "./CharacterStage.constants";
 import type {
+  CharacterSceneState,
   CharacterStageContext,
   CharacterStageProps,
 } from "./CharacterStage.types";
@@ -28,7 +29,7 @@ export class CharacterStageRuntime {
   private props: CharacterStageProps;
   private lastAnimationFrame = performance.now();
 
-  private readonly state: CharacterStageContext["state"] = {
+  private readonly state: CharacterSceneState = {
     positions: structuredClone(DEFAULT_CANVAS_POSITIONS) as Record<
       NodeId,
       { x: number; y: number }
@@ -67,9 +68,7 @@ export class CharacterStageRuntime {
     this.renderer = new CharacterStageRenderer(world);
 
     const context: CharacterStageContext = {
-      state: this.state,
       viewport,
-      getSelection: () => this.props,
       actions: {
         onSelect: (node) => this.props.onSelect(node),
         onSelectFrame: (node, index) => this.props.onSelectFrame(node, index),
@@ -79,6 +78,23 @@ export class CharacterStageRuntime {
         onClearSelection: () => this.props.onClearSelection(),
         onNodePositionChange: (node, position) =>
           this.props.onNodePositionChange(node, position),
+      },
+      getScene: () => this.state,
+      moveNode: (node, position) => {
+        this.state.positions[node] = position;
+      },
+      setMarquee: (marquee) => {
+        this.state.marquee = marquee;
+      },
+      toggleExpanded: (node) => {
+        this.state.playing.delete(node);
+        if (this.state.expanded.has(node)) this.state.expanded.delete(node);
+        else this.state.expanded.add(node);
+      },
+      togglePlaying: (node) => {
+        if (this.state.expanded.has(node)) return;
+        if (this.state.playing.has(node)) this.state.playing.delete(node);
+        else this.state.playing.add(node);
       },
       render: () => this.render(),
     };

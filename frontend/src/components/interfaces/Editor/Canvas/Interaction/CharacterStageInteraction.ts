@@ -1,29 +1,15 @@
 import type { NodeId } from "../../Editor.constants";
+import { CANVAS_NODES, type CanvasPosition } from "../Canvas.constants";
 import {
-  ANIMATION_NODES,
-  CANVAS_NODES,
-  type CanvasPosition,
-} from "../Canvas.constants";
-import {
-  contains,
-  getExpandedHeight,
   getFrameBounds,
   getFrameCount,
   getNodeBounds,
+  hitTestCharacterScene,
   intersects,
   normalizeBounds,
 } from "./CharacterStageGeometry";
-import {
-  EXPANDED_WIDTH,
-  FRAME_GAP,
-  FRAME_SIZE,
-  INITIAL_SCALE,
-  NODE_WIDTH,
-} from "../Runtime/CharacterStage.constants";
-import type {
-  Bounds,
-  CharacterStageContext,
-} from "../Runtime/CharacterStage.types";
+import { INITIAL_SCALE } from "../Runtime/CharacterStage.constants";
+import type { CharacterStageContext } from "../Runtime/CharacterStage.types";
 
 type DragState =
   | {
@@ -46,13 +32,6 @@ type DragState =
       end: CanvasPosition;
       node: NodeId;
     };
-
-type HitTarget =
-  | { kind: "node"; node: NodeId }
-  | { kind: "frame"; node: NodeId; index: number }
-  | { kind: "frame-grid"; node: NodeId }
-  | { kind: "play"; node: NodeId }
-  | { kind: "expand"; node: NodeId };
 
 export class CharacterStageInteraction {
   private drag: DragState | null = null;
@@ -103,12 +82,13 @@ export class CharacterStageInteraction {
     } else if (hit?.kind === "node") {
       this.capture(event);
       this.context.actions.onSelect(hit.node);
+      const scene = this.context.getScene();
       this.drag = {
         kind: "node",
         pointerId: event.pointerId,
         start: point,
         node: hit.node,
-        position: { ...this.context.state.positions[hit.node] },
+        position: { ...scene.positions[hit.node] },
       };
     } else {
       this.capture(event);
@@ -143,10 +123,9 @@ export class CharacterStageInteraction {
         completed.end,
       );
     if (completed.kind === "node")
-      this.context.actions.onNodePositionChange(
-        completed.node,
-        this.context.state.positions[completed.node],
-      );
+      this.context.actions.onNodePositionChange(completed.node, {
+        ...this.context.getScene().positions[completed.node],
+      });
     this.drag = null;
     if (this.canvas.hasPointerCapture(event.pointerId))
       this.canvas.releasePointerCapture(event.pointerId);
@@ -155,88 +134,19 @@ export class CharacterStageInteraction {
 
   private onContextMenu = (event: MouseEvent) => event.preventDefault();
 
-  private hitTest(point: CanvasPosition): HitTarget | null {
-    const { positions, expanded } = this.context.state;
-    for (const node of [...CANVAS_NODES].reverse()) {
-      const position = positions[node];
-      const isExpanded = expanded.has(node);
-      if (isExpanded) {
-        for (let index = getFrameCount(node) - 1; index >= 0; index -= 1) {
-          if (contains(getFrameBounds(position, index), point))
-            return { kind: "frame", node, index };
-        }
-        const frameGrid: Bounds = {
-          x: position.x + 8,
-          y: position.y + 48,
-          width: EXPANDED_WIDTH - 16,
-          height:
-            Math.ceil(getFrameCount(node) / 4) * (FRAME_SIZE + FRAME_GAP) -
-            FRAME_GAP,
-        };
-        if (contains(frameGrid, point)) return { kind: "frame-grid", node };
-      }
-      if (ANIMATION_NODES.has(node)) {
-        const controlsY = isExpanded ? getExpandedHeight(node) - 40 : 252;
-        if (
-          !isExpanded &&
-          contains(
-            {
-              x: position.x + 37,
-              y: position.y + controlsY,
-              width: 68,
-              height: 32,
-            },
-            point,
-          )
-        ) {
-          return { kind: "play", node };
-        }
-        if (
-          contains(
-            {
-              x: position.x + 113,
-              y: position.y + controlsY,
-              width: 84,
-              height: 32,
-            },
-            point,
-          )
-        ) {
-          return { kind: "expand", node };
-        }
-      }
-      if (
-        contains(
-          {
-            ...position,
-            width: isExpanded ? EXPANDED_WIDTH : NODE_WIDTH,
-            height: isExpanded ? 34 : 232,
-          },
-          point,
-        )
-      ) {
-        return { kind: "node", node };
-      }
-    }
-    return null;
+  private hitTest(point: CanvasPosition) {
+    return hitTestCharacterScene(this.context.getScene(), point);
   }
 
   private togglePlaying(node: NodeId) {
     this.context.actions.onSelect(node);
-    if (!this.context.state.expanded.has(node)) {
-      if (this.context.state.playing.has(node))
-        this.context.state.playing.delete(node);
-      else this.context.state.playing.add(node);
-    }
+    this.context.togglePlaying(node);
     this.context.render();
   }
 
   private toggleExpanded(node: NodeId) {
     this.context.actions.onSelect(node);
-    this.context.state.playing.delete(node);
-    if (this.context.state.expanded.has(node))
-      this.context.state.expanded.delete(node);
-    else this.context.state.expanded.add(node);
+    this.context.toggleExpanded(node);
     this.context.render();
   }
 
@@ -261,22 +171,19 @@ export class CharacterStageInteraction {
     drag: Extract<DragState, { kind: "node" }>,
     point: CanvasPosition,
   ) {
-    this.context.state.positions[drag.node] = {
+    this.context.moveNode(drag.node, {
       x: drag.position.x + point.x - drag.start.x,
       y: drag.position.y + point.y - drag.start.y,
-    };
+    });
   }
 
   private completeNodeSelection(start: CanvasPosition, end: CanvasPosition) {
     const bounds = normalizeBounds(start, end);
+    const scene = this.context.getScene();
     const selected = CANVAS_NODES.filter((node) =>
       intersects(
         bounds,
-        getNodeBounds(
-          node,
-          this.context.state.positions[node],
-          this.context.state.expanded.has(node),
-        ),
+        getNodeBounds(node, scene.positions[node], scene.expanded.has(node)),
       ),
     );
     if (selected.length > 0) this.context.actions.onSelectNodes(selected);
@@ -289,23 +196,20 @@ export class CharacterStageInteraction {
     end: CanvasPosition,
   ) {
     const bounds = normalizeBounds(start, end);
+    const position = this.context.getScene().positions[node];
     const indexes = Array.from(
       { length: getFrameCount(node) },
       (_, index) => index,
-    ).filter((index) =>
-      intersects(
-        bounds,
-        getFrameBounds(this.context.state.positions[node], index),
-      ),
-    );
+    ).filter((index) => intersects(bounds, getFrameBounds(position, index)));
     if (indexes.length > 0) this.context.actions.onSelectFrames(node, indexes);
   }
 
   private syncMarquee() {
-    this.context.state.marquee =
+    this.context.setMarquee(
       this.drag?.kind === "marquee" || this.drag?.kind === "frame-marquee"
         ? { start: this.drag.start, end: this.drag.end }
-        : null;
+        : null,
+    );
     this.context.render();
   }
 

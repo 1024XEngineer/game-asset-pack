@@ -9,7 +9,7 @@ import {
   WORLD_WIDTH,
 } from "../Runtime/CharacterStage.constants";
 import type {
-  CharacterSceneState,
+  CharacterSceneSnapshot,
   CharacterSelection,
 } from "../Runtime/CharacterStage.types";
 import { drawCharacterNode } from "./CharacterNodeRenderer";
@@ -21,7 +21,7 @@ export class CharacterStageRenderer {
     this.world = world;
   }
 
-  render(state: CharacterSceneState, selection: CharacterSelection) {
+  render(state: CharacterSceneSnapshot, selection: CharacterSelection) {
     this.world
       .removeChildren()
       .forEach((child) => child.destroy({ children: true }));
