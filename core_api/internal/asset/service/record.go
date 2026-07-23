@@ -4,29 +4,36 @@ import (
 	"context"
 
 	"github.com/1024XEngineer/Holonic-Asset/internal/asset/domain"
+	"github.com/1024XEngineer/Holonic-Asset/internal/asset/repository"
 )
 
-// AssetResourceService manages resources under an asset.
-type AssetResourceService interface {
-	GetProtoTypeResources(ctx context.Context, assetID uint, version uint) ([]domain.AssetResource, error)
+// AssetVersionService manages asset versioning.
+type AssetVersionService interface {
+	CreateRecord(ctx context.Context, version *domain.AssetVersion) (uint, error)
+	GetVersionHistory(ctx context.Context, assetID uint) ([]domain.AssetVersion, error)
+	RollBackVersion(ctx context.Context, assetID uint, version uint) (uint, error)
+	Copy(ctx context.Context, assetID uint, version uint) (uint, error)
+}
 
-	// Animation resources.
-	CreateAnimationResource(ctx context.Context, resource *domain.AssetResource) (uint, error)
-	EditAnimationResource(ctx context.Context, id uint, resource []domain.AssetResource) error
-	GetAnimations(ctx context.Context, assetID uint, version uint) ([]domain.AssetResource, error)
+type AssetVersionServiceImpl struct {
+	AssetRepository repository.AssetRepository
+}
 
-	// Frame resources (associated with an animation).
-	CreateFrameResources(ctx context.Context, resource []domain.AssetResource) ([]domain.AssetResource, error)
-	EditFrameResources(ctx context.Context, resource []domain.AssetResource) ([]domain.AssetResource, error)
-	GetFrameResources(ctx context.Context, animationID uint) ([]domain.AssetResource, error)
+func (s *AssetVersionServiceImpl) CreateRecord(ctx context.Context, version *domain.AssetVersion) (uint, error) {
+	_, err := s.AssetRepository.CreateRecord(ctx, version)
+	return 0, err
+}
 
-	// Tile / Item resources.
-	CreateTileResources(ctx context.Context, resource []domain.AssetResource) ([]domain.AssetResource, error)
-	EditItemResources(ctx context.Context, id uint, resource []domain.AssetResource) ([]domain.AssetResource, error)
-	GetItemResources(ctx context.Context, assetID uint, version uint) ([]domain.AssetResource, error)
-	GetTilesResources(ctx context.Context, itemID uint) ([]domain.AssetResource, error)
+func (s *AssetVersionServiceImpl) GetVersionHistory(ctx context.Context, assetID uint) ([]domain.AssetVersion, error) {
+	return []domain.AssetVersion{}, nil
+}
 
-	// Image resources.
-	CreateImageResources(ctx context.Context, resource []domain.AssetResource) ([]domain.AssetResource, error)
-	EditImageResources(ctx context.Context, resource []domain.AssetResource) ([]domain.AssetResource, error)
+func (s *AssetVersionServiceImpl) RollBackVersion(ctx context.Context, assetID uint, version uint) (uint, error) {
+	_, err := s.AssetRepository.RollBackRecord(ctx, assetID, version)
+	return 0, err
+}
+
+func (s *AssetVersionServiceImpl) Copy(ctx context.Context, assetID uint, version uint) (uint, error) {
+	_, err := s.AssetRepository.Copy(ctx, assetID, version)
+	return 0, err
 }
