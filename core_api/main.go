@@ -3,6 +3,8 @@ package main
 
 import (
 	"github.com/1024XEngineer/Holonic-Asset/internal"
+	aihandler "github.com/1024XEngineer/Holonic-Asset/internal/ai/handler"
+	aiservice "github.com/1024XEngineer/Holonic-Asset/internal/ai/service"
 	projecthandler "github.com/1024XEngineer/Holonic-Asset/internal/project/handler"
 	projectrepository "github.com/1024XEngineer/Holonic-Asset/internal/project/repository"
 	projectdao "github.com/1024XEngineer/Holonic-Asset/internal/project/repository/dao"
@@ -15,6 +17,9 @@ func main() {
 	projectService := projectservice.NewProjectService(projectRepository)
 	projectHandler := projecthandler.NewProjectHandler(projectService)
 
-	e := internal.Register(nil, projectHandler)
+	aiService := aiservice.NewAIService()
+	aiHandler := aihandler.NewAIHandler(aiService)
+
+	e := internal.Register(nil, projectHandler, aiHandler)
 	e.Logger.Fatal(e.Start(":8080"))
 }
