@@ -9,10 +9,9 @@ import { useGenerationRunsQuery } from "@/data/generation/generation-runs.query"
 import { useDeleteProjectMutation } from "@/data/project/project-delete.mutation";
 import { useProjectListQuery } from "@/data/project/project-list.query";
 import {
-  clearLastProjectId,
-  readLastProjectId,
-  writeLastProjectId,
-} from "@/data/project/project-selection.storage";
+  reconcileProjectSelection,
+  removeProjectSelection,
+} from "@/data/project/project-selection";
 import { useUpdateProjectMutation } from "@/data/project/project-update.mutation";
 import type { CreationRequest } from "@/types/generation";
 import type { ProjectSummary } from "@/types/project";
@@ -20,13 +19,14 @@ import type { ProjectSummary } from "@/types/project";
 export function useProjectLibrary() {
   const navigate = useNavigate({ from: "/projects" });
   const search = useSearch({ from: "/projects" });
-  const { data: projects = [] } = useProjectListQuery();
+  const { data: projects = [], isSuccess: projectsLoaded } =
+    useProjectListQuery();
   const { data: assetGroups = [] } = useAssetLibraryQuery(search.project);
   const { data: runs = [] } = useGenerationRunsQuery(search.project);
   const { mutate: copyAsset } = useCopyAssetMutation();
   const { mutate: deleteAsset } = useDeleteAssetMutation();
   const { mutate: enqueueRun } = useEnqueueGenerationMutation();
-  const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutateAsync: deleteProject } = useDeleteProjectMutation();
   const { mutate: updateProject } = useUpdateProjectMutation();
   const project = projects.find((item) => item.id === search.project);
 
@@ -41,26 +41,11 @@ export function useProjectLibrary() {
   );
 
   useEffect(() => {
-    if (project) {
-      writeLastProjectId(project.id);
-      return;
-    }
-
-    if (search.project) {
-      clearLastProjectId(search.project);
-      return;
-    }
-
-    const cachedProjectId = readLastProjectId();
-    if (
-      cachedProjectId &&
-      projects.some((item) => item.id === cachedProjectId)
-    ) {
-      void selectProject(cachedProjectId, true);
-    } else if (cachedProjectId) {
-      clearLastProjectId(cachedProjectId);
-    }
-  }, [project, projects, search.project, selectProject]);
+    if (!projectsLoaded) return;
+    const selection = reconcileProjectSelection(projects, search.project);
+    if (selection.redirectProjectId)
+      void selectProject(selection.redirectProjectId, true);
+  }, [projects, projectsLoaded, search.project, selectProject]);
 
   const createProject = useCallback(
     () =>
@@ -72,12 +57,15 @@ export function useProjectLibrary() {
   );
 
   const removeProject = useCallback(
-    (projectId: string) => {
-      const nextProject = projects.find((item) => item.id !== projectId);
-      deleteProject(projectId);
-      clearLastProjectId(projectId);
+    async (projectId: string) => {
+      await deleteProject(projectId);
+      const fallbackProjectId = removeProjectSelection(
+        projects,
+        projectId,
+        search.project,
+      );
       if (search.project === projectId)
-        void selectProject(nextProject?.id, true);
+        await selectProject(fallbackProjectId, true);
     },
     [deleteProject, projects, search.project, selectProject],
   );
@@ -127,21 +115,24 @@ export function useProjectLibrary() {
   );
 
   return {
-    assetGroups,
-    changeQuery,
-    copyProjectAsset,
-    createAsset,
-    createProject,
-    deleteProjectAsset,
-    project,
-    projects,
-    query: search.q ?? "",
-    removeProject,
-    runs,
-    selectProject,
-    selectedProjectId: search.project,
-    updateProject: (updatedProject: ProjectSummary) =>
-      updateProject(updatedProject),
-    openAsset,
+    project: {
+      current: project,
+      items: projects,
+      selectedId: search.project,
+      create: createProject,
+      remove: removeProject,
+      select: selectProject,
+      update: (updatedProject: ProjectSummary) => updateProject(updatedProject),
+    },
+    assetLibrary: {
+      groups: assetGroups,
+      query: search.q ?? "",
+      changeQuery,
+      copyAsset: copyProjectAsset,
+      createAsset,
+      deleteAsset: deleteProjectAsset,
+      openAsset,
+    },
+    generation: { runs },
   };
 }

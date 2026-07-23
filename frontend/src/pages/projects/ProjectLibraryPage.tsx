@@ -17,33 +17,35 @@ export function ProjectLibraryPage() {
         sidebar={
           <ProjectSidebar
             isProjectRoute
-            projects={library.projects}
-            selectedProjectId={library.selectedProjectId}
-            onCreateProject={() => void library.createProject()}
-            onDeleteProject={library.removeProject}
-            onSelectProject={library.selectProject}
-            onUpdateProject={library.updateProject}
+            projects={library.project.items}
+            selectedProjectId={library.project.selectedId}
+            onCreateProject={() => void library.project.create()}
+            onDeleteProject={(projectId) =>
+              void library.project.remove(projectId)
+            }
+            onSelectProject={library.project.select}
+            onUpdateProject={library.project.update}
           />
         }
       >
         <AssetLibraryWorkspace
-          assetGroups={library.assetGroups}
-          project={library.project}
-          query={library.query}
-          generationQueue={<GenerationQueue runs={library.runs} />}
+          assetGroups={library.assetLibrary.groups}
+          project={library.project.current}
+          query={library.assetLibrary.query}
+          generationQueue={<GenerationQueue runs={library.generation.runs} />}
           creationControl={
-            library.project ? (
+            library.project.current ? (
               <CreateAssetToolbar
                 assetKinds={creatableAssetKinds}
-                project={library.project}
-                onCreate={library.createAsset}
+                project={library.project.current}
+                onCreate={library.assetLibrary.createAsset}
               />
             ) : null
           }
-          onCopyAsset={library.copyProjectAsset}
-          onDeleteAsset={library.deleteProjectAsset}
-          onOpenAsset={library.openAsset}
-          onQueryChange={library.changeQuery}
+          onCopyAsset={library.assetLibrary.copyAsset}
+          onDeleteAsset={library.assetLibrary.deleteAsset}
+          onOpenAsset={library.assetLibrary.openAsset}
+          onQueryChange={library.assetLibrary.changeQuery}
         />
       </ProjectChrome>
     </div>
