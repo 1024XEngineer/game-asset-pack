@@ -77,6 +77,8 @@ export class CharacterStageRuntime {
           this.props.onSelectFrames(node, indexes),
         onSelectNodes: (nodes) => this.props.onSelectNodes(nodes),
         onClearSelection: () => this.props.onClearSelection(),
+        onNodePositionChange: (node, position) =>
+          this.props.onNodePositionChange(node, position),
       },
       render: () => this.render(),
     };
@@ -93,6 +95,13 @@ export class CharacterStageRuntime {
 
   syncProps(props: CharacterStageProps) {
     this.props = props;
+    this.state.positions = structuredClone(DEFAULT_CANVAS_POSITIONS) as Record<
+      NodeId,
+      { x: number; y: number }
+    >;
+    for (const [node, position] of Object.entries(props.nodePositions ?? {})) {
+      this.state.positions[node as NodeId] = { ...position };
+    }
     for (const frame of props.selectedFrames)
       this.state.expanded.add(frame.node);
     this.render();

@@ -6,7 +6,7 @@ import type { EditorModeProps } from "./types";
 
 export function SceneryEditorMode({
   prompt,
-  saveHistory,
+  history,
   onAction,
   onPromptChange,
   renderHeader,
@@ -37,7 +37,7 @@ export function SceneryEditorMode({
           prompt={prompt}
           onPromptChange={onPromptChange}
           onAction={onAction}
-          saveHistory={saveHistory}
+          history={history}
         />
       </div>
     </>

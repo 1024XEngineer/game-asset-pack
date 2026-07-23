@@ -7,8 +7,10 @@ import type { EditorModeProps } from "./types";
 
 export function CharacterEditorMode({
   prompt,
-  saveHistory,
+  history,
+  characterNodePositions,
   onAction,
+  onCharacterPositionChange,
   onPromptChange,
   renderHeader,
 }: EditorModeProps) {
@@ -30,11 +32,13 @@ export function CharacterEditorMode({
         <CharacterStage
           selectedNodes={stage.selectedNodes}
           selectedFrames={stage.selectedFrames}
+          nodePositions={characterNodePositions}
           onSelect={stage.selectNode}
           onSelectFrame={stage.selectFrame}
           onSelectFrames={stage.selectFrames}
           onSelectNodes={stage.selectNodes}
           onClearSelection={stage.clearSelection}
+          onNodePositionChange={onCharacterPositionChange}
         />
         <Inspector
           selectedNodes={stage.selectedNodes}
@@ -42,7 +46,7 @@ export function CharacterEditorMode({
           prompt={prompt}
           onPromptChange={onPromptChange}
           onAction={onAction}
-          saveHistory={saveHistory}
+          history={history}
         />
       </div>
     </>

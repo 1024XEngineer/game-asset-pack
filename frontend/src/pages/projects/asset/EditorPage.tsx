@@ -27,9 +27,11 @@ export function EditorPage() {
           asset && group
             ? {
                 id: asset.id,
+                projectId,
                 kind: group.kind,
                 name: asset.name,
                 version: asset.version,
+                history: asset.history,
               }
             : undefined
         }

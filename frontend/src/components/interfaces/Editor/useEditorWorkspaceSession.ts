@@ -2,23 +2,31 @@ import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 
 import { useTimeout } from "@/hooks/use-timeout";
+import { useSaveAssetRevisionMutation } from "@/data/asset/asset-save-revision.mutation";
 import {
   initializeEditorWorkspace,
+  markEditorWorkspaceSaved,
   redoEditorWorkspace,
-  saveEditorWorkspace,
   undoEditorWorkspace,
   useEditorWorkspaceStore,
 } from "./editor-workspace-store";
 import { defaultEditorPrompt } from "./Editor.constants";
+import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
 
 const savedStatus = "All changes saved";
 
-export function useEditorWorkspaceSession(assetId: string | undefined) {
+export function useEditorWorkspaceSession(
+  asset: EditorWorkspaceAsset | undefined,
+) {
   const [status, setStatus] = useState(savedStatus);
   const { schedule: scheduleStatusReset } = useTimeout();
-  const prompt = useEditorWorkspaceStore((state) => state.prompt);
-  const saveHistory = useEditorWorkspaceStore((state) => state.saveHistory);
+  const { mutateAsync: saveRevision } = useSaveAssetRevisionMutation();
+  const document = useEditorWorkspaceStore((state) => state.document);
+  const savedDocument = useEditorWorkspaceStore((state) => state.savedDocument);
   const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
+  const setCharacterNodePosition = useEditorWorkspaceStore(
+    (state) => state.setCharacterNodePosition,
+  );
   const canUndo = useStore(
     useEditorWorkspaceStore.temporal,
     (state) => state.pastStates.length > 0,
@@ -29,27 +37,44 @@ export function useEditorWorkspaceSession(assetId: string | undefined) {
   );
 
   useEffect(() => {
-    initializeEditorWorkspace(defaultEditorPrompt);
+    const currentRecord = asset?.history.find((record) => record.isCurrent);
+    initializeEditorWorkspace(
+      currentRecord?.editorDocument ?? { prompt: defaultEditorPrompt },
+    );
     setStatus(savedStatus);
-  }, [assetId]);
+  }, [asset?.id]);
 
   const reportAction = (message: string) => {
     setStatus(message);
     scheduleStatusReset(() => setStatus(savedStatus), 2200);
   };
+  const hasUnsavedChanges =
+    JSON.stringify(document) !== JSON.stringify(savedDocument);
 
   return {
     canRedo,
     canUndo,
-    prompt,
+    document,
     reportAction,
-    save: (selection: string) => {
-      saveEditorWorkspace(selection);
-      reportAction("Saved just now");
+    save: async () => {
+      if (!asset) return;
+      setStatus("Saving changes");
+      try {
+        await saveRevision({
+          projectId: asset.projectId,
+          assetId: asset.id,
+          editorDocument: document,
+        });
+        markEditorWorkspaceSaved(document);
+        reportAction("Saved just now");
+      } catch {
+        reportAction("Save failed");
+      }
     },
-    saveHistory,
+    setCharacterNodePosition,
     setPrompt,
-    status,
+    status:
+      status === savedStatus && hasUnsavedChanges ? "Unsaved changes" : status,
     redo: () => {
       redoEditorWorkspace();
       reportAction("Edit restored");

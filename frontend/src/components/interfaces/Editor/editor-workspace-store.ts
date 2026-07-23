@@ -1,59 +1,66 @@
 import { create } from "zustand";
 import { temporal } from "zundo";
 
-export type SaveHistoryEntry = {
-  id: string;
-  savedAt: string;
-  description: string;
-  selection: string;
-};
+import type {
+  AssetEditorDocument,
+  EditorCanvasPosition,
+} from "@/types/editor-document";
 
 type EditorWorkspaceStore = {
-  prompt: string;
-  saveHistory: SaveHistoryEntry[];
+  document: AssetEditorDocument;
+  savedDocument: AssetEditorDocument;
   setPrompt: (prompt: string) => void;
-  addSaveHistory: (entry: SaveHistoryEntry) => void;
-  reset: (prompt: string) => void;
+  setCharacterNodePosition: (
+    nodeId: string,
+    position: EditorCanvasPosition,
+  ) => void;
+  reset: (document: AssetEditorDocument) => void;
+  markSaved: (document: AssetEditorDocument) => void;
 };
 
 export const useEditorWorkspaceStore = create<EditorWorkspaceStore>()(
   temporal(
     (set) => ({
-      prompt: "",
-      saveHistory: [],
-      setPrompt: (prompt) => set({ prompt }),
-      addSaveHistory: (entry) =>
-        set((state) => ({ saveHistory: [entry, ...state.saveHistory] })),
-      reset: (prompt) => set({ prompt, saveHistory: [] }),
+      document: { prompt: "" },
+      savedDocument: { prompt: "" },
+      setPrompt: (prompt) =>
+        set((state) => ({ document: { ...state.document, prompt } })),
+      setCharacterNodePosition: (nodeId, position) =>
+        set((state) => ({
+          document: {
+            ...state.document,
+            character: {
+              nodePositions: {
+                ...state.document.character?.nodePositions,
+                [nodeId]: position,
+              },
+            },
+          },
+        })),
+      reset: (document) =>
+        set({
+          document: structuredClone(document),
+          savedDocument: structuredClone(document),
+        }),
+      markSaved: (document) =>
+        set({ savedDocument: structuredClone(document) }),
     }),
     {
       limit: 100,
       partialize: (state) => ({
-        prompt: state.prompt,
-        saveHistory: state.saveHistory,
+        document: state.document,
       }),
     },
   ),
 );
 
-export function initializeEditorWorkspace(prompt: string) {
-  useEditorWorkspaceStore.getState().reset(prompt);
+export function initializeEditorWorkspace(document: AssetEditorDocument) {
+  useEditorWorkspaceStore.getState().reset(document);
   useEditorWorkspaceStore.temporal.getState().clear();
 }
 
-export function saveEditorWorkspace(selection: string, savedAt = new Date()) {
-  const { prompt, saveHistory, addSaveHistory } =
-    useEditorWorkspaceStore.getState();
-
-  addSaveHistory({
-    id: `${savedAt.getTime()}-${saveHistory.length}`,
-    savedAt: savedAt.toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
-    description: prompt.trim() || "No description provided.",
-    selection,
-  });
+export function markEditorWorkspaceSaved(document: AssetEditorDocument) {
+  useEditorWorkspaceStore.getState().markSaved(document);
 }
 
 export function undoEditorWorkspace() {

@@ -142,6 +142,11 @@ export class CharacterStageInteraction {
         completed.start,
         completed.end,
       );
+    if (completed.kind === "node")
+      this.context.actions.onNodePositionChange(
+        completed.node,
+        this.context.state.positions[completed.node],
+      );
     this.drag = null;
     if (this.canvas.hasPointerCapture(event.pointerId))
       this.canvas.releasePointerCapture(event.pointerId);

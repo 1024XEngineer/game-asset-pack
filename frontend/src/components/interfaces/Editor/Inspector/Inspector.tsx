@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { SaveHistoryEntry } from "../editor-workspace-store";
+import type { AssetRecord } from "@/types/asset-record";
 
 import { nodeMeta, type NodeId } from "../Editor.constants";
 
@@ -13,7 +13,7 @@ type InspectorProps = {
   prompt: string;
   onPromptChange: (value: string) => void;
   onAction: (message: string) => void;
-  saveHistory: SaveHistoryEntry[];
+  history: AssetRecord[];
   selectedItems?: string[];
 };
 
@@ -23,7 +23,7 @@ export function Inspector({
   prompt,
   onPromptChange,
   onAction,
-  saveHistory,
+  history,
   selectedItems,
 }: InspectorProps) {
   const [activeTab, setActiveTab] = useState<"ai-edit" | "history">("ai-edit");
@@ -84,7 +84,7 @@ export function Inspector({
               </label>
             </div>
           ) : (
-            <SaveHistory entries={saveHistory} />
+            <SaveHistory entries={history} />
           )}
         </div>
       </ScrollArea>
@@ -167,7 +167,7 @@ function SelectionSummary({
   );
 }
 
-function SaveHistory({ entries }: { entries: SaveHistoryEntry[] }) {
+function SaveHistory({ entries }: { entries: AssetRecord[] }) {
   if (entries.length === 0) {
     return (
       <div className="py-8 text-center text-xs text-[#81786d]">
@@ -185,11 +185,11 @@ function SaveHistory({ entries }: { entries: SaveHistoryEntry[] }) {
           className="rounded-xl border border-black/10 bg-[#f7f5f0] p-3 text-xs text-[#51493f]"
         >
           <div className="flex items-center justify-between text-[11px] text-[#81786d]">
-            <span>{entry.savedAt}</span>
+            <span>{entry.version}</span>
           </div>
           <p className="mt-1 font-medium text-[#2d2923]">{entry.description}</p>
           <p className="mt-1 text-[11px] text-[#786f64]">
-            Selection: {entry.selection}
+            {entry.isCurrent ? "Current record" : "Saved record"}
           </p>
         </div>
       ))}

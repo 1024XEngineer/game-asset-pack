@@ -4,6 +4,7 @@ import type { AssetGroupsByProject } from "@/types/asset-library";
 import type { ProjectAsset } from "@/types/asset";
 import type { ProjectSummary } from "@/types/project";
 import type { AssetKind } from "@/types/asset-kind";
+import type { AssetEditorDocument } from "@/types/editor-document";
 
 const PROJECTS_STORAGE_KEY = "game-asset-pack:projects";
 
@@ -90,7 +91,6 @@ export async function addMockAsset(
           },
         ],
   };
-
   return assetsByProject[projectId];
 }
 
@@ -131,7 +131,6 @@ export async function copyMockAsset(projectId: string, assetId: string) {
       };
     }),
   };
-
   return assetsByProject[projectId];
 }
 
@@ -143,11 +142,56 @@ export async function deleteMockAsset(projectId: string, assetId: string) {
       assets: group.assets.filter((asset) => asset.id !== assetId),
     })),
   };
+  return assetsByProject[projectId];
+}
 
+export async function saveMockAssetRevision(
+  projectId: string,
+  assetId: string,
+  editorDocument: AssetEditorDocument,
+) {
+  const groups = assetsByProject[projectId] ?? [];
+  const savedAt = new Date();
+
+  assetsByProject = {
+    ...assetsByProject,
+    [projectId]: groups.map((group) => ({
+      ...group,
+      assets: group.assets.map((asset) => {
+        if (asset.id !== assetId) return asset;
+
+        const version = nextAssetVersion(asset.version);
+        const record = {
+          id: `record-${asset.id}-${crypto.randomUUID()}`,
+          version,
+          description: editorDocument.prompt.trim() || asset.description,
+          status: "ready" as const,
+          isCurrent: true,
+          editorDocument: structuredClone(editorDocument),
+          savedAt: savedAt.toISOString(),
+        };
+
+        return {
+          ...asset,
+          version,
+          description: record.description,
+          history: [
+            record,
+            ...asset.history.map((entry) => ({ ...entry, isCurrent: false })),
+          ],
+        };
+      }),
+    })),
+  };
   return assetsByProject[projectId];
 }
 
 export function resetMockRepository() {
   projects = projectSummaries;
   assetsByProject = assetGroupsByProject as AssetGroupsByProject;
+}
+
+function nextAssetVersion(version: string) {
+  const current = Number(version.slice(1));
+  return Number.isInteger(current) && current >= 0 ? `v${current + 1}` : "v1";
 }

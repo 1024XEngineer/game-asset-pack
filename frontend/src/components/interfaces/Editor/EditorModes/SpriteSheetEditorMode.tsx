@@ -12,7 +12,7 @@ import type { EditorModeProps } from "./types";
 export function SpriteSheetEditorMode({
   kind,
   prompt,
-  saveHistory,
+  history,
   onAction,
   onPromptChange,
   renderHeader,
@@ -57,7 +57,7 @@ export function SpriteSheetEditorMode({
           prompt={prompt}
           onPromptChange={onPromptChange}
           onAction={onAction}
-          saveHistory={saveHistory}
+          history={history}
         />
       </div>
     </>

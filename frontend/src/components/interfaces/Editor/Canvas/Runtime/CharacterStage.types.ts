@@ -14,9 +14,13 @@ export type CharacterStageActions = {
   onSelectFrames: (node: NodeId, indexes: number[]) => void;
   onSelectNodes: (nodes: NodeId[]) => void;
   onClearSelection: () => void;
+  onNodePositionChange: (node: NodeId, position: CanvasPosition) => void;
 };
 
-export type CharacterStageProps = CharacterSelection & CharacterStageActions;
+export type CharacterStageProps = CharacterSelection &
+  CharacterStageActions & {
+    nodePositions?: Record<string, CanvasPosition>;
+  };
 
 export type Bounds = CanvasPosition & { width: number; height: number };
 

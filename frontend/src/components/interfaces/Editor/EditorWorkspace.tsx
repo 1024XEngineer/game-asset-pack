@@ -15,7 +15,7 @@ export function EditorWorkspace({
   projectName?: string;
   onBack: () => void;
 }) {
-  const workspace = useEditorWorkspaceSession(asset?.id);
+  const workspace = useEditorWorkspaceSession(asset);
 
   if (!projectName || !asset) {
     return (
@@ -30,7 +30,7 @@ export function EditorWorkspace({
     );
   }
 
-  const renderHeader = (selection: string) => (
+  const renderHeader = (_selection: string) => (
     <EditorHeader
       assetName={asset.name}
       version={asset.version}
@@ -41,13 +41,15 @@ export function EditorWorkspace({
       canRedo={workspace.canRedo}
       onUndo={workspace.undo}
       onRedo={workspace.redo}
-      onSave={() => workspace.save(selection)}
+      onSave={() => void workspace.save()}
     />
   );
   const modeProps = {
-    prompt: workspace.prompt,
-    saveHistory: workspace.saveHistory,
+    prompt: workspace.document.prompt,
+    history: asset.history,
+    characterNodePositions: workspace.document.character?.nodePositions,
     onAction: workspace.reportAction,
+    onCharacterPositionChange: workspace.setCharacterNodePosition,
     onPromptChange: workspace.setPrompt,
     renderHeader,
   };
