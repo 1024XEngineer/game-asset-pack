@@ -2,6 +2,11 @@ import { useForm } from "@tanstack/react-form";
 import { ArrowLeft, Gamepad2, Lightbulb, Sparkles } from "lucide-react";
 
 import type { ProjectSummary } from "@/types/project";
+import {
+  createNewProjectDraft,
+  projectContextOptions,
+  toProjectSummary,
+} from "./project-context";
 
 export function NewProjectScreen({
   onCancel,
@@ -11,31 +16,9 @@ export function NewProjectScreen({
   onCreate: (project: ProjectSummary) => void | Promise<void>;
 }) {
   const form = useForm({
-    defaultValues: {
-      name: "",
-      gameType: "Role-playing game",
-      platform: "PC",
-      description: "",
-      style: "Pixel art",
-    },
+    defaultValues: createNewProjectDraft(),
     onSubmit: async ({ value }) => {
-      const id =
-        value.name
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "") || `project-${Date.now()}`;
-      await onCreate({
-        id,
-        name: value.name.trim(),
-        gameType: value.gameType,
-        platform: value.platform,
-        description: value.description.trim() || "A new game asset workspace.",
-        style: value.style,
-        visualStyle: value.style,
-        visualDirection: "",
-        assetCount: 0,
-      });
+      await onCreate(toProjectSummary(value));
     },
   });
 
@@ -111,10 +94,9 @@ export function NewProjectScreen({
                   value={field.state.value}
                   onChange={(event) => field.handleChange(event.target.value)}
                 >
-                  <option>Role-playing game</option>
-                  <option>Platformer</option>
-                  <option>Strategy</option>
-                  <option>Simulation</option>
+                  {projectContextOptions.gameTypes.map((gameType) => (
+                    <option key={gameType}>{gameType}</option>
+                  ))}
                 </select>
               </label>
             )}
@@ -127,19 +109,18 @@ export function NewProjectScreen({
                   value={field.state.value}
                   onChange={(event) => field.handleChange(event.target.value)}
                 >
-                  <option>PC</option>
-                  <option>Web</option>
-                  <option>Mobile</option>
-                  <option>Console</option>
+                  {projectContextOptions.platforms.map((platform) => (
+                    <option key={platform}>{platform}</option>
+                  ))}
                 </select>
               </label>
             )}
           </form.Field>
         </div>
-        <form.Field name="style">
+        <form.Field name="visualStyle">
           {(field) => (
             <label>
-              Visual direction
+              Visual style
               <input
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}

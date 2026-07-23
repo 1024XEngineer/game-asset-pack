@@ -21,19 +21,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownField } from "@/components/ui/dropdown-field";
 
 import type { ProjectSummary } from "@/types/project";
-
-const options = {
-  gameType: [
-    "Role-playing game",
-    "Platformer",
-    "Puzzle",
-    "Strategy",
-    "Simulation",
-    "Other",
-  ],
-  visualStyle: ["Top down", "Side on", "Isometric", "Other"],
-  platform: ["PC", "Mobile", "Web", "Console", "Multi-platform"],
-};
+import {
+  applyProjectSettings,
+  createProjectSettingsDraft,
+  editableProjectContextOptions,
+  projectContextOptions,
+  type ProjectSettingsDraft,
+} from "./project-context";
 
 export function ProjectSettingsDialog({
   project,
@@ -46,59 +40,23 @@ export function ProjectSettingsDialog({
 }) {
   const [open, setOpen] = useState(false);
   const form = useForm({
-    defaultValues: {
-      draft: project,
-      customGameType: options.gameType.includes(project.gameType)
-        ? ""
-        : project.gameType,
-      customVisualStyle: options.visualStyle.includes(project.visualStyle)
-        ? ""
-        : project.visualStyle,
-    },
+    defaultValues: { draft: createProjectSettingsDraft(project) },
     onSubmit: ({ value }) => {
-      const hasCustomVisualStyle =
-        value.draft.visualStyle === "Other" ||
-        !options.visualStyle.includes(value.draft.visualStyle);
-      const hasCustomGameType =
-        value.draft.gameType === "Other" ||
-        !options.gameType.includes(value.draft.gameType);
-      const visualStyle = hasCustomVisualStyle
-        ? value.customVisualStyle.trim()
-        : value.draft.visualStyle;
-      const gameType = hasCustomGameType
-        ? value.customGameType.trim()
-        : value.draft.gameType;
-      if (!value.draft.name.trim()) return;
-      if (hasCustomVisualStyle && !visualStyle) return;
-      if (hasCustomGameType && !gameType) return;
-      onSave({
-        ...value.draft,
-        name: value.draft.name.trim(),
-        gameType,
-        visualStyle,
-        style: visualStyle || value.draft.style,
-      });
+      const updatedProject = applyProjectSettings(project, value.draft);
+      if (!updatedProject) return;
+      onSave(updatedProject);
       setOpen(false);
     },
   });
-  const values = form.state.values;
-  const draft = values.draft;
+  const values = form.state.values.draft;
 
   useEffect(() => {
-    form.reset({
-      draft: project,
-      customVisualStyle: options.visualStyle.includes(project.visualStyle)
-        ? ""
-        : project.visualStyle,
-      customGameType: options.gameType.includes(project.gameType)
-        ? ""
-        : project.gameType,
-    });
+    form.reset({ draft: createProjectSettingsDraft(project) });
   }, [project]);
 
-  function update<K extends keyof ProjectSummary>(
+  function update<K extends keyof ProjectSettingsDraft>(
     key: K,
-    value: ProjectSummary[K],
+    value: ProjectSettingsDraft[K],
   ) {
     form.setFieldValue("draft", { ...form.state.values.draft, [key]: value });
   }
@@ -153,45 +111,32 @@ export function ProjectSettingsDialog({
               Project name
               <Input
                 required
-                value={draft.name}
+                value={values.name}
                 onChange={(event) => update("name", event.target.value)}
               />
             </label>
             <DropdownField
               label="Game type"
-              value={
-                options.gameType.includes(draft.gameType)
-                  ? draft.gameType
-                  : "Other"
-              }
-              options={options.gameType}
+              value={values.gameType}
+              options={[...editableProjectContextOptions.gameTypes]}
               onChange={(value) => {
                 update("gameType", value);
-                if (value !== "Other") form.setFieldValue("customGameType", "");
+                if (value !== "Other") update("customGameType", "");
               }}
             />
             <DropdownField
               label="Visual style"
-              value={
-                options.visualStyle.includes(draft.visualStyle)
-                  ? draft.visualStyle
-                  : "Other"
-              }
-              options={options.visualStyle}
+              value={values.visualStyle}
+              options={[...editableProjectContextOptions.visualStyles]}
               onChange={(value) => {
                 update("visualStyle", value);
-                if (value !== "Other")
-                  form.setFieldValue("customVisualStyle", "");
+                if (value !== "Other") update("customVisualStyle", "");
               }}
             />
-            {draft.gameType === "Other" ||
-            !options.gameType.includes(draft.gameType) ? (
+            {values.gameType === "Other" ? (
               <label
                 className={`grid gap-2 text-sm font-medium ${
-                  draft.visualStyle === "Other" ||
-                  !options.visualStyle.includes(draft.visualStyle)
-                    ? ""
-                    : "sm:col-span-2"
+                  values.visualStyle === "Other" ? "" : "sm:col-span-2"
                 }`}
               >
                 Custom game type
@@ -200,19 +145,15 @@ export function ProjectSettingsDialog({
                   placeholder="Describe the game type"
                   value={values.customGameType}
                   onChange={(event) =>
-                    form.setFieldValue("customGameType", event.target.value)
+                    update("customGameType", event.target.value)
                   }
                 />
               </label>
             ) : null}
-            {draft.visualStyle === "Other" ||
-            !options.visualStyle.includes(draft.visualStyle) ? (
+            {values.visualStyle === "Other" ? (
               <label
                 className={`grid gap-2 text-sm font-medium ${
-                  draft.gameType === "Other" ||
-                  !options.gameType.includes(draft.gameType)
-                    ? ""
-                    : "sm:col-span-2"
+                  values.gameType === "Other" ? "" : "sm:col-span-2"
                 }`}
               >
                 Custom visual style
@@ -221,22 +162,22 @@ export function ProjectSettingsDialog({
                   placeholder="Describe the visual style"
                   value={values.customVisualStyle}
                   onChange={(event) =>
-                    form.setFieldValue("customVisualStyle", event.target.value)
+                    update("customVisualStyle", event.target.value)
                   }
                 />
               </label>
             ) : null}
             <DropdownField
               label="Target platform"
-              value={draft.platform}
-              options={options.platform}
+              value={values.platform}
+              options={[...projectContextOptions.platforms]}
               onChange={(value) => update("platform", value)}
             />
             <label className="grid gap-2 text-sm font-medium sm:col-span-2">
               Game description
               <Textarea
                 className="min-h-28 resize-y"
-                value={draft.description}
+                value={values.description}
                 onChange={(event) => update("description", event.target.value)}
               />
             </label>
@@ -245,7 +186,7 @@ export function ProjectSettingsDialog({
             <p className="text-sm font-medium">Visual direction</p>
             <ImageDropzone
               className="mt-2 h-28"
-              previewUrl={draft.visualDirection || undefined}
+              previewUrl={values.visualDirection || undefined}
               onSelect={uploadDirection}
               onClear={() => update("visualDirection", "")}
             />
