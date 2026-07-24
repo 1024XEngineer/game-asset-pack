@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 
-import { EditorWorkspaceScreen } from "@/components/interfaces/Editor/EditorWorkspaceScreen";
+import { EditorWorkspaceScreen } from "@/features/Editor/EditorWorkspaceScreen";
 import { useEditorDocumentQuery } from "@/api/editor/editor-document.query";
 
 export function EditorPage() {

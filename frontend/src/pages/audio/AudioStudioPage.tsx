@@ -1,4 +1,4 @@
-import { AudioStudioScreen } from "@/components/interfaces/AudioStudio/AudioStudioScreen";
+import { AudioStudioScreen } from "@/features/AudioStudio/AudioStudioScreen";
 import { AppHeader } from "@/components/layouts/AppHeader";
 
 export function AudioStudioPage() {

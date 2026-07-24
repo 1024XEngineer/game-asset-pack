@@ -1,4 +1,4 @@
-import { SettingsScreen } from "@/components/interfaces/Settings/SettingsScreen";
+import { SettingsScreen } from "@/features/Settings/SettingsScreen";
 import { AppHeader } from "@/components/layouts/AppHeader";
 
 export function SettingsPage() {
