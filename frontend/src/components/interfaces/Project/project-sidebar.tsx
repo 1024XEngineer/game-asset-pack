@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronLeft, ChevronRight, Folder, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { Download, Plus, RefreshCw, Sparkles, Trash2 } from "lucide-react";
 
 import { useQuickGeneration } from "./useQuickGeneration";

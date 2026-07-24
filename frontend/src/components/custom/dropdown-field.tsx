@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom Component: DropdownField
  * Reusable single-select dropdown menu component built on top of shadcn/ui DropdownMenu.

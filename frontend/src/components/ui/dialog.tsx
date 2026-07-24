@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * shadcn/ui Component: Dialog
  * Official documentation & preview: https://ui.shadcn.com/docs/components/dialog

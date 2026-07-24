@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * shadcn/ui Component: Scroll Area
  * Official documentation & preview: https://ui.shadcn.com/docs/components/scroll-area

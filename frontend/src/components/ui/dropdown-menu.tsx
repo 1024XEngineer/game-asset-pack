@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * shadcn/ui Component: Dropdown Menu
  * Official documentation & preview: https://ui.shadcn.com/docs/components/dropdown-menu

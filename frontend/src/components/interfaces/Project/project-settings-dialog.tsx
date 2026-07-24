@@ -1,5 +1,3 @@
-"use client";
-
 import { Pencil } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { useEffect, useState } from "react";

@@ -1,5 +1,3 @@
-"use client";
-
 import { Copy, Trash2 } from "lucide-react";
 
 import {
