@@ -3,8 +3,8 @@ import { LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 import type { GenerationRun } from "@/types/generation";
-import { AssetTypeIcon } from "@/components/custom/AssetTypeIcon";
-import { getAssetTypeConfig } from "@/components/custom/asset-type-config";
+import { AssetTypeIcon } from "@/components/ui/custom/AssetTypeIcon";
+import { getAssetTypeConfig } from "@/components/ui/custom/asset-type-config";
 
 export function GenerationQueue({ runs }: { runs: GenerationRun[] }) {
   if (runs.length === 0) return null;

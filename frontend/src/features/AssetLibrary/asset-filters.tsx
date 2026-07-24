@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { assetKinds, type AssetKind } from "@/types/asset-kind";
-import { getAssetTypeConfig } from "@/components/custom/asset-type-config";
-import { AssetTypeIcon } from "@/components/custom/AssetTypeIcon";
+import { getAssetTypeConfig } from "@/components/ui/custom/asset-type-config";
+import { AssetTypeIcon } from "@/components/ui/custom/AssetTypeIcon";
 
 const filters: AssetKind[] = [...assetKinds];
 

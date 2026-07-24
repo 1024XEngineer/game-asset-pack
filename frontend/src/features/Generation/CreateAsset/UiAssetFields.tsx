@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImageDropzone } from "@/components/custom/image-dropzone";
+import { ImageDropzone } from "@/components/ui/custom/image-dropzone";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 

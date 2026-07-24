@@ -4,7 +4,7 @@ import { useQuickGeneration } from "./useQuickGeneration";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ImageDropzone } from "@/components/custom/image-dropzone";
+import { ImageDropzone } from "@/components/ui/custom/image-dropzone";
 import { getQuickAssetPreviewClassName } from "./QuickGeneration.constants";
 
 export function QuickGenerateScreen() {

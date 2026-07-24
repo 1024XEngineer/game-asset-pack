@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getAssetTypeConfig } from "@/components/custom/asset-type-config";
+import { getAssetTypeConfig } from "@/components/ui/custom/asset-type-config";
 import type { CreatableAssetKind } from "@/types/asset-kind";
 import type { CreationRequest } from "@/types/generation";
 import type { ProjectSummary } from "@/types/project";

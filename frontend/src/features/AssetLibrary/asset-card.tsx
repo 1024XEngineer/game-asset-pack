@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import type { ProjectAsset } from "@/types/asset";
 import type { AssetKind } from "@/types/asset-kind";
-import { AssetTypeIcon } from "@/components/custom/AssetTypeIcon";
+import { AssetTypeIcon } from "@/components/ui/custom/AssetTypeIcon";
 import { AssetPreview } from "./asset-preview";
 
 export function AssetCard({
