@@ -1,3 +1,5 @@
+import type { SceneryLayer } from "@/types/asset";
+
 import { SceneryLayerTree } from "../AssetTree/SceneryLayerTree";
 import { SceneryStage } from "../Canvas/SceneryStage";
 import { useSceneryStageMachine } from "../Canvas/StateMachine/sceneryStageMachine";
@@ -10,8 +12,9 @@ export function SceneryEditorMode({
   onAction,
   onPromptChange,
   renderHeader,
-}: EditorModeProps) {
-  const stage = useSceneryStageMachine();
+  layers,
+}: EditorModeProps & { layers: SceneryLayer[] }) {
+  const stage = useSceneryStageMachine(layers);
   const selection = stage.selectedLayers.length
     ? stage.selectedLayers.join(", ")
     : "Nothing selected";
@@ -21,12 +24,14 @@ export function SceneryEditorMode({
       {renderHeader(selection)}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <SceneryLayerTree
+          layers={layers}
           selectedLayers={stage.selectedLayers}
           visibleLayers={stage.visibleLayers}
           onToggleLayer={stage.toggleLayer}
           onToggleVisibility={stage.toggleVisibility}
         />
         <SceneryStage
+          layers={layers}
           selectedLayers={stage.selectedLayers}
           visibleLayers={stage.visibleLayers}
         />

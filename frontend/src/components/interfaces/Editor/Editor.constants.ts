@@ -47,11 +47,3 @@ export const defaultEditorPrompt =
   "Keep the same silhouette. Add a soft blue scarf and a readable harvest pouch.";
 
 export const defaultPrototypeName = "forager-hero-prototype.png";
-
-export const SCENERY_LAYERS = [
-  { id: "sky", label: "Sky", detail: "Background layer" },
-  { id: "wind", label: "Wind", detail: "Atmosphere layer" },
-  { id: "nearby-trees", label: "Nearby trees", detail: "Foreground layer" },
-] as const;
-
-export type SceneryLayerId = (typeof SCENERY_LAYERS)[number]["id"];

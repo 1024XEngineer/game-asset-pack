@@ -196,6 +196,31 @@ const moonlitOrchardAssetGroups: AssetGroup[] = [
         canvasSize: "1920 × 1080 px",
         perspective: "Side view",
         tags: ["environment", "orchard"],
+        scenery: {
+          layers: [
+            {
+              id: "sky",
+              label: "Sky",
+              detail: "Background layer",
+              imageUrl: "/assets/sky.png",
+              blendMode: "normal",
+            },
+            {
+              id: "wind",
+              label: "Wind",
+              detail: "Atmosphere layer",
+              imageUrl: "/assets/wind.png",
+              blendMode: "multiply",
+            },
+            {
+              id: "nearby-trees",
+              label: "Nearby trees",
+              detail: "Foreground layer",
+              imageUrl: "/assets/nearby-trees.png",
+              blendMode: "multiply",
+            },
+          ],
+        },
       }),
     ],
   },

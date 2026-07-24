@@ -59,7 +59,10 @@ export function EditorWorkspace({
       {asset.kind === "character" || asset.kind === "object" ? (
         <CharacterEditorMode {...modeProps} />
       ) : asset.kind === "scenery" ? (
-        <SceneryEditorMode {...modeProps} />
+        <SceneryEditorMode
+          {...modeProps}
+          layers={asset.scenery?.layers ?? []}
+        />
       ) : (
         <SpriteSheetEditorMode {...modeProps} kind={asset.kind} />
       )}

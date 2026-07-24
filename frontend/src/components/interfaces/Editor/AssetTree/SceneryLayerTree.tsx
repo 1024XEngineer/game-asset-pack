@@ -1,25 +1,20 @@
 import { Eye, EyeOff, Layers3 } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-import { SCENERY_LAYERS, type SceneryLayerId } from "../Editor.constants";
-
-const previews: Record<SceneryLayerId, string> = {
-  sky: "/assets/sky.png",
-  wind: "/assets/wind.png",
-  "nearby-trees": "/assets/nearby-trees.png",
-};
+import type { SceneryLayer } from "@/types/asset";
 
 export function SceneryLayerTree({
+  layers,
   selectedLayers,
   visibleLayers,
   onToggleLayer,
   onToggleVisibility,
 }: {
-  selectedLayers: SceneryLayerId[];
-  visibleLayers: SceneryLayerId[];
-  onToggleLayer: (layer: SceneryLayerId) => void;
-  onToggleVisibility: (layer: SceneryLayerId) => void;
+  layers: SceneryLayer[];
+  selectedLayers: string[];
+  visibleLayers: string[];
+  onToggleLayer: (layer: string) => void;
+  onToggleVisibility: (layer: string) => void;
 }) {
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-black/10 bg-white lg:h-full lg:w-[16.5rem] lg:border-r lg:border-b-0">
@@ -30,7 +25,7 @@ export function SceneryLayerTree({
             Layers
           </div>
           <div className="space-y-1.5">
-            {SCENERY_LAYERS.map((layer) => {
+            {layers.map((layer) => {
               const selected = selectedLayers.includes(layer.id);
               const visible = visibleLayers.includes(layer.id);
               return (
@@ -46,7 +41,7 @@ export function SceneryLayerTree({
                   >
                     <span className="relative h-11 w-14 shrink-0 overflow-hidden rounded-lg border border-black/10 bg-[#c8e8ed]">
                       <img
-                        src={previews[layer.id]}
+                        src={layer.imageUrl}
                         alt=""
                         className="size-full object-cover"
                       />

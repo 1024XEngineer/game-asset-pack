@@ -1,21 +1,14 @@
-import { SCENERY_LAYERS, type SceneryLayerId } from "../Editor.constants";
+import type { SceneryLayer } from "@/types/asset";
 
-const layerImages: Record<SceneryLayerId, string> = {
-  sky: "/assets/sky.png",
-  wind: "/assets/wind.png",
-  "nearby-trees": "/assets/nearby-trees.png",
-};
-
-const layerBlendClasses: Record<SceneryLayerId, string> = {
-  sky: "",
-  wind: "mix-blend-multiply",
-  "nearby-trees": "mix-blend-multiply",
+const layerBlendClasses: Record<SceneryLayer["blendMode"], string> = {
+  normal: "",
+  multiply: "mix-blend-multiply",
 };
 
 function layerClass(
-  selectedLayers: SceneryLayerId[],
-  visibleLayers: SceneryLayerId[],
-  layer: SceneryLayerId,
+  selectedLayers: string[],
+  visibleLayers: string[],
+  layer: string,
 ) {
   const base = "absolute inset-0 transition-[filter,opacity] duration-200";
 
@@ -27,22 +20,24 @@ function layerClass(
 }
 
 export function SceneryStage({
+  layers,
   selectedLayers,
   visibleLayers,
 }: {
-  selectedLayers: SceneryLayerId[];
-  visibleLayers: SceneryLayerId[];
+  layers: SceneryLayer[];
+  selectedLayers: string[];
+  visibleLayers: string[];
 }) {
   return (
     <main className="relative flex min-h-[28rem] min-w-0 flex-1 items-center justify-center overflow-hidden bg-[#eceae4] p-5 lg:h-full lg:p-10">
       <div className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-2xl border border-black/10 bg-[#c8e8ed] shadow-sm">
-        {SCENERY_LAYERS.map((layer) => (
+        {layers.map((layer) => (
           <div
             key={layer.id}
-            className={`${layerClass(selectedLayers, visibleLayers, layer.id)} ${layerBlendClasses[layer.id]}`}
+            className={`${layerClass(selectedLayers, visibleLayers, layer.id)} ${layerBlendClasses[layer.blendMode]}`}
           >
             <img
-              src={layerImages[layer.id]}
+              src={layer.imageUrl}
               alt=""
               className="size-full object-cover"
               decoding="async"
@@ -55,7 +50,7 @@ export function SceneryStage({
             {selectedLayers
               .map(
                 (layerId) =>
-                  SCENERY_LAYERS.find((layer) => layer.id === layerId)?.label,
+                  layers.find((layer) => layer.id === layerId)?.label,
               )
               .filter(Boolean)
               .join(", ")}{" "}

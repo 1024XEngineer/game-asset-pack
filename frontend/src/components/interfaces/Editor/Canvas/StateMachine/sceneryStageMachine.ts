@@ -1,20 +1,15 @@
 import { useReducer } from "react";
 
-import { SCENERY_LAYERS, type SceneryLayerId } from "../../Editor.constants";
+import type { SceneryLayer } from "@/types/asset";
 
 type SceneryStageState = {
-  selectedLayers: SceneryLayerId[];
-  visibleLayers: SceneryLayerId[];
+  selectedLayers: string[];
+  visibleLayers: string[];
 };
 
 type SceneryStageEvent =
-  | { type: "toggle-layer"; layer: SceneryLayerId }
-  | { type: "toggle-visibility"; layer: SceneryLayerId };
-
-const initialState: SceneryStageState = {
-  selectedLayers: [],
-  visibleLayers: SCENERY_LAYERS.map((layer) => layer.id),
-};
+  | { type: "toggle-layer"; layer: string }
+  | { type: "toggle-visibility"; layer: string };
 
 function toggle<T>(values: T[], value: T) {
   return values.includes(value)
@@ -40,13 +35,19 @@ function reducer(
   }
 }
 
-export function useSceneryStageMachine() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export function useSceneryStageMachine(layers: SceneryLayer[]) {
+  const [state, dispatch] = useReducer(
+    reducer,
+    layers,
+    (initialLayers): SceneryStageState => ({
+      selectedLayers: [],
+      visibleLayers: initialLayers.map((layer) => layer.id),
+    }),
+  );
   return {
     ...state,
-    toggleLayer: (layer: SceneryLayerId) =>
-      dispatch({ type: "toggle-layer", layer }),
-    toggleVisibility: (layer: SceneryLayerId) =>
+    toggleLayer: (layer: string) => dispatch({ type: "toggle-layer", layer }),
+    toggleVisibility: (layer: string) =>
       dispatch({ type: "toggle-visibility", layer }),
   };
 }

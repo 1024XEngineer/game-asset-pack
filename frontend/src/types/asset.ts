@@ -19,6 +19,18 @@ export type AssetAnimation = {
   status: AssetRecordStatus;
 };
 
+export type SceneryLayer = {
+  id: string;
+  label: string;
+  detail: string;
+  imageUrl: string;
+  blendMode: "normal" | "multiply";
+};
+
+export type SceneryAssetData = {
+  layers: SceneryLayer[];
+};
+
 export type ProjectAsset = {
   id: string;
   name: string;
@@ -29,4 +41,5 @@ export type ProjectAsset = {
   tags: string[];
   history: AssetRecord[];
   animations: AssetAnimation[];
+  scenery?: SceneryAssetData;
 };

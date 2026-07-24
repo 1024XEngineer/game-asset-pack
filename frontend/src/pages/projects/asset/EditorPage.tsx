@@ -32,6 +32,7 @@ export function EditorPage() {
                 name: asset.name,
                 version: asset.version,
                 history: asset.history,
+                scenery: asset.scenery,
               }
             : undefined
         }

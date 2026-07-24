@@ -1,5 +1,6 @@
 import type { AssetKind } from "@/types/asset-kind";
 import type { AssetRecord } from "@/types/asset-record";
+import type { SceneryAssetData } from "@/types/asset";
 
 import { EditorWorkspace } from "./EditorWorkspace";
 
@@ -10,6 +11,7 @@ export type EditorWorkspaceAsset = {
   name: string;
   version: string;
   history: AssetRecord[];
+  scenery?: SceneryAssetData;
 };
 
 export function EditorWorkspaceScreen({
