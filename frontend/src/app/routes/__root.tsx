@@ -1,4 +1,9 @@
-import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Link,
+  Outlet,
+  createRootRoute,
+} from "@tanstack/react-router";
 import { AlertTriangle, LoaderCircle, MapPinOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -83,8 +88,17 @@ function RouteNotFound() {
   );
 }
 
+function RootComponent() {
+  return (
+    <>
+      <HeadContent />
+      <Outlet />
+    </>
+  );
+}
+
 export const Route = createRootRoute({
-  component: Outlet,
+  component: RootComponent,
   pendingComponent: RoutePending,
   errorComponent: RouteError,
   notFoundComponent: RouteNotFound,

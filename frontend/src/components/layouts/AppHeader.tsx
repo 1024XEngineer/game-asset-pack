@@ -22,7 +22,6 @@ import {
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/generate", label: "Image" },
-  { to: "/audio", label: "Audio" },
   { to: "/projects", label: "Project" },
 ] as const;
 
@@ -85,7 +84,7 @@ function AccountMenu() {
                   Demo User
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  demo@pixelforge.app
+                  demo@holonicasset.app
                 </p>
               </div>
             </div>
