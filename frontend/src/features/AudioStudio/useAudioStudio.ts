@@ -4,9 +4,9 @@ import {
   useAddAudioTrackMutation,
   useDeleteAudioTrackMutation,
   useGenerateAudioVariationMutation,
+  useAudioTracksQuery,
   useUpdateAudioTrackMutation,
-} from "@/api/audio/audio-track.mutations";
-import { useAudioTracksQuery } from "@/api/audio/audio-tracks.query";
+} from "@/api/audio";
 
 export function useAudioStudio() {
   const tracksQuery = useAudioTracksQuery();

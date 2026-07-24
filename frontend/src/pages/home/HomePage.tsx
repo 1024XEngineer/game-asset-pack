@@ -1,9 +1,11 @@
-import { HomeCapabilities } from "@/features/Home/HomeCapabilities";
-import { HomeClosingCta } from "@/features/Home/HomeClosingCta";
-import { HomeFooter } from "@/features/Home/HomeFooter";
-import { HomeHero } from "@/features/Home/HomeHero";
-import { HomeProjectStory } from "@/features/Home/HomeProjectStory";
-import { HomeWorkflow } from "@/features/Home/HomeWorkflow";
+import {
+  HomeCapabilities,
+  HomeClosingCta,
+  HomeFooter,
+  HomeHero,
+  HomeProjectStory,
+  HomeWorkflow,
+} from "@/features/Home";
 import { AppHeader } from "@/components/layouts/AppHeader";
 
 export function HomePage() {

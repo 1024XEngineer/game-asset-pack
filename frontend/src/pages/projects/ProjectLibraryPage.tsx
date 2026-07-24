@@ -1,7 +1,6 @@
-import { AssetLibraryWorkspace } from "@/features/AssetLibrary/asset-library-workspace";
-import { CreateAssetToolbar } from "@/features/Generation/create-asset-toolbar";
-import { GenerationQueue } from "@/features/Generation/generation-queue";
-import { ProjectSidebar } from "@/features/Project/project-sidebar";
+import { AssetLibraryWorkspace } from "@/features/AssetLibrary";
+import { CreateAssetToolbar, GenerationQueue } from "@/features/Generation";
+import { ProjectSidebar } from "@/features/Project";
 import { AppHeader } from "@/components/layouts/AppHeader";
 import { ProjectChrome } from "@/components/layouts/ProjectChrome";
 import { creatableAssetKinds } from "@/types/asset-kind";
