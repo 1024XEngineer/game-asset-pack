@@ -1,3 +1,5 @@
+import type { EditorCharacterAnimation } from "@/types/editor-document";
+
 export type NodeId =
   | "prototype"
   | "idle"
@@ -10,12 +12,6 @@ export type NodeId =
 export type NodeMeta = {
   label: string;
   eyebrow: string;
-  count?: string;
-};
-
-export type AudioCue = {
-  label: string;
-  time: string;
 };
 
 export const frameColors = [
@@ -29,21 +25,26 @@ export const frameColors = [
 
 export const nodeMeta: Record<NodeId, NodeMeta> = {
   prototype: { label: "Prototype", eyebrow: "Source" },
-  idle: { label: "Idle", eyebrow: "Animation", count: "6f" },
-  walk: { label: "Walk", eyebrow: "Animation", count: "8f" },
-  harvest: { label: "Harvest", eyebrow: "Animation", count: "12f" },
-  jump: { label: "Jump", eyebrow: "Animation", count: "10f" },
-  celebrate: { label: "Celebrate", eyebrow: "Animation", count: "8f" },
+  idle: { label: "Idle", eyebrow: "Animation" },
+  walk: { label: "Walk", eyebrow: "Animation" },
+  harvest: { label: "Harvest", eyebrow: "Animation" },
+  jump: { label: "Jump", eyebrow: "Animation" },
+  celebrate: { label: "Celebrate", eyebrow: "Animation" },
   metadata: { label: "Manifest", eyebrow: "Asset settings" },
 };
 
-export const animationAudio: Partial<Record<NodeId, AudioCue>> = {
-  idle: { label: "cloth_sway.wav", time: "0.06s" },
-  walk: { label: "footstep_grass.wav", time: "0.18s" },
-  harvest: { label: "harvest_pickup.wav", time: "0.42s" },
-};
+export function findCharacterAnimation(
+  node: NodeId,
+  animations: EditorCharacterAnimation[],
+) {
+  return animations.find((animation) => animation.id === node);
+}
 
-export const defaultEditorPrompt =
-  "Keep the same silhouette. Add a soft blue scarf and a readable harvest pouch.";
-
-export const defaultPrototypeName = "forager-hero-prototype.png";
+export function getNodeLabel(
+  node: NodeId,
+  animations: EditorCharacterAnimation[],
+) {
+  return (
+    findCharacterAnimation(node, animations)?.label ?? nodeMeta[node].label
+  );
+}

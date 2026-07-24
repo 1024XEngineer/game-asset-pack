@@ -135,7 +135,11 @@ export class CharacterStageInteraction {
   private onContextMenu = (event: MouseEvent) => event.preventDefault();
 
   private hitTest(point: CanvasPosition) {
-    return hitTestCharacterScene(this.context.getScene(), point);
+    return hitTestCharacterScene(
+      this.context.getScene(),
+      point,
+      this.context.getAnimations(),
+    );
   }
 
   private togglePlaying(node: NodeId) {
@@ -183,7 +187,12 @@ export class CharacterStageInteraction {
     const selected = CANVAS_NODES.filter((node) =>
       intersects(
         bounds,
-        getNodeBounds(node, scene.positions[node], scene.expanded.has(node)),
+        getNodeBounds(
+          node,
+          scene.positions[node],
+          scene.expanded.has(node),
+          this.context.getAnimations(),
+        ),
       ),
     );
     if (selected.length > 0) this.context.actions.onSelectNodes(selected);
@@ -198,7 +207,7 @@ export class CharacterStageInteraction {
     const bounds = normalizeBounds(start, end);
     const position = this.context.getScene().positions[node];
     const indexes = Array.from(
-      { length: getFrameCount(node) },
+      { length: getFrameCount(node, this.context.getAnimations()) },
       (_, index) => index,
     ).filter((index) => intersects(bounds, getFrameBounds(position, index)));
     if (indexes.length > 0) this.context.actions.onSelectFrames(node, indexes);

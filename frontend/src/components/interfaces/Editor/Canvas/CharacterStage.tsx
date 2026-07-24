@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { nodeMeta } from "../Editor.constants";
+import { getNodeLabel } from "../Editor.constants";
 import { StageLoading } from "./Loading/StageLoading";
 import { CharacterStageRuntime } from "./Runtime/CharacterStageRuntime";
 import type { CharacterStageProps } from "./Runtime/CharacterStage.types";
@@ -50,7 +50,7 @@ export function CharacterStage(props: CharacterStageProps) {
       {loading ? <StageLoading /> : null}
       <p className="sr-only" aria-live="polite">
         {props.selectedNodes.length > 0
-          ? `${props.selectedNodes.map((node) => nodeMeta[node].label).join(", ")} selected`
+          ? `${props.selectedNodes.map((node) => getNodeLabel(node, props.animations)).join(", ")} selected`
           : "No canvas items selected"}
       </p>
     </main>

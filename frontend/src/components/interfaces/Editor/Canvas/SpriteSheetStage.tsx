@@ -1,40 +1,45 @@
+import type { EditorSpriteSheetItem } from "@/types/editor-document";
+
 type SpriteSheetStageProps = {
+  gridSize: number;
+  items: EditorSpriteSheetItem[];
   selectedItems: string[];
   selectedTiles: string[];
   onToggleTile: (tile: string) => void;
 };
 
-const GRID_SIZE = 8;
-
-const ITEM_CELLS: Record<string, number[]> = {
-  Bed: [9, 10, 17, 18],
-  "Street lamp": [5, 13, 21],
-  "Street fence": [32, 33, 34, 35],
-  Object: [27],
-};
-
-const ITEM_TILE_CELLS: Record<string, number[][]> = {
-  Bed: [[9], [10], [17], [18]],
-  "Street lamp": [[5], [13], [21]],
-  "Street fence": [[32], [33], [34], [35]],
-  Object: [[27]],
-};
-
 export function SpriteSheetStage({
+  gridSize,
+  items,
   selectedItems,
   selectedTiles,
   onToggleTile,
 }: SpriteSheetStageProps) {
   const highlightedCells = new Set([
-    ...selectedItems.flatMap((item) => ITEM_CELLS[item] ?? []),
-    ...selectedTiles.flatMap((tile) => {
-      const separator = tile.lastIndexOf(":");
-      const item = tile.slice(0, separator);
-      const tileIndex = Number(tile.slice(separator + 1));
-      if (item === "Canvas") return [tileIndex];
-      return ITEM_TILE_CELLS[item]?.[tileIndex] ?? [];
+    ...selectedItems.flatMap(
+      (itemId) =>
+        items
+          .find((item) => item.id === itemId)
+          ?.tiles.flatMap((tile) => tile.cells) ?? [],
+    ),
+    ...selectedTiles.flatMap((tileId) => {
+      const separator = tileId.lastIndexOf(":");
+      const itemId = tileId.slice(0, separator);
+      const tileIndex = Number(tileId.slice(separator + 1));
+      if (itemId === "Canvas") return [tileIndex];
+      return (
+        items.find((item) => item.id === itemId)?.tiles[tileIndex]?.cells ?? []
+      );
     }),
   ]);
+  const mappedTiles = new Map<number, string>();
+  for (const item of items) {
+    item.tiles.forEach((tile, tileIndex) => {
+      tile.cells.forEach((cell) => {
+        mappedTiles.set(cell, `${item.id}:${tileIndex}`);
+      });
+    });
+  }
   const hasSelection = highlightedCells.size > 0;
 
   return (
@@ -44,17 +49,15 @@ export function SpriteSheetStage({
           aria-label="Tileset canvas"
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="grid min-h-0 flex-1 grid-cols-8 grid-rows-8 gap-1">
-            {Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => {
-              const mappedTile = Object.entries(ITEM_TILE_CELLS).find(
-                ([, tiles]) => tiles.some((cells) => cells.includes(index)),
-              );
-              const mappedTileIndex = mappedTile?.[1].findIndex((cells) =>
-                cells.includes(index),
-              );
-              const tileId = mappedTile
-                ? `${mappedTile[0]}:${mappedTileIndex}`
-                : `Canvas:${index}`;
+          <div
+            className="grid min-h-0 flex-1 gap-1"
+            style={{
+              gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`,
+            }}
+          >
+            {Array.from({ length: gridSize * gridSize }, (_, index) => {
+              const tileId = mappedTiles.get(index) ?? `Canvas:${index}`;
 
               return (
                 <button

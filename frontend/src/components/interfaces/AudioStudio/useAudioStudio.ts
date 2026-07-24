@@ -1,15 +1,35 @@
 import { useEffect, useState } from "react";
 
-import { initialAudioTracks } from "./AudioStudio.constants";
+import {
+  useAddAudioTrackMutation,
+  useDeleteAudioTrackMutation,
+  useGenerateAudioVariationMutation,
+  useUpdateAudioTrackMutation,
+} from "@/api/audio/audio-track.mutations";
+import { useAudioTracksQuery } from "@/api/audio/audio-tracks.query";
 
 export function useAudioStudio() {
-  const [tracks, setTracks] = useState(initialAudioTracks);
+  const tracksQuery = useAudioTracksQuery();
+  const addTrackMutation = useAddAudioTrackMutation();
+  const updateTrackMutation = useUpdateAudioTrackMutation();
+  const deleteTrackMutation = useDeleteAudioTrackMutation();
+  const generateVariationMutation = useGenerateAudioVariationMutation();
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(18);
   const [prompt, setPrompt] = useState(
     "Soft nighttime orchard ambience with distant insects and a warm melodic loop.",
   );
+  const [duration, setDuration] = useState(30);
   const [masterMuted, setMasterMuted] = useState(false);
+  const tracks = tracksQuery.data ?? [];
+  const mutations = [
+    addTrackMutation,
+    updateTrackMutation,
+    deleteTrackMutation,
+    generateVariationMutation,
+  ];
+  const actionError = mutations.find((mutation) => mutation.error)?.error;
+  const isMutating = mutations.some((mutation) => mutation.isPending);
 
   useEffect(() => {
     if (!playing) return;
@@ -21,54 +41,51 @@ export function useAudioStudio() {
   }, [playing]);
 
   function toggleTrack(id: string, key: "muted" | "loop") {
-    setTracks((current) =>
-      current.map((track) =>
-        track.id === id ? { ...track, [key]: !track[key] } : track,
-      ),
-    );
+    const track = tracks.find((item) => item.id === id);
+    if (!track) return;
+    updateTrackMutation.mutate({
+      trackId: id,
+      patch: { [key]: !track[key] },
+    });
   }
 
   function removeTrack(id: string) {
-    setTracks((current) => current.filter((track) => track.id !== id));
+    deleteTrackMutation.mutate(id);
   }
 
   function addTrack() {
-    setTracks((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        name: "new-reference.mp3",
-        offset: 10,
-        length: 18,
-        tone: "rose",
-        muted: false,
-        loop: false,
-      },
-    ]);
+    addTrackMutation.mutate({
+      name: "new-reference.mp3",
+      offset: 10,
+      length: 18,
+      tone: "rose",
+      muted: false,
+      loop: false,
+    });
   }
 
   function generateVariation() {
-    setTracks((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        name: "generated-variation.wav",
-        offset: Math.min(70, current.length * 14),
-        length: 16,
-        tone: "blue",
-        muted: false,
-        loop: false,
-      },
-    ]);
+    if (!prompt.trim()) return;
+    generateVariationMutation.mutate(
+      { prompt, duration },
+      { onSuccess: () => setPrompt("") },
+    );
   }
 
   return {
+    actionError,
     addTrack,
+    duration,
     generateVariation,
+    isLoading: tracksQuery.isPending,
+    isMutating,
+    loadError: tracksQuery.error,
     masterMuted,
     playing,
     prompt,
+    reload: tracksQuery.refetch,
     removeTrack,
+    setDuration,
     setPrompt,
     setTime,
     time,

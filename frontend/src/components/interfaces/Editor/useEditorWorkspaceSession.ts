@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 
 import { useTimeout } from "@/hooks/use-timeout";
-import { useSaveAssetRevisionMutation } from "@/data/asset/asset-save-revision.mutation";
+import { useSaveAssetRevisionMutation } from "@/api/asset/asset-save-revision.mutation";
 import {
   initializeEditorWorkspace,
   markEditorWorkspaceSaved,
@@ -10,17 +10,20 @@ import {
   undoEditorWorkspace,
   useEditorWorkspaceStore,
 } from "./editor-workspace-store";
-import { defaultEditorPrompt } from "./Editor.constants";
-import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
+import type {
+  AssetEditorDocument,
+  EditorWorkspaceAsset,
+} from "@/types/editor-document";
 
 const savedStatus = "All changes saved";
 
 export function useEditorWorkspaceSession(
   asset: EditorWorkspaceAsset | undefined,
+  initialDocument: AssetEditorDocument | undefined,
 ) {
   const [status, setStatus] = useState(savedStatus);
   const { schedule: scheduleStatusReset } = useTimeout();
-  const { mutateAsync: saveRevision } = useSaveAssetRevisionMutation();
+  const saveRevisionMutation = useSaveAssetRevisionMutation();
   const document = useEditorWorkspaceStore((state) => state.document);
   const savedDocument = useEditorWorkspaceStore((state) => state.savedDocument);
   const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
@@ -37,10 +40,7 @@ export function useEditorWorkspaceSession(
   );
 
   useEffect(() => {
-    const currentRecord = asset?.history.find((record) => record.isCurrent);
-    initializeEditorWorkspace(
-      currentRecord?.editorDocument ?? { prompt: defaultEditorPrompt },
-    );
+    initializeEditorWorkspace(initialDocument ?? { prompt: "" });
     setStatus(savedStatus);
   }, [asset?.id]);
 
@@ -55,12 +55,13 @@ export function useEditorWorkspaceSession(
     canRedo,
     canUndo,
     document,
+    isSaving: saveRevisionMutation.isPending,
     reportAction,
     save: async () => {
       if (!asset) return;
       setStatus("Saving changes");
       try {
-        await saveRevision({
+        await saveRevisionMutation.mutateAsync({
           projectId: asset.projectId,
           assetId: asset.id,
           editorDocument: document,

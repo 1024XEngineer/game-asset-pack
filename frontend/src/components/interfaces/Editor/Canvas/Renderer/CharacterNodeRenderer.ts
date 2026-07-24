@@ -1,6 +1,11 @@
 import { Container, Graphics, Text } from "pixi.js";
 
-import { animationAudio, nodeMeta, type NodeId } from "../../Editor.constants";
+import type { EditorCharacterAnimation } from "@/types/editor-document";
+import {
+  findCharacterAnimation,
+  getNodeLabel,
+  type NodeId,
+} from "../../Editor.constants";
 import { ANIMATION_NODES, type CanvasPosition } from "../Canvas.constants";
 import { getCharacterNodeLayout } from "../Interaction/CharacterStageGeometry";
 import { ACCENT } from "../Runtime/CharacterStage.constants";
@@ -14,6 +19,7 @@ export function drawCharacterNode({
   expanded,
   playing,
   previewFrame,
+  animations,
 }: {
   node: NodeId;
   position: CanvasPosition;
@@ -22,10 +28,21 @@ export function drawCharacterNode({
   expanded: boolean;
   playing: boolean;
   previewFrame: number;
+  animations: EditorCharacterAnimation[];
 }) {
   const container = new Container({ x: position.x, y: position.y });
-  const layout = getCharacterNodeLayout(node, { x: 0, y: 0 }, expanded);
-  drawLabel(container, nodeMeta[node].label, layout.bounds.width, selected);
+  const layout = getCharacterNodeLayout(
+    node,
+    { x: 0, y: 0 },
+    expanded,
+    animations,
+  );
+  drawLabel(
+    container,
+    getNodeLabel(node, animations),
+    layout.bounds.width,
+    selected,
+  );
 
   if (expanded) {
     layout.frames.forEach((frame, index) => {
@@ -35,7 +52,7 @@ export function drawCharacterNode({
     drawCharacter(container, 64, 48, previewFrame, 8);
   }
 
-  const audio = animationAudio[node];
+  const audio = findCharacterAnimation(node, animations)?.audio;
   if (audio && !expanded) drawAudioWaveform(container, audio.label);
 
   if (ANIMATION_NODES.has(node)) {

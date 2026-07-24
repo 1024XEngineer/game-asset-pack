@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import type { EditorWorkspaceAsset } from "./EditorWorkspaceScreen";
+import type { EditorDocumentData } from "@/types/editor-document";
+
 import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
 import { SpriteSheetEditorMode } from "./EditorModes/SpriteSheetEditorMode";
@@ -7,28 +7,14 @@ import { EditorHeader } from "./Header/EditorHeader";
 import { useEditorWorkspaceSession } from "./useEditorWorkspaceSession";
 
 export function EditorWorkspace({
-  asset,
-  projectName,
+  data,
   onBack,
 }: {
-  asset?: EditorWorkspaceAsset;
-  projectName?: string;
+  data: EditorDocumentData;
   onBack: () => void;
 }) {
-  const workspace = useEditorWorkspaceSession(asset);
-
-  if (!projectName || !asset) {
-    return (
-      <div className="grid h-full place-items-center bg-[#f7f5f0] px-6 text-[#2d2923]">
-        <div className="text-center">
-          <p className="font-serif text-2xl">Asset not found</p>
-          <Button className="mt-4" onClick={onBack}>
-            Back to project
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const { asset, projectName } = data;
+  const workspace = useEditorWorkspaceSession(asset, data.document);
 
   const renderHeader = (_selection: string) => (
     <EditorHeader
@@ -39,6 +25,7 @@ export function EditorWorkspace({
       status={workspace.status}
       canUndo={workspace.canUndo}
       canRedo={workspace.canRedo}
+      isSaving={workspace.isSaving}
       onUndo={workspace.undo}
       onRedo={workspace.redo}
       onSave={() => void workspace.save()}
@@ -48,6 +35,7 @@ export function EditorWorkspace({
     prompt: workspace.document.prompt,
     history: asset.history,
     characterNodePositions: workspace.document.character?.nodePositions,
+    characterAnimations: workspace.document.character?.animations ?? [],
     onAction: workspace.reportAction,
     onCharacterPositionChange: workspace.setCharacterNodePosition,
     onPromptChange: workspace.setPrompt,
@@ -61,10 +49,13 @@ export function EditorWorkspace({
       ) : asset.kind === "scenery" ? (
         <SceneryEditorMode
           {...modeProps}
-          layers={asset.scenery?.layers ?? []}
+          layers={workspace.document.scenery?.layers ?? []}
         />
       ) : (
-        <SpriteSheetEditorMode {...modeProps} kind={asset.kind} />
+        <SpriteSheetEditorMode
+          {...modeProps}
+          spriteSheet={workspace.document.spriteSheet}
+        />
       )}
     </div>
   );

@@ -10,7 +10,7 @@ import {
 } from "../Runtime/CharacterStage.constants";
 import type {
   CharacterSceneSnapshot,
-  CharacterSelection,
+  CharacterStageProps,
 } from "../Runtime/CharacterStage.types";
 import { drawCharacterNode } from "./CharacterNodeRenderer";
 
@@ -21,7 +21,7 @@ export class CharacterStageRenderer {
     this.world = world;
   }
 
-  render(state: CharacterSceneSnapshot, selection: CharacterSelection) {
+  render(state: CharacterSceneSnapshot, selection: CharacterStageProps) {
     this.world
       .removeChildren()
       .forEach((child) => child.destroy({ children: true }));
@@ -39,6 +39,7 @@ export class CharacterStageRenderer {
           expanded: state.expanded.has(node),
           playing: state.playing.has(node),
           previewFrame: state.previewFrames.get(node) ?? 0,
+          animations: selection.animations,
         }),
       );
     }

@@ -1,6 +1,6 @@
-import type { SceneryLayer } from "@/types/asset";
+import type { EditorSceneryLayer } from "@/types/editor-document";
 
-const layerBlendClasses: Record<SceneryLayer["blendMode"], string> = {
+const layerBlendClasses: Record<EditorSceneryLayer["blendMode"], string> = {
   normal: "",
   multiply: "mix-blend-multiply",
 };
@@ -24,7 +24,7 @@ export function SceneryStage({
   selectedLayers,
   visibleLayers,
 }: {
-  layers: SceneryLayer[];
+  layers: EditorSceneryLayer[];
   selectedLayers: string[];
   visibleLayers: string[];
 }) {

@@ -20,10 +20,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type {
+  EditorCharacterAnimation,
+  EditorCharacterAnimationId,
+} from "@/types/editor-document";
 
-import { animationAudio, nodeMeta, type NodeId } from "../Editor.constants";
+import { nodeMeta, type NodeId } from "../Editor.constants";
 
 type AssetTreeProps = {
+  animations: EditorCharacterAnimation[];
   selectedNode: NodeId | null;
   selectedFrames: Array<{ node: NodeId; index: number }>;
   onSelect: (node: NodeId) => void;
@@ -31,6 +36,7 @@ type AssetTreeProps = {
 };
 
 export function AssetTree({
+  animations,
   selectedNode,
   selectedFrames,
   onSelect,
@@ -64,44 +70,19 @@ export function AssetTree({
           />
           <FolderItem
             label="Animations"
-            count={String(5 + animationNames.length)}
+            count={String(animations.length + animationNames.length)}
             onCreateAnimation={() => setIsCreateAnimationOpen(true)}
           >
-            <AnimationTreeItem
-              node="idle"
-              selectedNode={selectedNode}
-              selectedFrames={selectedFrames}
-              onSelect={onSelect}
-              onSelectFrame={onSelectFrame}
-            />
-            <AnimationTreeItem
-              node="walk"
-              selectedNode={selectedNode}
-              selectedFrames={selectedFrames}
-              onSelect={onSelect}
-              onSelectFrame={onSelectFrame}
-            />
-            <AnimationTreeItem
-              node="harvest"
-              selectedNode={selectedNode}
-              selectedFrames={selectedFrames}
-              onSelect={onSelect}
-              onSelectFrame={onSelectFrame}
-            />
-            <AnimationTreeItem
-              node="jump"
-              selectedNode={selectedNode}
-              selectedFrames={selectedFrames}
-              onSelect={onSelect}
-              onSelectFrame={onSelectFrame}
-            />
-            <AnimationTreeItem
-              node="celebrate"
-              selectedNode={selectedNode}
-              selectedFrames={selectedFrames}
-              onSelect={onSelect}
-              onSelectFrame={onSelectFrame}
-            />
+            {animations.map((animation) => (
+              <AnimationTreeItem
+                key={animation.id}
+                animation={animation}
+                selectedNode={selectedNode}
+                selectedFrames={selectedFrames}
+                onSelect={onSelect}
+                onSelectFrame={onSelectFrame}
+              />
+            ))}
             {animationNames.map((name) => (
               <AddedAnimationTreeItem key={name} label={name} />
             ))}
@@ -220,14 +201,6 @@ function TreeItem({
     neutral: "text-[#786f64]",
   };
   const meta = nodeMeta[node];
-  const isFrameBasedAsset = [
-    "idle",
-    "walk",
-    "harvest",
-    "jump",
-    "celebrate",
-  ].includes(node);
-
   return (
     <button
       type="button"
@@ -238,35 +211,31 @@ function TreeItem({
       <span className="min-w-0 flex-1 truncate text-xs font-medium">
         {meta.label}
       </span>
-      {meta.count && !isFrameBasedAsset ? (
-        <span className="font-mono text-[10px] text-[#81786d]">
-          {meta.count}
-        </span>
-      ) : null}
     </button>
   );
 }
 
 function AnimationTreeItem({
-  node,
+  animation,
   selectedNode,
   selectedFrames,
   onSelect,
   onSelectFrame,
 }: {
-  node: "idle" | "walk" | "harvest" | "jump" | "celebrate";
+  animation: EditorCharacterAnimation;
   selectedNode: NodeId | null;
   selectedFrames: Array<{ node: NodeId; index: number }>;
   onSelect: (node: NodeId) => void;
   onSelectFrame: (node: NodeId, index: number) => void;
 }) {
+  const node: EditorCharacterAnimationId = animation.id;
   const [open, setOpen] = useState(false);
   const frames = Array.from(
-    { length: Number.parseInt(nodeMeta[node].count ?? "1", 10) || 1 },
+    { length: animation.frameCount },
     (_, index) => `Frame ${index + 1}`,
   );
   const selected = selectedNode === node;
-  const audio = animationAudio[node];
+  const audio = animation.audio;
 
   return (
     <div>
@@ -288,12 +257,12 @@ function AnimationTreeItem({
             />
           </span>
           <span className="min-w-0 flex-1 truncate text-xs font-medium">
-            {nodeMeta[node].label}
+            {animation.label}
           </span>
         </button>
         <button
           type="button"
-          aria-label={`${open ? "Collapse" : "Expand"} ${nodeMeta[node].label}`}
+          aria-label={`${open ? "Collapse" : "Expand"} ${animation.label}`}
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
           className="mr-1 rounded-md p-1.5 text-[#81786d] hover:bg-black/[.05]"

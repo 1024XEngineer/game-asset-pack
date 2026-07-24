@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 
-import type { SceneryLayer } from "@/types/asset";
+import type { EditorSceneryLayer } from "@/types/editor-document";
 
 type SceneryStageState = {
   selectedLayers: string[];
@@ -35,7 +35,7 @@ function reducer(
   }
 }
 
-export function useSceneryStageMachine(layers: SceneryLayer[]) {
+export function useSceneryStageMachine(layers: EditorSceneryLayer[]) {
   const [state, dispatch] = useReducer(
     reducer,
     layers,

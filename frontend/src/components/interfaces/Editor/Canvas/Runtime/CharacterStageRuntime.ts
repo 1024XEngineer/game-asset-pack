@@ -80,6 +80,7 @@ export class CharacterStageRuntime {
           this.props.onNodePositionChange(node, position),
       },
       getScene: () => this.state,
+      getAnimations: () => this.props.animations,
       moveNode: (node, position) => {
         this.state.positions[node] = position;
       },
@@ -147,7 +148,8 @@ export class CharacterStageRuntime {
     for (const node of this.state.playing) {
       this.state.previewFrames.set(
         node,
-        ((this.state.previewFrames.get(node) ?? 0) + 1) % getFrameCount(node),
+        ((this.state.previewFrames.get(node) ?? 0) + 1) %
+          getFrameCount(node, this.props.animations),
       );
     }
     this.render();

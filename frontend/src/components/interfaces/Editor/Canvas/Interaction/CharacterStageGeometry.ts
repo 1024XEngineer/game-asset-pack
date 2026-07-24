@@ -1,4 +1,5 @@
-import { nodeMeta, type NodeId } from "../../Editor.constants";
+import type { EditorCharacterAnimation } from "@/types/editor-document";
+import { findCharacterAnimation, type NodeId } from "../../Editor.constants";
 import {
   ANIMATION_NODES,
   CANVAS_NODES,
@@ -39,13 +40,21 @@ type CharacterNodeLayout = {
   expandControl?: Bounds;
 };
 
-export function getFrameCount(node: NodeId) {
-  return Number.parseInt(nodeMeta[node].count ?? "1", 10) || 1;
+export function getFrameCount(
+  node: NodeId,
+  animations: EditorCharacterAnimation[] = [],
+) {
+  return findCharacterAnimation(node, animations)?.frameCount ?? 1;
 }
 
-function getExpandedHeight(node: NodeId) {
+function getExpandedHeight(
+  node: NodeId,
+  animations: EditorCharacterAnimation[],
+) {
   return (
-    48 + Math.ceil(getFrameCount(node) / 4) * (FRAME_SIZE + FRAME_GAP) + 48
+    48 +
+    Math.ceil(getFrameCount(node, animations) / 4) * (FRAME_SIZE + FRAME_GAP) +
+    48
   );
 }
 
@@ -53,11 +62,12 @@ export function getNodeBounds(
   node: NodeId,
   position: CanvasPosition,
   expanded: boolean,
+  animations: EditorCharacterAnimation[] = [],
 ): Bounds {
   return {
     ...position,
     width: expanded ? EXPANDED_WIDTH : NODE_WIDTH,
-    height: expanded ? getExpandedHeight(node) : COLLAPSED_HEIGHT,
+    height: expanded ? getExpandedHeight(node, animations) : COLLAPSED_HEIGHT,
   };
 }
 
@@ -65,10 +75,11 @@ export function getCharacterNodeLayout(
   node: NodeId,
   position: CanvasPosition,
   expanded: boolean,
+  animations: EditorCharacterAnimation[] = [],
 ): CharacterNodeLayout {
-  const bounds = getNodeBounds(node, position, expanded);
+  const bounds = getNodeBounds(node, position, expanded, animations);
   const frames = expanded
-    ? Array.from({ length: getFrameCount(node) }, (_, index) =>
+    ? Array.from({ length: getFrameCount(node, animations) }, (_, index) =>
         getFrameBounds(position, index),
       )
     : [];
@@ -84,7 +95,8 @@ export function getCharacterNodeLayout(
           y: bounds.y + FRAME_GRID_TOP,
           width: EXPANDED_WIDTH - FRAME_GRID_INSET * 2,
           height:
-            Math.ceil(getFrameCount(node) / 4) * (FRAME_SIZE + FRAME_GAP) -
+            Math.ceil(getFrameCount(node, animations) / 4) *
+              (FRAME_SIZE + FRAME_GAP) -
             FRAME_GAP,
         }
       : undefined,
@@ -126,12 +138,14 @@ export function getFrameBounds(
 export function hitTestCharacterScene(
   scene: CharacterSceneSnapshot,
   point: CanvasPosition,
+  animations: EditorCharacterAnimation[] = [],
 ): CharacterHitTarget | null {
   for (const node of [...CANVAS_NODES].reverse()) {
     const layout = getCharacterNodeLayout(
       node,
       scene.positions[node],
       scene.expanded.has(node),
+      animations,
     );
 
     for (let index = layout.frames.length - 1; index >= 0; index -= 1) {

@@ -11,6 +11,7 @@ type EditorHeaderProps = {
   status: string;
   canUndo: boolean;
   canRedo: boolean;
+  isSaving: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -24,6 +25,7 @@ export function EditorHeader({
   status,
   canUndo,
   canRedo,
+  isSaving,
   onUndo,
   onRedo,
   onSave,
@@ -85,11 +87,12 @@ export function EditorHeader({
         </Button>
         <Button
           size="sm"
+          disabled={isSaving}
           className="bg-[#2d2923] text-white hover:bg-[#4b453d]"
           onClick={onSave}
         >
           <Save data-icon="inline-start" />
-          Save
+          {isSaving ? "Saving" : "Save"}
         </Button>
       </div>
     </header>

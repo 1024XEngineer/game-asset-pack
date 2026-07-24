@@ -11,7 +11,7 @@
       "@components/*": ["src/components/*"],
       "@/lib/*": ["src/lib/*"]
     },
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 

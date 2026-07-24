@@ -8,6 +8,7 @@ import type { EditorModeProps } from "./types";
 export function CharacterEditorMode({
   prompt,
   history,
+  characterAnimations,
   characterNodePositions,
   onAction,
   onCharacterPositionChange,
@@ -16,7 +17,13 @@ export function CharacterEditorMode({
 }: EditorModeProps) {
   const stage = useCharacterStageMachine();
   const selection = stage.selectedNodes.length
-    ? stage.selectedNodes.map((node) => nodeMeta[node].label).join(", ")
+    ? stage.selectedNodes
+        .map(
+          (node) =>
+            characterAnimations.find((animation) => animation.id === node)
+              ?.label ?? nodeMeta[node].label,
+        )
+        .join(", ")
     : "Nothing selected";
 
   return (
@@ -24,12 +31,14 @@ export function CharacterEditorMode({
       {renderHeader(selection)}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <AssetTree
+          animations={characterAnimations}
           selectedNode={stage.selectedNode}
           selectedFrames={stage.selectedFrames}
           onSelect={stage.selectNode}
           onSelectFrame={stage.selectFrame}
         />
         <CharacterStage
+          animations={characterAnimations}
           selectedNodes={stage.selectedNodes}
           selectedFrames={stage.selectedFrames}
           nodePositions={characterNodePositions}

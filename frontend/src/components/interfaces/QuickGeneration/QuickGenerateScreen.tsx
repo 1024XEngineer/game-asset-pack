@@ -5,9 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ImageDropzone } from "@/components/custom/image-dropzone";
+import { getQuickAssetPreviewClassName } from "./QuickGeneration.constants";
 
 export function QuickGenerateScreen() {
   const {
+    actionError,
     assets,
     chooseReference,
     clearReference,
@@ -16,10 +18,15 @@ export function QuickGenerateScreen() {
     deleteCurrentAsset,
     description,
     generate,
+    isDeleting,
     isGenerating,
+    isLoading,
+    isMutating,
+    loadError,
     newAsset,
     quickGenerationSizes,
     referenceImage,
+    reload,
     selectAsset,
     setDescription,
     setSize,
@@ -46,7 +53,12 @@ export function QuickGenerateScreen() {
 
       <div className="mx-auto grid w-full max-w-[100rem] flex-1 xl:h-[calc(100vh-8.5rem)] xl:grid-cols-[16rem_minmax(0,1fr)_21rem] xl:overflow-hidden">
         <aside className="border-b bg-background p-4 xl:border-r xl:border-b-0">
-          <Button className="w-full" variant="outline" onClick={newAsset}>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={newAsset}
+            disabled={isLoading || isMutating}
+          >
             <Plus data-icon="inline-start" />
             New asset
           </Button>
@@ -59,27 +71,61 @@ export function QuickGenerateScreen() {
             </span>
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            {assets.map((asset, index) => {
-              const active = asset.id === currentAssetId;
-              return (
-                <button
-                  key={asset.id}
-                  type="button"
-                  onClick={() => selectAsset(asset)}
-                  aria-label={`Generated image ${index + 1}`}
-                  className={`aspect-square overflow-hidden rounded-xl border-2 p-1 transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${
-                    active
-                      ? "border-foreground"
-                      : "border-transparent hover:border-border"
-                  }`}
+            {isLoading ? (
+              <p
+                className="col-span-2 px-2 py-6 text-center text-xs text-muted-foreground"
+                role="status"
+              >
+                Loading generated assets…
+              </p>
+            ) : loadError ? (
+              <div
+                className="col-span-2 space-y-3 px-2 py-6 text-center"
+                role="alert"
+              >
+                <p className="text-xs leading-5 text-destructive">
+                  {loadError.message || "Unable to load generated assets."}
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void reload()}
                 >
-                  <span
-                    className={`block size-full rounded-lg outline -outline-offset-1 outline-black/10 ${asset.previewClassName}`}
-                  />
-                </button>
-              );
-            })}
-            {assets.length === 0 ? (
+                  Try again
+                </Button>
+              </div>
+            ) : (
+              assets.map((asset, index) => {
+                const active = asset.id === currentAssetId;
+                const previewClassName = asset.previewUrl
+                  ? "bg-cover bg-center"
+                  : getQuickAssetPreviewClassName(asset.id);
+                return (
+                  <button
+                    key={asset.id}
+                    type="button"
+                    onClick={() => selectAsset(asset)}
+                    disabled={isMutating}
+                    aria-label={`Generated image ${index + 1}`}
+                    className={`aspect-square overflow-hidden rounded-xl border-2 p-1 transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 ${
+                      active
+                        ? "border-foreground"
+                        : "border-transparent hover:border-border"
+                    }`}
+                  >
+                    <span
+                      className={`block size-full rounded-lg outline -outline-offset-1 outline-black/10 ${previewClassName}`}
+                      style={
+                        asset.previewUrl
+                          ? { backgroundImage: `url("${asset.previewUrl}")` }
+                          : undefined
+                      }
+                    />
+                  </button>
+                );
+              })
+            )}
+            {!isLoading && !loadError && assets.length === 0 ? (
               <p className="px-2 py-6 text-center text-xs leading-5 text-muted-foreground">
                 Your generated assets will appear here.
               </p>
@@ -99,8 +145,13 @@ export function QuickGenerateScreen() {
                 variant="ghost"
                 size="icon-sm"
                 onClick={deleteCurrentAsset}
+                disabled={isMutating}
               >
-                <Trash2 />
+                {isDeleting ? (
+                  <RefreshCw className="animate-spin" />
+                ) : (
+                  <Trash2 />
+                )}
                 <span className="sr-only">Delete asset</span>
               </Button>
             ) : null}
@@ -110,7 +161,18 @@ export function QuickGenerateScreen() {
             <div className="relative grid min-h-72 flex-1 place-items-center overflow-hidden bg-[linear-gradient(45deg,var(--muted)_25%,transparent_25%),linear-gradient(-45deg,var(--muted)_25%,transparent_25%),linear-gradient(45deg,transparent_75%,var(--muted)_75%),linear-gradient(-45deg,transparent_75%,var(--muted)_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0] xl:min-h-0">
               {currentAsset ? (
                 <div
-                  className={`relative grid aspect-square w-[min(60%,22rem)] place-items-center overflow-hidden rounded-2xl shadow-sm outline -outline-offset-1 outline-black/10 ${currentAsset.previewClassName}`}
+                  className={`relative grid aspect-square w-[min(60%,22rem)] place-items-center overflow-hidden rounded-2xl shadow-sm outline -outline-offset-1 outline-black/10 ${
+                    currentAsset.previewUrl
+                      ? "bg-cover bg-center"
+                      : getQuickAssetPreviewClassName(currentAsset.id)
+                  }`}
+                  style={
+                    currentAsset.previewUrl
+                      ? {
+                          backgroundImage: `url("${currentAsset.previewUrl}")`,
+                        }
+                      : undefined
+                  }
                 >
                   <div className="absolute inset-0 bg-[linear-gradient(transparent_55%,rgba(0,0,0,.68))]" />
                   <div className="absolute bottom-0 z-10 w-full p-6 text-white">
@@ -204,7 +266,7 @@ export function QuickGenerateScreen() {
                 PNG, JPEG, or WebP
               </span>
               <Button
-                disabled={!description.trim() || isGenerating}
+                disabled={!description.trim() || isLoading || isMutating}
                 onClick={generate}
               >
                 {isGenerating ? (
@@ -216,6 +278,11 @@ export function QuickGenerateScreen() {
               </Button>
             </div>
           </div>
+          {actionError ? (
+            <p className="mt-3 text-sm text-destructive" role="alert">
+              {actionError.message || "Unable to update this asset."}
+            </p>
+          ) : null}
         </aside>
       </div>
     </main>

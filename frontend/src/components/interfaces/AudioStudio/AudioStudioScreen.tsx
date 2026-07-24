@@ -16,12 +16,19 @@ import { useAudioStudio } from "./useAudioStudio";
 
 export function AudioStudioScreen() {
   const {
+    actionError,
     addTrack,
+    duration,
     generateVariation,
+    isLoading,
+    isMutating,
+    loadError,
     masterMuted,
     playing,
     prompt,
+    reload,
     removeTrack,
+    setDuration,
     setPrompt,
     setTime,
     time,
@@ -41,7 +48,7 @@ export function AudioStudioScreen() {
             timeline.
           </p>
         </div>
-        <button className="button">
+        <button className="button" onClick={addTrack} disabled={isMutating}>
           <Plus size={16} /> Upload MP3
         </button>
       </header>
@@ -86,75 +93,105 @@ export function AudioStudioScreen() {
             <span>90s</span>
           </div>
           <div className="track-list">
-            {tracks.map((track) => (
-              <div className="track-row" key={track.id}>
-                <div className="track-controls">
-                  <Music2 size={16} />
-                  <span>
-                    <strong>{track.name}</strong>
-                    <small>
-                      {track.offset}s / {track.length}s
-                    </small>
-                  </span>
-                  <button
-                    className={
-                      track.muted
-                        ? "mini-button mini-button--active"
-                        : "mini-button"
-                    }
-                    onClick={() => toggleTrack(track.id, "muted")}
-                  >
-                    {track.muted ? (
-                      <VolumeX size={14} />
-                    ) : (
-                      <Volume2 size={14} />
-                    )}
-                  </button>
-                  <button
-                    className={
-                      track.loop
-                        ? "mini-button mini-button--active"
-                        : "mini-button"
-                    }
-                    onClick={() => toggleTrack(track.id, "loop")}
-                  >
-                    <Repeat2 size={14} />
-                  </button>
-                  <button className="mini-button">
-                    <Scissors size={14} />
-                  </button>
-                  <button
-                    className="mini-button mini-button--danger"
-                    onClick={() => removeTrack(track.id)}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-                <div className="track-lane">
-                  <span
-                    className="playhead"
-                    style={{ left: `${(time / 90) * 100}%` }}
-                  />
-                  <button
-                    className={`audio-clip audio-clip--${track.tone}`}
-                    style={{
-                      left: `${(track.offset / 90) * 100}%`,
-                      width: `${(track.length / 90) * 100}%`,
-                    }}
-                    onClick={() => setTime(track.offset)}
-                  >
-                    {Array.from({ length: 30 }, (_, index) => (
-                      <i
-                        key={index}
-                        style={{ height: `${18 + ((index * 17) % 58)}%` }}
-                      />
-                    ))}
-                  </button>
-                </div>
+            {isLoading ? (
+              <div className="p-6 text-sm text-muted-foreground" role="status">
+                Loading audio tracks…
               </div>
-            ))}
+            ) : loadError ? (
+              <div className="space-y-3 p-6" role="alert">
+                <p className="text-sm text-destructive">
+                  {loadError.message || "Unable to load audio tracks."}
+                </p>
+                <button
+                  className="button"
+                  onClick={() => void reload()}
+                  type="button"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : tracks.length === 0 ? (
+              <div className="p-6 text-sm text-muted-foreground">
+                No audio tracks yet. Add a track to start the mix.
+              </div>
+            ) : (
+              tracks.map((track) => (
+                <div className="track-row" key={track.id}>
+                  <div className="track-controls">
+                    <Music2 size={16} />
+                    <span>
+                      <strong>{track.name}</strong>
+                      <small>
+                        {track.offset}s / {track.length}s
+                      </small>
+                    </span>
+                    <button
+                      className={
+                        track.muted
+                          ? "mini-button mini-button--active"
+                          : "mini-button"
+                      }
+                      onClick={() => toggleTrack(track.id, "muted")}
+                      disabled={isMutating}
+                    >
+                      {track.muted ? (
+                        <VolumeX size={14} />
+                      ) : (
+                        <Volume2 size={14} />
+                      )}
+                    </button>
+                    <button
+                      className={
+                        track.loop
+                          ? "mini-button mini-button--active"
+                          : "mini-button"
+                      }
+                      onClick={() => toggleTrack(track.id, "loop")}
+                      disabled={isMutating}
+                    >
+                      <Repeat2 size={14} />
+                    </button>
+                    <button className="mini-button">
+                      <Scissors size={14} />
+                    </button>
+                    <button
+                      className="mini-button mini-button--danger"
+                      onClick={() => removeTrack(track.id)}
+                      disabled={isMutating}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <div className="track-lane">
+                    <span
+                      className="playhead"
+                      style={{ left: `${(time / 90) * 100}%` }}
+                    />
+                    <button
+                      className={`audio-clip audio-clip--${track.tone}`}
+                      style={{
+                        left: `${(track.offset / 90) * 100}%`,
+                        width: `${(track.length / 90) * 100}%`,
+                      }}
+                      onClick={() => setTime(track.offset)}
+                    >
+                      {Array.from({ length: 30 }, (_, index) => (
+                        <i
+                          key={index}
+                          style={{ height: `${18 + ((index * 17) % 58)}%` }}
+                        />
+                      ))}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          <button className="add-track" onClick={addTrack}>
+          <button
+            className="add-track"
+            onClick={addTrack}
+            disabled={isLoading || isMutating}
+          >
             <Plus size={16} /> Add track
           </button>
         </section>
@@ -173,7 +210,10 @@ export function AudioStudioScreen() {
           </label>
           <label>
             Duration
-            <select defaultValue="30">
+            <select
+              value={duration}
+              onChange={(event) => setDuration(Number(event.target.value))}
+            >
               <option value="15">15 seconds</option>
               <option value="30">30 seconds</option>
               <option value="60">60 seconds</option>
@@ -182,9 +222,16 @@ export function AudioStudioScreen() {
           <button
             className="button button--primary button--wide"
             onClick={generateVariation}
+            disabled={!prompt.trim() || isLoading || isMutating}
           >
-            <Sparkles size={16} /> Generate variation
+            <Sparkles size={16} />
+            {isMutating ? " Working…" : " Generate variation"}
           </button>
+          {actionError ? (
+            <p className="text-sm text-destructive" role="alert">
+              {actionError.message || "Unable to update the audio mix."}
+            </p>
+          ) : null}
           <div className="reference-drop">
             <Plus size={16} /> Drop or attach a reference MP3
           </div>

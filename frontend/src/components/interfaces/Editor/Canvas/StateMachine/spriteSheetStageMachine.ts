@@ -1,16 +1,12 @@
 import { useReducer } from "react";
 
-export const STATIC_TILE_POSITIONS: Record<string, string[]> = {
-  Bed: ["Top left", "Top right", "Bottom left", "Bottom right"],
-  "Street lamp": ["Top", "Center", "Bottom"],
-  "Street fence": ["Left end", "Center left", "Center right", "Right end"],
-  Object: ["Center"],
-};
+import type { EditorSpriteSheetItem } from "@/types/editor-document";
 
 type SpriteSheetStageState = {
   selectedItems: string[];
   selectedTiles: string[];
 };
+
 type SpriteSheetStageEvent =
   | { type: "toggle-item"; item: string }
   | { type: "toggle-tile"; tile: string };
@@ -20,9 +16,10 @@ const initialState: SpriteSheetStageState = {
   selectedTiles: [],
 };
 
-function reducer(
+function reduceSpriteSheetStage(
   state: SpriteSheetStageState,
   event: SpriteSheetStageEvent,
+  items: EditorSpriteSheetItem[],
 ): SpriteSheetStageState {
   if (event.type === "toggle-item") {
     const selected = state.selectedItems.includes(event.item);
@@ -39,27 +36,24 @@ function reducer(
   }
 
   const separator = event.tile.lastIndexOf(":");
-  const item = event.tile.slice(0, separator);
-  if (item !== "Canvas" && state.selectedItems.includes(item)) {
-    const remaining = (STATIC_TILE_POSITIONS[item] ?? [])
-      .map((_, index) => `${item}:${index}`)
-      .filter((tile) => tile !== event.tile);
+  const itemId = event.tile.slice(0, separator);
+  const item = items.find((candidate) => candidate.id === itemId);
+  const itemTiles = item?.tiles.map((_, index) => `${itemId}:${index}`) ?? [];
+
+  if (item && state.selectedItems.includes(itemId)) {
     return {
       selectedItems: state.selectedItems.filter(
-        (selectedItem) => selectedItem !== item,
+        (selectedItem) => selectedItem !== itemId,
       ),
       selectedTiles: [
-        ...state.selectedTiles.filter((tile) => !tile.startsWith(`${item}:`)),
-        ...remaining,
+        ...state.selectedTiles.filter((tile) => !tile.startsWith(`${itemId}:`)),
+        ...itemTiles.filter((tile) => tile !== event.tile),
       ],
     };
   }
 
-  const itemTiles = (STATIC_TILE_POSITIONS[item] ?? []).map(
-    (_, index) => `${item}:${index}`,
-  );
   const restoresItem =
-    item !== "Canvas" &&
+    item &&
     !state.selectedTiles.includes(event.tile) &&
     itemTiles.length > 0 &&
     itemTiles.every(
@@ -67,11 +61,11 @@ function reducer(
     );
   if (restoresItem) {
     return {
-      selectedItems: state.selectedItems.includes(item)
+      selectedItems: state.selectedItems.includes(itemId)
         ? state.selectedItems
-        : [...state.selectedItems, item],
+        : [...state.selectedItems, itemId],
       selectedTiles: state.selectedTiles.filter(
-        (tile) => !tile.startsWith(`${item}:`),
+        (tile) => !tile.startsWith(`${itemId}:`),
       ),
     };
   }
@@ -84,8 +78,13 @@ function reducer(
   };
 }
 
-export function useSpriteSheetStageMachine() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export function useSpriteSheetStageMachine(items: EditorSpriteSheetItem[]) {
+  const [state, dispatch] = useReducer(
+    (current: SpriteSheetStageState, event: SpriteSheetStageEvent) =>
+      reduceSpriteSheetStage(current, event, items),
+    initialState,
+  );
+
   return {
     ...state,
     toggleItem: (item: string) => dispatch({ type: "toggle-item", item }),

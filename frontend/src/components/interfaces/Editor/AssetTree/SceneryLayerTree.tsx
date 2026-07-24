@@ -1,7 +1,7 @@
 import { Eye, EyeOff, Layers3 } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { SceneryLayer } from "@/types/asset";
+import type { EditorSceneryLayer } from "@/types/editor-document";
 
 export function SceneryLayerTree({
   layers,
@@ -10,7 +10,7 @@ export function SceneryLayerTree({
   onToggleLayer,
   onToggleVisibility,
 }: {
-  layers: SceneryLayer[];
+  layers: EditorSceneryLayer[];
   selectedLayers: string[];
   visibleLayers: string[];
   onToggleLayer: (layer: string) => void;

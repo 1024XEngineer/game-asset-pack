@@ -1,4 +1,4 @@
-import type { SceneryLayer } from "@/types/asset";
+import type { EditorSceneryLayer } from "@/types/editor-document";
 
 import { SceneryLayerTree } from "../AssetTree/SceneryLayerTree";
 import { SceneryStage } from "../Canvas/SceneryStage";
@@ -13,7 +13,7 @@ export function SceneryEditorMode({
   onPromptChange,
   renderHeader,
   layers,
-}: EditorModeProps & { layers: SceneryLayer[] }) {
+}: EditorModeProps & { layers: EditorSceneryLayer[] }) {
   const stage = useSceneryStageMachine(layers);
   const selection = stage.selectedLayers.length
     ? stage.selectedLayers.join(", ")

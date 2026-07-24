@@ -1,18 +1,18 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
-import { useCopyAssetMutation } from "@/data/asset/asset-copy.mutation";
-import { useDeleteAssetMutation } from "@/data/asset/asset-delete.mutation";
-import { useAssetLibraryQuery } from "@/data/asset/asset-library.query";
-import { useEnqueueGenerationMutation } from "@/data/generation/generation-run.mutation";
-import { useGenerationRunsQuery } from "@/data/generation/generation-runs.query";
-import { useDeleteProjectMutation } from "@/data/project/project-delete.mutation";
-import { useProjectListQuery } from "@/data/project/project-list.query";
+import { useCopyAssetMutation } from "@/api/asset/asset-copy.mutation";
+import { useDeleteAssetMutation } from "@/api/asset/asset-delete.mutation";
+import { useAssetLibraryQuery } from "@/api/asset/asset-library.query";
+import { useEnqueueGenerationMutation } from "@/api/generation/generation-run.mutation";
+import { useGenerationRunsQuery } from "@/api/generation/generation-runs.query";
+import { useDeleteProjectMutation } from "@/api/project/project-delete.mutation";
+import { useProjectListQuery } from "@/api/project/project-list.query";
 import {
   reconcileProjectSelection,
   removeProjectSelection,
-} from "@/data/project/project-selection";
-import { useUpdateProjectMutation } from "@/data/project/project-update.mutation";
+} from "@/api/project/project-selection";
+import { useUpdateProjectMutation } from "@/api/project/project-update.mutation";
 import type { CreationRequest } from "@/types/generation";
 import type { ProjectSummary } from "@/types/project";
 

@@ -1,5 +1,6 @@
 import type { Viewport } from "pixi-viewport";
 
+import type { EditorCharacterAnimation } from "@/types/editor-document";
 import type { NodeId } from "../../Editor.constants";
 import type { CanvasPosition } from "../Canvas.constants";
 
@@ -19,6 +20,7 @@ export type CharacterStageActions = {
 
 export type CharacterStageProps = CharacterSelection &
   CharacterStageActions & {
+    animations: EditorCharacterAnimation[];
     nodePositions?: Record<string, CanvasPosition>;
   };
 
@@ -46,6 +48,7 @@ export type CharacterSceneState = {
 export type CharacterStageContext = {
   viewport: Viewport;
   actions: CharacterStageActions;
+  getAnimations: () => EditorCharacterAnimation[];
   getScene: () => CharacterSceneSnapshot;
   moveNode: (node: NodeId, position: CanvasPosition) => void;
   setMarquee: (marquee: CharacterSceneState["marquee"]) => void;

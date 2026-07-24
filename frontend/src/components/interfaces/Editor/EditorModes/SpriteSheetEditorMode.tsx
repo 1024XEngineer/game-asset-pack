@@ -1,33 +1,34 @@
-import type { AssetKind } from "@/types/asset-kind";
+import type { AssetEditorDocument } from "@/types/editor-document";
 
 import { StaticAssetTree } from "../AssetTree/StaticAssetTree";
 import { SpriteSheetStage } from "../Canvas/SpriteSheetStage";
-import {
-  STATIC_TILE_POSITIONS,
-  useSpriteSheetStageMachine,
-} from "../Canvas/StateMachine/spriteSheetStageMachine";
+import { useSpriteSheetStageMachine } from "../Canvas/StateMachine/spriteSheetStageMachine";
 import { Inspector } from "../Inspector/Inspector";
 import type { EditorModeProps } from "./types";
 
 export function SpriteSheetEditorMode({
-  kind,
   prompt,
   history,
   onAction,
   onPromptChange,
   renderHeader,
-}: EditorModeProps & { kind: AssetKind }) {
-  const stage = useSpriteSheetStageMachine();
+  spriteSheet,
+}: EditorModeProps & {
+  spriteSheet: AssetEditorDocument["spriteSheet"];
+}) {
+  const items = spriteSheet?.items ?? [];
+  const stage = useSpriteSheetStageMachine(items);
   const selectedItems = [
     ...stage.selectedItems,
     ...stage.selectedTiles.map((tile) => {
       const separator = tile.lastIndexOf(":");
       const item = tile.slice(0, separator);
       const tileIndex = Number(tile.slice(separator + 1));
+      const itemData = items.find((candidate) => candidate.id === item);
 
       return item === "Canvas"
         ? `Tile ${tileIndex + 1}`
-        : `${item} / ${STATIC_TILE_POSITIONS[item]?.[tileIndex] ?? `Tile ${tileIndex + 1}`}`;
+        : `${itemData?.label ?? item} / ${itemData?.tiles[tileIndex]?.label ?? `Tile ${tileIndex + 1}`}`;
     }),
   ];
   const selection = selectedItems.length
@@ -39,13 +40,15 @@ export function SpriteSheetEditorMode({
       {renderHeader(selection)}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <StaticAssetTree
-          kind={kind === "tiles" ? "tiles" : "object"}
+          items={items}
           selectedItems={stage.selectedItems}
           selectedTiles={stage.selectedTiles}
           onToggleItem={stage.toggleItem}
           onToggleTile={stage.toggleTile}
         />
         <SpriteSheetStage
+          gridSize={spriteSheet?.gridSize ?? 8}
+          items={items}
           selectedItems={stage.selectedItems}
           selectedTiles={stage.selectedTiles}
           onToggleTile={stage.toggleTile}

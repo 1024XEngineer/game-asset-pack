@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { NodeId } from "../../Editor.constants";
+import type { EditorCharacterAnimation } from "@/types/editor-document";
 import {
   DEFAULT_CANVAS_POSITIONS,
   type CanvasPosition,
@@ -10,6 +11,14 @@ import {
   getCharacterNodeLayout,
   hitTestCharacterScene,
 } from "./CharacterStageGeometry";
+
+const animations: EditorCharacterAnimation[] = [
+  { id: "idle", label: "Idle", frameCount: 6 },
+  { id: "walk", label: "Walk", frameCount: 8 },
+  { id: "harvest", label: "Harvest", frameCount: 12 },
+  { id: "jump", label: "Jump", frameCount: 10 },
+  { id: "celebrate", label: "Celebrate", frameCount: 8 },
+];
 
 function createScene(expanded: NodeId[] = []): CharacterSceneSnapshot {
   return {
@@ -62,11 +71,16 @@ describe("character stage geometry", () => {
 
   it("maps every expanded frame to its matching hit target", () => {
     const scene = createScene(["walk"]);
-    const layout = getCharacterNodeLayout("walk", scene.positions.walk, true);
+    const layout = getCharacterNodeLayout(
+      "walk",
+      scene.positions.walk,
+      true,
+      animations,
+    );
 
     expect(layout.frames).toHaveLength(8);
     layout.frames.forEach((frame, index) => {
-      expect(hitTestCharacterScene(scene, center(frame))).toEqual({
+      expect(hitTestCharacterScene(scene, center(frame), animations)).toEqual({
         kind: "frame",
         node: "walk",
         index,

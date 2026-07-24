@@ -1,105 +1,188 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { useTimeout } from "@/hooks/use-timeout";
 import {
-  initialQuickGenerationAssets,
-  quickGenerationSizes,
-  type QuickGenerationAsset,
-} from "./QuickGeneration.constants";
+  useDeleteQuickAssetMutation,
+  useGenerateQuickAssetMutation,
+} from "@/api/quick-generation/quick-asset.mutations";
+import { useQuickAssetsQuery } from "@/api/quick-generation/quick-assets.query";
+import type { QuickGenerationAsset } from "@/types/quick-generation";
+import { quickGenerationSizes } from "./QuickGeneration.constants";
 
 export function useQuickGeneration() {
-  const { schedule: scheduleGeneration } = useTimeout();
-  const [assets, setAssets] = useState<QuickGenerationAsset[]>(
-    initialQuickGenerationAssets,
-  );
-  const [currentAssetId, setCurrentAssetId] = useState<string | null>(
-    initialQuickGenerationAssets[0].id,
-  );
+  const assetsQuery = useQuickAssetsQuery();
+  const generateMutation = useGenerateQuickAssetMutation();
+  const deleteMutation = useDeleteQuickAssetMutation();
+  const [currentAssetId, setCurrentAssetId] = useState<
+    string | null | undefined
+  >(undefined);
   const [description, setDescription] = useState("");
   const [referenceImage, setReferenceImage] = useState("");
-  const [size, setSize] = useState(initialQuickGenerationAssets[0].size);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const currentAsset = assets.find((asset) => asset.id === currentAssetId);
+  const [referenceFileName, setReferenceFileName] = useState<
+    string | undefined
+  >();
+  const [size, setSize] = useState(quickGenerationSizes[1]);
+  const referencePreviews = useRef<Record<string, string>>({});
+  const ownedReferenceUrls = useRef(new Set<string>());
+  const assets = assetsQuery.data ?? [];
+  const currentAsset =
+    typeof currentAssetId === "string"
+      ? assets.find((asset) => asset.id === currentAssetId)
+      : undefined;
+  const isMutating = generateMutation.isPending || deleteMutation.isPending;
+  const actionError = generateMutation.error ?? deleteMutation.error;
+
+  useEffect(() => {
+    if (assetsQuery.isPending || currentAssetId !== undefined) return;
+    const firstAsset = assets[0];
+    setCurrentAssetId(firstAsset?.id ?? null);
+    if (firstAsset) {
+      setSize(firstAsset.size);
+      setReferenceFileName(firstAsset.referenceFileName);
+    }
+  }, [assets, assetsQuery.isPending, currentAssetId]);
+
+  useEffect(
+    () => () => {
+      for (const url of ownedReferenceUrls.current) {
+        URL.revokeObjectURL(url);
+      }
+      ownedReferenceUrls.current.clear();
+    },
+    [],
+  );
 
   function selectAsset(asset: QuickGenerationAsset) {
+    releaseUncommittedReference();
     setCurrentAssetId(asset.id);
     setDescription("");
-    setReferenceImage(asset.referenceImage);
+    setReferenceImage(referencePreviews.current[asset.id] ?? "");
+    setReferenceFileName(asset.referenceFileName);
     setSize(asset.size);
   }
 
   function newAsset() {
+    releaseUncommittedReference();
     setCurrentAssetId(null);
     setDescription("");
-    setSize(quickGenerationSizes[1]);
-    if (referenceImage) URL.revokeObjectURL(referenceImage);
     setReferenceImage("");
+    setReferenceFileName(undefined);
+    setSize(quickGenerationSizes[1]);
   }
 
   function generate() {
     if (!description.trim()) return;
-    setIsGenerating(true);
-    scheduleGeneration(() => {
-      if (currentAsset) {
-        setAssets((items) =>
-          items.map((asset) =>
-            asset.id === currentAsset.id
-              ? { ...asset, prompt: description.trim(), referenceImage, size }
-              : asset,
-          ),
-        );
-      } else {
-        const assetId = `asset-${Date.now()}`;
-        const asset: QuickGenerationAsset = {
-          id: assetId,
-          prompt: description.trim(),
-          referenceImage,
-          size,
-          previewClassName:
-            "bg-[radial-gradient(circle_at_34%_28%,#f7d98c_0,transparent_24%),linear-gradient(145deg,#243847,#68808a)]",
-        };
-        setAssets((items) => [...items, asset]);
-        setCurrentAssetId(assetId);
-      }
-      setDescription("");
-      setIsGenerating(false);
-    }, 700);
+    const previousAssetId = currentAsset?.id;
+    const submittedReferenceImage = referenceImage;
+
+    generateMutation.mutate(
+      {
+        assetId: previousAssetId,
+        prompt: description,
+        size,
+        referenceFileName,
+      },
+      {
+        onSuccess: (asset) => {
+          commitReferencePreview(asset.id, submittedReferenceImage);
+          setCurrentAssetId(asset.id);
+          setDescription("");
+        },
+      },
+    );
   }
 
   function deleteCurrentAsset() {
     if (!currentAsset) return;
-    const remaining = assets.filter((asset) => asset.id !== currentAsset.id);
-    setAssets(remaining);
-    setCurrentAssetId(remaining[0]?.id ?? null);
-    setReferenceImage(remaining[0]?.referenceImage ?? "");
-    setSize(remaining[0]?.size ?? quickGenerationSizes[1]);
-    setDescription("");
+    const deletedAssetId = currentAsset.id;
+    const remaining = assets.filter((asset) => asset.id !== deletedAssetId);
+
+    deleteMutation.mutate(deletedAssetId, {
+      onSuccess: () => {
+        releaseUncommittedReference();
+        releaseReferencePreview(deletedAssetId);
+        const nextAsset = remaining[0];
+        setCurrentAssetId(nextAsset?.id ?? null);
+        setReferenceImage(
+          nextAsset ? (referencePreviews.current[nextAsset.id] ?? "") : "",
+        );
+        setReferenceFileName(nextAsset?.referenceFileName);
+        setSize(nextAsset?.size ?? quickGenerationSizes[1]);
+        setDescription("");
+      },
+    });
   }
 
   function chooseReference(file: File | undefined) {
     if (!file || !file.type.startsWith("image/")) return;
-    if (referenceImage) URL.revokeObjectURL(referenceImage);
-    setReferenceImage(URL.createObjectURL(file));
+    releaseUncommittedReference();
+    const previewUrl = URL.createObjectURL(file);
+    ownedReferenceUrls.current.add(previewUrl);
+    setReferenceImage(previewUrl);
+    setReferenceFileName(file.name);
   }
 
   function clearReference() {
-    if (referenceImage) URL.revokeObjectURL(referenceImage);
+    releaseUncommittedReference();
     setReferenceImage("");
+    setReferenceFileName(undefined);
+  }
+
+  function releaseUncommittedReference() {
+    const committedReference =
+      typeof currentAssetId === "string"
+        ? referencePreviews.current[currentAssetId]
+        : undefined;
+    if (referenceImage && referenceImage !== committedReference) {
+      revokeOwnedUrl(referenceImage);
+    }
+  }
+
+  function commitReferencePreview(assetId: string, previewUrl: string) {
+    const previousPreview = referencePreviews.current[assetId];
+    if (previousPreview && previousPreview !== previewUrl) {
+      revokeOwnedUrl(previousPreview);
+    }
+    if (previewUrl) {
+      referencePreviews.current[assetId] = previewUrl;
+    } else {
+      delete referencePreviews.current[assetId];
+    }
+    setReferenceImage(previewUrl);
+  }
+
+  function releaseReferencePreview(assetId: string) {
+    const previewUrl = referencePreviews.current[assetId];
+    if (previewUrl) {
+      revokeOwnedUrl(previewUrl);
+      delete referencePreviews.current[assetId];
+    }
+  }
+
+  function revokeOwnedUrl(url: string) {
+    if (!ownedReferenceUrls.current.has(url)) return;
+    URL.revokeObjectURL(url);
+    ownedReferenceUrls.current.delete(url);
   }
 
   return {
+    actionError,
     assets,
     chooseReference,
     clearReference,
     currentAsset,
-    currentAssetId,
+    currentAssetId: currentAssetId ?? null,
     deleteCurrentAsset,
     description,
     generate,
-    isGenerating,
+    isDeleting: deleteMutation.isPending,
+    isGenerating: generateMutation.isPending,
+    isLoading: assetsQuery.isPending,
+    isMutating,
+    loadError: assetsQuery.error,
     newAsset,
     quickGenerationSizes,
     referenceImage,
+    reload: assetsQuery.refetch,
     selectAsset,
     setDescription,
     setSize,
