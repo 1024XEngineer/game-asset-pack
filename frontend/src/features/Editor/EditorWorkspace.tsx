@@ -1,10 +1,10 @@
 import type { EditorDocumentData } from "@/types/editor-document";
+import { useAssetEditorSession } from "@/modules/asset-editor-session";
 
 import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
 import { SpriteSheetEditorMode } from "./EditorModes/SpriteSheetEditorMode";
 import { EditorHeader } from "./Header/EditorHeader";
-import { useEditorWorkspaceSession } from "./useEditorWorkspaceSession";
 
 export function EditorWorkspace({
   data,
@@ -14,7 +14,7 @@ export function EditorWorkspace({
   onBack: () => void;
 }) {
   const { asset, projectName } = data;
-  const workspace = useEditorWorkspaceSession(asset, data.document);
+  const workspace = useAssetEditorSession(asset, data.document);
 
   const renderHeader = (_selection: string) => (
     <EditorHeader

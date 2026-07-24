@@ -6,7 +6,7 @@ import type {
   EditorCanvasPosition,
 } from "@/types/editor-document";
 
-type EditorWorkspaceStore = {
+type AssetEditorSessionStore = {
   document: AssetEditorDocument;
   savedDocument: AssetEditorDocument;
   setPrompt: (prompt: string) => void;
@@ -18,7 +18,7 @@ type EditorWorkspaceStore = {
   markSaved: (document: AssetEditorDocument) => void;
 };
 
-export const useEditorWorkspaceStore = create<EditorWorkspaceStore>()(
+export const useAssetEditorSessionStore = create<AssetEditorSessionStore>()(
   temporal(
     (set) => ({
       document: { prompt: "" },
@@ -54,19 +54,19 @@ export const useEditorWorkspaceStore = create<EditorWorkspaceStore>()(
   ),
 );
 
-export function initializeEditorWorkspace(document: AssetEditorDocument) {
-  useEditorWorkspaceStore.getState().reset(document);
-  useEditorWorkspaceStore.temporal.getState().clear();
+export function initializeAssetEditorSession(document: AssetEditorDocument) {
+  useAssetEditorSessionStore.getState().reset(document);
+  useAssetEditorSessionStore.temporal.getState().clear();
 }
 
-export function markEditorWorkspaceSaved(document: AssetEditorDocument) {
-  useEditorWorkspaceStore.getState().markSaved(document);
+export function markAssetEditorSessionSaved(document: AssetEditorDocument) {
+  useAssetEditorSessionStore.getState().markSaved(document);
 }
 
-export function undoEditorWorkspace() {
-  useEditorWorkspaceStore.temporal.getState().undo();
+export function undoAssetEditorSession() {
+  useAssetEditorSessionStore.temporal.getState().undo();
 }
 
-export function redoEditorWorkspace() {
-  useEditorWorkspaceStore.temporal.getState().redo();
+export function redoAssetEditorSession() {
+  useAssetEditorSessionStore.temporal.getState().redo();
 }

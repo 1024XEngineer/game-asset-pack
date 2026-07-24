@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AssetRecord } from "@/types/asset-record";
-
-import { nodeMeta, type NodeId } from "../Editor.constants";
+import {
+  characterNodeMeta,
+  type CharacterCanvasNodeId,
+} from "@/modules/character-canvas";
 
 type InspectorProps = {
-  selectedNodes: NodeId[];
-  selectedFrames: Array<{ node: NodeId; index: number }>;
+  selectedNodes: CharacterCanvasNodeId[];
+  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
   prompt: string;
   onPromptChange: (value: string) => void;
   onAction: (message: string) => void;
@@ -123,8 +125,8 @@ function SelectionSummary({
   selectedFrames,
   selectedItems,
 }: {
-  selectedNodes: NodeId[];
-  selectedFrames: Array<{ node: NodeId; index: number }>;
+  selectedNodes: CharacterCanvasNodeId[];
+  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
   selectedItems?: string[];
 }) {
   if (selectedItems) {
@@ -142,7 +144,7 @@ function SelectionSummary({
     return (
       <div className="mb-4 rounded-xl border border-black/10 bg-[#f7f5f0] p-3 text-xs text-[#51493f]">
         <span className="font-semibold text-[#2d2923]">Target:</span>{" "}
-        {node ? `${nodeMeta[node].label} (` : ""}
+        {node ? `${characterNodeMeta[node].label} (` : ""}
         {selectedFrames
           .map((selectedFrame) => `Frame ${selectedFrame.index + 1}`)
           .join(", ")}
@@ -155,7 +157,7 @@ function SelectionSummary({
     return (
       <div className="mb-4 rounded-xl border border-black/10 bg-[#f7f5f0] p-3 text-xs text-[#51493f]">
         <span className="font-semibold text-[#2d2923]">Target:</span>{" "}
-        {selectedNodes.map((node) => nodeMeta[node].label).join(", ")}
+        {selectedNodes.map((node) => characterNodeMeta[node].label).join(", ")}
       </div>
     );
   }

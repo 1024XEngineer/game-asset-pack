@@ -4,12 +4,12 @@ import { useStore } from "zustand";
 import { useTimeout } from "@/hooks/use-timeout";
 import { useSaveAssetRevisionMutation } from "@/api/asset/asset-save-revision.mutation";
 import {
-  initializeEditorWorkspace,
-  markEditorWorkspaceSaved,
-  redoEditorWorkspace,
-  undoEditorWorkspace,
-  useEditorWorkspaceStore,
-} from "./editor-workspace-store";
+  initializeAssetEditorSession,
+  markAssetEditorSessionSaved,
+  redoAssetEditorSession,
+  undoAssetEditorSession,
+  useAssetEditorSessionStore,
+} from "./asset-editor-session-store";
 import type {
   AssetEditorDocument,
   EditorWorkspaceAsset,
@@ -17,30 +17,32 @@ import type {
 
 const savedStatus = "All changes saved";
 
-export function useEditorWorkspaceSession(
+export function useAssetEditorSession(
   asset: EditorWorkspaceAsset | undefined,
   initialDocument: AssetEditorDocument | undefined,
 ) {
   const [status, setStatus] = useState(savedStatus);
   const { schedule: scheduleStatusReset } = useTimeout();
   const saveRevisionMutation = useSaveAssetRevisionMutation();
-  const document = useEditorWorkspaceStore((state) => state.document);
-  const savedDocument = useEditorWorkspaceStore((state) => state.savedDocument);
-  const setPrompt = useEditorWorkspaceStore((state) => state.setPrompt);
-  const setCharacterNodePosition = useEditorWorkspaceStore(
+  const document = useAssetEditorSessionStore((state) => state.document);
+  const savedDocument = useAssetEditorSessionStore(
+    (state) => state.savedDocument,
+  );
+  const setPrompt = useAssetEditorSessionStore((state) => state.setPrompt);
+  const setCharacterNodePosition = useAssetEditorSessionStore(
     (state) => state.setCharacterNodePosition,
   );
   const canUndo = useStore(
-    useEditorWorkspaceStore.temporal,
+    useAssetEditorSessionStore.temporal,
     (state) => state.pastStates.length > 0,
   );
   const canRedo = useStore(
-    useEditorWorkspaceStore.temporal,
+    useAssetEditorSessionStore.temporal,
     (state) => state.futureStates.length > 0,
   );
 
   useEffect(() => {
-    initializeEditorWorkspace(initialDocument ?? { prompt: "" });
+    initializeAssetEditorSession(initialDocument ?? { prompt: "" });
     setStatus(savedStatus);
   }, [asset?.id]);
 
@@ -66,7 +68,7 @@ export function useEditorWorkspaceSession(
           assetId: asset.id,
           editorDocument: document,
         });
-        markEditorWorkspaceSaved(document);
+        markAssetEditorSessionSaved(document);
         reportAction("Saved just now");
       } catch {
         reportAction("Save failed");
@@ -77,11 +79,11 @@ export function useEditorWorkspaceSession(
     status:
       status === savedStatus && hasUnsavedChanges ? "Unsaved changes" : status,
     redo: () => {
-      redoEditorWorkspace();
+      redoAssetEditorSession();
       reportAction("Edit restored");
     },
     undo: () => {
-      undoEditorWorkspace();
+      undoAssetEditorSession();
       reportAction("Last edit reverted");
     },
   };

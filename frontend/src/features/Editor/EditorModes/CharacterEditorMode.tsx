@@ -1,7 +1,10 @@
+import {
+  CharacterCanvas,
+  getCharacterNodeLabel,
+} from "@/modules/character-canvas";
+
 import { AssetTree } from "../AssetTree/AssetTree";
-import { CharacterStage } from "../Canvas/CharacterStage";
 import { useCharacterStageMachine } from "../Canvas/StateMachine/characterStageMachine";
-import { nodeMeta } from "../Editor.constants";
 import { Inspector } from "../Inspector/Inspector";
 import type { EditorModeProps } from "./types";
 
@@ -18,11 +21,7 @@ export function CharacterEditorMode({
   const stage = useCharacterStageMachine();
   const selection = stage.selectedNodes.length
     ? stage.selectedNodes
-        .map(
-          (node) =>
-            characterAnimations.find((animation) => animation.id === node)
-              ?.label ?? nodeMeta[node].label,
-        )
+        .map((node) => getCharacterNodeLabel(node, characterAnimations))
         .join(", ")
     : "Nothing selected";
 
@@ -37,7 +36,7 @@ export function CharacterEditorMode({
           onSelect={stage.selectNode}
           onSelectFrame={stage.selectFrame}
         />
-        <CharacterStage
+        <CharacterCanvas
           animations={characterAnimations}
           selectedNodes={stage.selectedNodes}
           selectedFrames={stage.selectedFrames}

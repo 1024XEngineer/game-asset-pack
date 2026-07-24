@@ -1,8 +1,8 @@
 import { Viewport } from "pixi-viewport";
 import { Container } from "pixi.js";
 
-import { type NodeId } from "../../Editor.constants";
-import { DEFAULT_CANVAS_POSITIONS } from "../Canvas.constants";
+import { type NodeId } from "../character-node";
+import { DEFAULT_CANVAS_POSITIONS } from "../CharacterCanvas.constants";
 import { CharacterStageInteraction } from "../Interaction/CharacterStageInteraction";
 import { getFrameCount } from "../Interaction/CharacterStageGeometry";
 import { CharacterStageRenderer } from "../Renderer/CharacterStageRenderer";
@@ -17,10 +17,10 @@ import type {
   CharacterSceneState,
   CharacterStageContext,
   CharacterStageProps,
-} from "./CharacterStage.types";
+} from "./CharacterCanvas.types";
 import { StageRuntime } from "./StageRuntime";
 
-export class CharacterStageRuntime {
+export class CharacterCanvasRuntime {
   private readonly runtime = new StageRuntime();
   private interaction?: CharacterStageInteraction;
   private resizeObserver?: ResizeObserver;

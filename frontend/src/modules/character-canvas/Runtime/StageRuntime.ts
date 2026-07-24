@@ -1,6 +1,6 @@
 import { Application, type Renderer } from "pixi.js";
 
-import { BACKGROUND } from "./CharacterStage.constants";
+import { STAGE_BACKGROUND } from "./CharacterStage.constants";
 
 export class StageRuntime {
   readonly app = new Application<Renderer>();
@@ -8,7 +8,7 @@ export class StageRuntime {
   async initialize(host: HTMLElement) {
     await this.app.init({
       resizeTo: host,
-      background: BACKGROUND,
+      background: STAGE_BACKGROUND,
       antialias: false,
       autoDensity: true,
       resolution: Math.min(window.devicePixelRatio, 2),

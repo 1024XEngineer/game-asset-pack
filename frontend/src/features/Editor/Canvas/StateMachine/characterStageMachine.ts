@@ -1,18 +1,22 @@
 import { useReducer } from "react";
 
-import type { NodeId } from "../../Editor.constants";
+import type { CharacterCanvasNodeId } from "@/modules/character-canvas";
 
 type CharacterStageState = {
-  selectedNode: NodeId | null;
-  selectedNodes: NodeId[];
-  selectedFrames: Array<{ node: NodeId; index: number }>;
+  selectedNode: CharacterCanvasNodeId | null;
+  selectedNodes: CharacterCanvasNodeId[];
+  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
 };
 
 type CharacterStageEvent =
-  | { type: "select-node"; node: NodeId }
-  | { type: "select-frame"; node: NodeId; index: number }
-  | { type: "select-frames"; node: NodeId; indexes: number[] }
-  | { type: "select-nodes"; nodes: NodeId[] }
+  | { type: "select-node"; node: CharacterCanvasNodeId }
+  | { type: "select-frame"; node: CharacterCanvasNodeId; index: number }
+  | {
+      type: "select-frames";
+      node: CharacterCanvasNodeId;
+      indexes: number[];
+    }
+  | { type: "select-nodes"; nodes: CharacterCanvasNodeId[] }
   | { type: "clear-selection" };
 
 const initialState: CharacterStageState = {
@@ -62,12 +66,14 @@ export function useCharacterStageMachine() {
   const [state, dispatch] = useReducer(reducer, initialState);
   return {
     ...state,
-    selectNode: (node: NodeId) => dispatch({ type: "select-node", node }),
-    selectFrame: (node: NodeId, index: number) =>
+    selectNode: (node: CharacterCanvasNodeId) =>
+      dispatch({ type: "select-node", node }),
+    selectFrame: (node: CharacterCanvasNodeId, index: number) =>
       dispatch({ type: "select-frame", node, index }),
-    selectFrames: (node: NodeId, indexes: number[]) =>
+    selectFrames: (node: CharacterCanvasNodeId, indexes: number[]) =>
       dispatch({ type: "select-frames", node, indexes }),
-    selectNodes: (nodes: NodeId[]) => dispatch({ type: "select-nodes", nodes }),
+    selectNodes: (nodes: CharacterCanvasNodeId[]) =>
+      dispatch({ type: "select-nodes", nodes }),
     clearSelection: () => dispatch({ type: "clear-selection" }),
   };
 }

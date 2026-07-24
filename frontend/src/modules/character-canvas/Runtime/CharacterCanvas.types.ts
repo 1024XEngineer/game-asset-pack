@@ -1,8 +1,8 @@
 import type { Viewport } from "pixi-viewport";
 
 import type { EditorCharacterAnimation } from "@/types/editor-document";
-import type { NodeId } from "../../Editor.constants";
-import type { CanvasPosition } from "../Canvas.constants";
+import type { NodeId } from "../character-node";
+import type { CanvasPosition } from "../CharacterCanvas.constants";
 
 export type CharacterSelection = {
   selectedNodes: NodeId[];
@@ -23,6 +23,8 @@ export type CharacterStageProps = CharacterSelection &
     animations: EditorCharacterAnimation[];
     nodePositions?: Record<string, CanvasPosition>;
   };
+
+export type CharacterCanvasProps = CharacterStageProps;
 
 export type Bounds = CanvasPosition & { width: number; height: number };
 

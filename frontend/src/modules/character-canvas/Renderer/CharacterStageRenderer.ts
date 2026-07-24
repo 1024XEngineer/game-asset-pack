@@ -1,17 +1,17 @@
 import { Container, Graphics } from "pixi.js";
 
-import { CANVAS_NODES } from "../Canvas.constants";
+import { CANVAS_NODES } from "../CharacterCanvas.constants";
 import { normalizeBounds } from "../Interaction/CharacterStageGeometry";
 import {
-  ACCENT,
-  BACKGROUND,
+  STAGE_ACCENT,
+  STAGE_BACKGROUND,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "../Runtime/CharacterStage.constants";
 import type {
   CharacterSceneSnapshot,
   CharacterStageProps,
-} from "../Runtime/CharacterStage.types";
+} from "../Runtime/CharacterCanvas.types";
 import { drawCharacterNode } from "./CharacterNodeRenderer";
 
 export class CharacterStageRenderer {
@@ -50,7 +50,7 @@ export class CharacterStageRenderer {
   private drawGrid() {
     const grid = new Graphics()
       .rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
-      .fill(BACKGROUND);
+      .fill(STAGE_BACKGROUND);
     for (let x = 0; x <= WORLD_WIDTH; x += 32)
       grid.moveTo(x, 0).lineTo(x, WORLD_HEIGHT);
     for (let y = 0; y <= WORLD_HEIGHT; y += 32)
@@ -67,8 +67,8 @@ export class CharacterStageRenderer {
     this.world.addChild(
       new Graphics()
         .rect(bounds.x, bounds.y, bounds.width, bounds.height)
-        .fill({ color: ACCENT, alpha: 0.1 })
-        .stroke({ color: ACCENT, width: 1 }),
+        .fill({ color: STAGE_ACCENT, alpha: 0.1 })
+        .stroke({ color: STAGE_ACCENT, width: 1 }),
     );
   }
 }

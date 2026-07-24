@@ -1,10 +1,10 @@
 import type { EditorCharacterAnimation } from "@/types/editor-document";
-import { findCharacterAnimation, type NodeId } from "../../Editor.constants";
+import { findCharacterAnimation, type NodeId } from "../character-node";
 import {
   ANIMATION_NODES,
   CANVAS_NODES,
   type CanvasPosition,
-} from "../Canvas.constants";
+} from "../CharacterCanvas.constants";
 import {
   COLLAPSED_HEIGHT,
   EXPANDED_WIDTH,
@@ -15,7 +15,7 @@ import {
 import type {
   Bounds,
   CharacterSceneSnapshot,
-} from "../Runtime/CharacterStage.types";
+} from "../Runtime/CharacterCanvas.types";
 
 const FRAME_GRID_INSET = 8;
 const FRAME_GRID_TOP = 48;

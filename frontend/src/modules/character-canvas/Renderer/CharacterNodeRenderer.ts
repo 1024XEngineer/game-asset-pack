@@ -3,13 +3,16 @@ import { Container, Graphics, Text } from "pixi.js";
 import type { EditorCharacterAnimation } from "@/types/editor-document";
 import {
   findCharacterAnimation,
-  getNodeLabel,
+  getCharacterNodeLabel,
   type NodeId,
-} from "../../Editor.constants";
-import { ANIMATION_NODES, type CanvasPosition } from "../Canvas.constants";
+} from "../character-node";
+import {
+  ANIMATION_NODES,
+  type CanvasPosition,
+} from "../CharacterCanvas.constants";
 import { getCharacterNodeLayout } from "../Interaction/CharacterStageGeometry";
-import { ACCENT } from "../Runtime/CharacterStage.constants";
-import type { Bounds } from "../Runtime/CharacterStage.types";
+import { STAGE_ACCENT } from "../Runtime/CharacterStage.constants";
+import type { Bounds } from "../Runtime/CharacterCanvas.types";
 
 export function drawCharacterNode({
   node,
@@ -39,7 +42,7 @@ export function drawCharacterNode({
   );
   drawLabel(
     container,
-    getNodeLabel(node, animations),
+    getCharacterNodeLabel(node, animations),
     layout.bounds.width,
     selected,
   );
@@ -103,7 +106,7 @@ function drawLabel(
       .roundRect(width / 2 - label.width / 2 - 10, 7, label.width + 20, 24, 5)
       .fill({ color: 0xffffff, alpha: 0.92 })
       .stroke({
-        color: selected ? ACCENT : 0x000000,
+        color: selected ? STAGE_ACCENT : 0x000000,
         alpha: selected ? 0.9 : 0.1,
         width: 1,
       }),
@@ -128,7 +131,7 @@ function drawFrame(
           bounds.height + 6,
           5,
         )
-        .stroke({ color: ACCENT, width: 2 }),
+        .stroke({ color: STAGE_ACCENT, width: 2 }),
     );
   }
   drawCharacter(container, bounds.x + 28, bounds.y + 8, index, 4);

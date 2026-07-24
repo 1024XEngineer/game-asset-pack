@@ -1,4 +1,4 @@
-import type { NodeId } from "../Editor.constants";
+import type { CharacterCanvasNodeId } from "./character-node";
 
 export type CanvasPosition = {
   x: number;
@@ -12,9 +12,9 @@ export const CANVAS_NODES = [
   "harvest",
   "jump",
   "celebrate",
-] as const satisfies readonly NodeId[];
+] as const satisfies readonly CharacterCanvasNodeId[];
 
-export const ANIMATION_NODES = new Set<NodeId>([
+export const ANIMATION_NODES = new Set<CharacterCanvasNodeId>([
   "idle",
   "walk",
   "harvest",

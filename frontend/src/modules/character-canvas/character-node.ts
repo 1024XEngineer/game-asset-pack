@@ -1,6 +1,6 @@
 import type { EditorCharacterAnimation } from "@/types/editor-document";
 
-export type NodeId =
+export type CharacterCanvasNodeId =
   | "prototype"
   | "idle"
   | "walk"
@@ -9,12 +9,14 @@ export type NodeId =
   | "celebrate"
   | "metadata";
 
-export type NodeMeta = {
+export type NodeId = CharacterCanvasNodeId;
+
+export type CharacterCanvasNodeMeta = {
   label: string;
   eyebrow: string;
 };
 
-export const frameColors = [
+export const characterFrameColors = [
   "#f6c66e",
   "#f09b5b",
   "#91c7a5",
@@ -23,7 +25,10 @@ export const frameColors = [
   "#e68c67",
 ];
 
-export const nodeMeta: Record<NodeId, NodeMeta> = {
+export const characterNodeMeta: Record<
+  CharacterCanvasNodeId,
+  CharacterCanvasNodeMeta
+> = {
   prototype: { label: "Prototype", eyebrow: "Source" },
   idle: { label: "Idle", eyebrow: "Animation" },
   walk: { label: "Walk", eyebrow: "Animation" },
@@ -34,17 +39,18 @@ export const nodeMeta: Record<NodeId, NodeMeta> = {
 };
 
 export function findCharacterAnimation(
-  node: NodeId,
+  node: CharacterCanvasNodeId,
   animations: EditorCharacterAnimation[],
 ) {
   return animations.find((animation) => animation.id === node);
 }
 
-export function getNodeLabel(
-  node: NodeId,
+export function getCharacterNodeLabel(
+  node: CharacterCanvasNodeId,
   animations: EditorCharacterAnimation[],
 ) {
   return (
-    findCharacterAnimation(node, animations)?.label ?? nodeMeta[node].label
+    findCharacterAnimation(node, animations)?.label ??
+    characterNodeMeta[node].label
   );
 }

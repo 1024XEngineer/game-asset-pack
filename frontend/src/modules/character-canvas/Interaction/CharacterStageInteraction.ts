@@ -1,5 +1,8 @@
-import type { NodeId } from "../../Editor.constants";
-import { CANVAS_NODES, type CanvasPosition } from "../Canvas.constants";
+import type { NodeId } from "../character-node";
+import {
+  CANVAS_NODES,
+  type CanvasPosition,
+} from "../CharacterCanvas.constants";
 import {
   getFrameBounds,
   getFrameCount,
@@ -9,7 +12,7 @@ import {
   normalizeBounds,
 } from "./CharacterStageGeometry";
 import { INITIAL_SCALE } from "../Runtime/CharacterStage.constants";
-import type { CharacterStageContext } from "../Runtime/CharacterStage.types";
+import type { CharacterStageContext } from "../Runtime/CharacterCanvas.types";
 
 type DragState =
   | {

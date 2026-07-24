@@ -8,5 +8,5 @@ export const COLLAPSED_HEIGHT = 300;
 export const EXPANDED_WIDTH = 448;
 export const FRAME_SIZE = 96;
 export const FRAME_GAP = 16;
-export const ACCENT = 0xb86b70;
-export const BACKGROUND = 0xeeece7;
+export const STAGE_ACCENT = 0xb86b70;
+export const STAGE_BACKGROUND = 0xeeece7;

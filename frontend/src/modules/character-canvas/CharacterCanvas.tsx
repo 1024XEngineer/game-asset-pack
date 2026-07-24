@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
-import { getNodeLabel } from "../Editor.constants";
-import { StageLoading } from "./Loading/StageLoading";
-import { CharacterStageRuntime } from "./Runtime/CharacterStageRuntime";
-import type { CharacterStageProps } from "./Runtime/CharacterStage.types";
+import { getCharacterNodeLabel } from "./character-node";
+import { CharacterCanvasLoading } from "./Loading/CharacterCanvasLoading";
+import { CharacterCanvasRuntime } from "./Runtime/CharacterCanvasRuntime";
+import type { CharacterCanvasProps } from "./Runtime/CharacterCanvas.types";
 
-export function CharacterStage(props: CharacterStageProps) {
+export function CharacterCanvas(props: CharacterCanvasProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const runtimeRef = useRef<CharacterStageRuntime>(null);
+  const runtimeRef = useRef<CharacterCanvasRuntime>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    const runtime = new CharacterStageRuntime(props);
+    const runtime = new CharacterCanvasRuntime(props);
     runtimeRef.current = runtime;
     let disposed = false;
     let initialized = false;
@@ -47,10 +47,10 @@ export function CharacterStage(props: CharacterStageProps) {
         ref={hostRef}
         className="size-full cursor-default data-[panning=true]:cursor-grabbing"
       />
-      {loading ? <StageLoading /> : null}
+      {loading ? <CharacterCanvasLoading /> : null}
       <p className="sr-only" aria-live="polite">
         {props.selectedNodes.length > 0
-          ? `${props.selectedNodes.map((node) => getNodeLabel(node, props.animations)).join(", ")} selected`
+          ? `${props.selectedNodes.map((node) => getCharacterNodeLabel(node, props.animations)).join(", ")} selected`
           : "No canvas items selected"}
       </p>
     </main>

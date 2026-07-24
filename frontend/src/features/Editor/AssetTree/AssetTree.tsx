@@ -24,15 +24,17 @@ import type {
   EditorCharacterAnimation,
   EditorCharacterAnimationId,
 } from "@/types/editor-document";
-
-import { nodeMeta, type NodeId } from "../Editor.constants";
+import {
+  characterNodeMeta,
+  type CharacterCanvasNodeId,
+} from "@/modules/character-canvas";
 
 type AssetTreeProps = {
   animations: EditorCharacterAnimation[];
-  selectedNode: NodeId | null;
-  selectedFrames: Array<{ node: NodeId; index: number }>;
-  onSelect: (node: NodeId) => void;
-  onSelectFrame: (node: NodeId, index: number) => void;
+  selectedNode: CharacterCanvasNodeId | null;
+  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  onSelect: (node: CharacterCanvasNodeId) => void;
+  onSelectFrame: (node: CharacterCanvasNodeId, index: number) => void;
 };
 
 export function AssetTree({
@@ -187,9 +189,9 @@ function TreeItem({
   icon,
   accent,
 }: {
-  node: NodeId;
-  selectedNode: NodeId | null;
-  onSelect: (node: NodeId) => void;
+  node: CharacterCanvasNodeId;
+  selectedNode: CharacterCanvasNodeId | null;
+  onSelect: (node: CharacterCanvasNodeId) => void;
   icon: React.ReactNode;
   accent: "rose" | "blue" | "mint" | "coral" | "neutral";
 }) {
@@ -200,7 +202,7 @@ function TreeItem({
     coral: "text-[#c36d6c]",
     neutral: "text-[#786f64]",
   };
-  const meta = nodeMeta[node];
+  const meta = characterNodeMeta[node];
   return (
     <button
       type="button"
@@ -223,10 +225,10 @@ function AnimationTreeItem({
   onSelectFrame,
 }: {
   animation: EditorCharacterAnimation;
-  selectedNode: NodeId | null;
-  selectedFrames: Array<{ node: NodeId; index: number }>;
-  onSelect: (node: NodeId) => void;
-  onSelectFrame: (node: NodeId, index: number) => void;
+  selectedNode: CharacterCanvasNodeId | null;
+  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  onSelect: (node: CharacterCanvasNodeId) => void;
+  onSelectFrame: (node: CharacterCanvasNodeId, index: number) => void;
 }) {
   const node: EditorCharacterAnimationId = animation.id;
   const [open, setOpen] = useState(false);

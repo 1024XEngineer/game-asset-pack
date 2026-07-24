@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import type { NodeId } from "../../Editor.constants";
+import type { NodeId } from "../character-node";
 import type { EditorCharacterAnimation } from "@/types/editor-document";
 import {
   DEFAULT_CANVAS_POSITIONS,
   type CanvasPosition,
-} from "../Canvas.constants";
-import type { CharacterSceneSnapshot } from "../Runtime/CharacterStage.types";
+} from "../CharacterCanvas.constants";
+import type { CharacterSceneSnapshot } from "../Runtime/CharacterCanvas.types";
 import {
   getCharacterNodeLayout,
   hitTestCharacterScene,
