@@ -1,0 +1,12 @@
+export const WORLD_WIDTH = 1760;
+export const WORLD_HEIGHT = 1152;
+export const MIN_SCALE = 0.3;
+export const MAX_SCALE = 2.5;
+export const INITIAL_SCALE = 0.64;
+export const NODE_WIDTH = 224;
+export const COLLAPSED_HEIGHT = 300;
+export const EXPANDED_WIDTH = 448;
+export const FRAME_SIZE = 96;
+export const FRAME_GAP = 16;
+export const STAGE_ACCENT = 0xb86b70;
+export const STAGE_BACKGROUND = 0xeeece7;

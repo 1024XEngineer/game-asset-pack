@@ -1,0 +1,98 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useStore } from "zustand";
+
+import { useSaveAssetRevisionMutation } from "@/api/asset";
+
+import {
+  createAssetEditorSessionStore,
+  dispatchAssetEditorCommand,
+  resetAssetEditorSessionStore,
+  type AssetEditorSessionStore,
+} from "./asset-editor-session-store";
+import { saveAssetEditorSessionRevision } from "./asset-editor-session-save";
+import type {
+  AssetEditorCommand,
+  AssetEditorSaveState,
+  AssetEditorSession,
+  UseAssetEditorSessionInput,
+} from "./AssetEditorSession.interface";
+
+export function useAssetEditorSession({
+  target,
+  initialDocument,
+}: UseAssetEditorSessionInput): AssetEditorSession {
+  const storeRef = useRef<AssetEditorSessionStore | null>(null);
+  if (storeRef.current === null) {
+    storeRef.current = createAssetEditorSessionStore(initialDocument);
+  }
+  const store = storeRef.current;
+  const identity = `${target.projectId}\0${target.assetId}`;
+  const activeIdentityRef = useRef(identity);
+  activeIdentityRef.current = identity;
+
+  const [saveState, setSaveState] = useState<AssetEditorSaveState>({
+    phase: "idle",
+  });
+  const saveRevisionMutation = useSaveAssetRevisionMutation();
+  const document = useStore(store, (state) => state.document);
+  const savedDocument = useStore(store, (state) => state.savedDocument);
+  const canUndo = useStore(
+    store.temporal,
+    (state) => state.pastStates.length > 0,
+  );
+  const canRedo = useStore(
+    store.temporal,
+    (state) => state.futureStates.length > 0,
+  );
+
+  useEffect(() => {
+    // Query refreshes for the same target must not overwrite an active draft.
+    resetAssetEditorSessionStore(store, initialDocument);
+    setSaveState({ phase: "idle" });
+  }, [store, target.projectId, target.assetId]);
+
+  const dispatch = useCallback(
+    (command: AssetEditorCommand) => {
+      dispatchAssetEditorCommand(store, command);
+      setSaveState((current) =>
+        current.phase === "failed" ? { phase: "idle" } : current,
+      );
+    },
+    [store],
+  );
+
+  return {
+    snapshot: {
+      document,
+      dirty: JSON.stringify(document) !== JSON.stringify(savedDocument),
+      canUndo,
+      canRedo,
+      saveState,
+    },
+    dispatch,
+    save: async () => {
+      const submittedIdentity = identity;
+      setSaveState({ phase: "saving" });
+      const result = await saveAssetEditorSessionRevision({
+        store,
+        identity: submittedIdentity,
+        isActive: (candidate) => activeIdentityRef.current === candidate,
+        saveRevision: (content) =>
+          saveRevisionMutation
+            .mutateAsync({
+              projectId: target.projectId,
+              assetId: target.assetId,
+              content,
+            })
+            .then(() => undefined),
+      });
+
+      if (result.status === "saved") {
+        setSaveState({ phase: "idle" });
+      } else if (result.status === "failed") {
+        setSaveState({ phase: "failed", message: "Save failed" });
+      }
+      return result;
+    },
+  };
+}
