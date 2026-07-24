@@ -1,5 +1,11 @@
-import type { EditorDocumentData } from "@/types/editor-document";
+import { useEffect, useState } from "react";
+
+import type {
+  EditorCanvasPosition,
+  EditorDocumentData,
+} from "@/types/editor-document";
 import { useAssetEditorSession } from "@/modules/asset-editor-session";
+import { useTimeout } from "@/hooks/use-timeout";
 
 import { CharacterEditorMode } from "./EditorModes/CharacterEditorMode";
 import { SceneryEditorMode } from "./EditorModes/SceneryEditorMode";
@@ -14,7 +20,47 @@ export function EditorWorkspace({
   onBack: () => void;
 }) {
   const { asset, projectName } = data;
-  const workspace = useAssetEditorSession(asset, data.document);
+  const session = useAssetEditorSession({
+    target: {
+      projectId: asset.projectId,
+      assetId: asset.id,
+    },
+    initialDocument: data.document,
+  });
+  const { snapshot } = session;
+  const [notice, setNotice] = useState<string | null>(null);
+  const { schedule: scheduleNoticeReset } = useTimeout();
+
+  useEffect(() => {
+    setNotice(null);
+  }, [asset.projectId, asset.id]);
+
+  const reportAction = (message: string) => {
+    setNotice(message);
+    scheduleNoticeReset(() => setNotice(null), 2200);
+  };
+  const status =
+    snapshot.saveState.phase === "saving"
+      ? "Saving changes"
+      : (notice ??
+        (snapshot.saveState.phase === "failed"
+          ? snapshot.saveState.message
+          : snapshot.dirty
+            ? "Unsaved changes"
+            : "All changes saved"));
+  const undo = () => {
+    session.dispatch({ type: "history.undo" });
+    reportAction("Last edit reverted");
+  };
+  const redo = () => {
+    session.dispatch({ type: "history.redo" });
+    reportAction("Edit restored");
+  };
+  const save = async () => {
+    const result = await session.save();
+    if (result.status === "saved") reportAction("Saved just now");
+    if (result.status === "failed") reportAction("Save failed");
+  };
 
   const renderHeader = (_selection: string) => (
     <EditorHeader
@@ -22,23 +68,32 @@ export function EditorWorkspace({
       version={asset.version}
       projectName={projectName}
       onBack={onBack}
-      status={workspace.status}
-      canUndo={workspace.canUndo}
-      canRedo={workspace.canRedo}
-      isSaving={workspace.isSaving}
-      onUndo={workspace.undo}
-      onRedo={workspace.redo}
-      onSave={() => void workspace.save()}
+      status={status}
+      canUndo={snapshot.canUndo}
+      canRedo={snapshot.canRedo}
+      isSaving={snapshot.saveState.phase === "saving"}
+      onUndo={undo}
+      onRedo={redo}
+      onSave={() => void save()}
     />
   );
   const modeProps = {
-    prompt: workspace.document.prompt,
+    prompt: snapshot.document.prompt,
     history: asset.history,
-    characterNodePositions: workspace.document.character?.nodePositions,
-    characterAnimations: workspace.document.character?.animations ?? [],
-    onAction: workspace.reportAction,
-    onCharacterPositionChange: workspace.setCharacterNodePosition,
-    onPromptChange: workspace.setPrompt,
+    characterNodePositions: snapshot.document.character?.nodePositions,
+    characterAnimations: snapshot.document.character?.animations ?? [],
+    onAction: reportAction,
+    onCharacterPositionChange: (
+      nodeId: string,
+      position: EditorCanvasPosition,
+    ) =>
+      session.dispatch({
+        type: "character.node-position.set",
+        nodeId,
+        position,
+      }),
+    onPromptChange: (value: string) =>
+      session.dispatch({ type: "prompt.set", value }),
     renderHeader,
   };
 
@@ -49,12 +104,12 @@ export function EditorWorkspace({
       ) : asset.kind === "scenery" ? (
         <SceneryEditorMode
           {...modeProps}
-          layers={workspace.document.scenery?.layers ?? []}
+          layers={snapshot.document.scenery?.layers ?? []}
         />
       ) : (
         <SpriteSheetEditorMode
           {...modeProps}
-          spriteSheet={workspace.document.spriteSheet}
+          spriteSheet={snapshot.document.spriteSheet}
         />
       )}
     </div>

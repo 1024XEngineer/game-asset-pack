@@ -11,7 +11,7 @@ import {
 
 type InspectorProps = {
   selectedNodes: CharacterCanvasNodeId[];
-  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  selectedFrames: Array<{ nodeId: CharacterCanvasNodeId; index: number }>;
   prompt: string;
   onPromptChange: (value: string) => void;
   onAction: (message: string) => void;
@@ -126,7 +126,7 @@ function SelectionSummary({
   selectedItems,
 }: {
   selectedNodes: CharacterCanvasNodeId[];
-  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  selectedFrames: Array<{ nodeId: CharacterCanvasNodeId; index: number }>;
   selectedItems?: string[];
 }) {
   if (selectedItems) {
@@ -139,7 +139,7 @@ function SelectionSummary({
   }
 
   if (selectedFrames.length > 0) {
-    const node = selectedFrames[0]?.node;
+    const node = selectedFrames[0]?.nodeId;
 
     return (
       <div className="mb-4 rounded-xl border border-black/10 bg-[#f7f5f0] p-3 text-xs text-[#51493f]">

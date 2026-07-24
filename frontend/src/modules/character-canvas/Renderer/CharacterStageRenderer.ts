@@ -1,5 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 
+import type { CharacterCanvasModel } from "../CharacterCanvas.interface";
 import { CANVAS_NODES } from "../CharacterCanvas.constants";
 import { normalizeBounds } from "../Interaction/CharacterStageGeometry";
 import {
@@ -8,10 +9,7 @@ import {
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "../Runtime/CharacterStage.constants";
-import type {
-  CharacterSceneSnapshot,
-  CharacterStageProps,
-} from "../Runtime/CharacterCanvas.types";
+import type { CharacterSceneSnapshot } from "../Runtime/CharacterCanvas.types";
 import { drawCharacterNode } from "./CharacterNodeRenderer";
 
 export class CharacterStageRenderer {
@@ -21,7 +19,7 @@ export class CharacterStageRenderer {
     this.world = world;
   }
 
-  render(state: CharacterSceneSnapshot, selection: CharacterStageProps) {
+  render(state: CharacterSceneSnapshot, model: CharacterCanvasModel) {
     this.world
       .removeChildren()
       .forEach((child) => child.destroy({ children: true }));
@@ -32,14 +30,14 @@ export class CharacterStageRenderer {
         drawCharacterNode({
           node,
           position: state.positions[node],
-          selected: selection.selectedNodes.includes(node),
-          selectedFrames: selection.selectedFrames
-            .filter((frame) => frame.node === node)
+          selected: model.selection.nodeIds.includes(node),
+          selectedFrames: model.selection.frames
+            .filter((frame) => frame.nodeId === node)
             .map((frame) => frame.index),
           expanded: state.expanded.has(node),
           playing: state.playing.has(node),
           previewFrame: state.previewFrames.get(node) ?? 0,
-          animations: selection.animations,
+          animations: model.animations,
         }),
       );
     }

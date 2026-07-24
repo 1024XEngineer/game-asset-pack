@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { createStore } from "zustand";
 import { temporal } from "zundo";
 
 import type {
@@ -6,7 +6,13 @@ import type {
   EditorCanvasPosition,
 } from "@/types/editor-document";
 
-type AssetEditorSessionStore = {
+import type {
+  AssetEditorCommand,
+  AssetEditorSaveState,
+  AssetEditorSessionSnapshot,
+} from "./AssetEditorSession.interface";
+
+type AssetEditorSessionState = {
   document: AssetEditorDocument;
   savedDocument: AssetEditorDocument;
   setPrompt: (prompt: string) => void;
@@ -14,59 +20,99 @@ type AssetEditorSessionStore = {
     nodeId: string,
     position: EditorCanvasPosition,
   ) => void;
-  reset: (document: AssetEditorDocument) => void;
-  markSaved: (document: AssetEditorDocument) => void;
 };
 
-export const useAssetEditorSessionStore = create<AssetEditorSessionStore>()(
-  temporal(
-    (set) => ({
-      document: { prompt: "" },
-      savedDocument: { prompt: "" },
-      setPrompt: (prompt) =>
-        set((state) => ({ document: { ...state.document, prompt } })),
-      setCharacterNodePosition: (nodeId, position) =>
-        set((state) => ({
-          document: {
-            ...state.document,
-            character: {
-              nodePositions: {
-                ...state.document.character?.nodePositions,
-                [nodeId]: position,
+export function createAssetEditorSessionStore(
+  initialDocument: AssetEditorDocument,
+) {
+  const document = structuredClone(initialDocument);
+
+  return createStore<AssetEditorSessionState>()(
+    temporal(
+      (set) => ({
+        document,
+        savedDocument: structuredClone(initialDocument),
+        setPrompt: (prompt) =>
+          set((state) => ({ document: { ...state.document, prompt } })),
+        setCharacterNodePosition: (nodeId, position) =>
+          set((state) => ({
+            document: {
+              ...state.document,
+              character: {
+                nodePositions: {
+                  ...state.document.character?.nodePositions,
+                  [nodeId]: position,
+                },
               },
             },
-          },
-        })),
-      reset: (document) =>
-        set({
-          document: structuredClone(document),
-          savedDocument: structuredClone(document),
-        }),
-      markSaved: (document) =>
-        set({ savedDocument: structuredClone(document) }),
-    }),
-    {
-      limit: 100,
-      partialize: (state) => ({
-        document: state.document,
+          })),
       }),
-    },
-  ),
-);
-
-export function initializeAssetEditorSession(document: AssetEditorDocument) {
-  useAssetEditorSessionStore.getState().reset(document);
-  useAssetEditorSessionStore.temporal.getState().clear();
+      {
+        limit: 100,
+        partialize: (state) => ({
+          document: state.document,
+        }),
+      },
+    ),
+  );
 }
 
-export function markAssetEditorSessionSaved(document: AssetEditorDocument) {
-  useAssetEditorSessionStore.getState().markSaved(document);
+export type AssetEditorSessionStore = ReturnType<
+  typeof createAssetEditorSessionStore
+>;
+
+export function resetAssetEditorSessionStore(
+  store: AssetEditorSessionStore,
+  document: AssetEditorDocument,
+) {
+  store.setState({
+    document: structuredClone(document),
+    savedDocument: structuredClone(document),
+  });
+  store.temporal.getState().clear();
 }
 
-export function undoAssetEditorSession() {
-  useAssetEditorSessionStore.temporal.getState().undo();
+export function markAssetEditorSessionSaved(
+  store: AssetEditorSessionStore,
+  document: AssetEditorDocument,
+) {
+  store.setState({ savedDocument: structuredClone(document) });
 }
 
-export function redoAssetEditorSession() {
-  useAssetEditorSessionStore.temporal.getState().redo();
+export function dispatchAssetEditorCommand(
+  store: AssetEditorSessionStore,
+  command: AssetEditorCommand,
+) {
+  switch (command.type) {
+    case "prompt.set":
+      store.getState().setPrompt(command.value);
+      return;
+    case "character.node-position.set":
+      store
+        .getState()
+        .setCharacterNodePosition(command.nodeId, command.position);
+      return;
+    case "history.undo":
+      store.temporal.getState().undo();
+      return;
+    case "history.redo":
+      store.temporal.getState().redo();
+  }
+}
+
+export function getAssetEditorSessionSnapshot(
+  store: AssetEditorSessionStore,
+  saveState: AssetEditorSaveState,
+): AssetEditorSessionSnapshot {
+  const state = store.getState();
+  const temporalState = store.temporal.getState();
+
+  return {
+    document: state.document,
+    dirty:
+      JSON.stringify(state.document) !== JSON.stringify(state.savedDocument),
+    canUndo: temporalState.pastStates.length > 0,
+    canRedo: temporalState.futureStates.length > 0,
+    saveState,
+  };
 }

@@ -32,7 +32,7 @@ import {
 type AssetTreeProps = {
   animations: EditorCharacterAnimation[];
   selectedNode: CharacterCanvasNodeId | null;
-  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  selectedFrames: Array<{ nodeId: CharacterCanvasNodeId; index: number }>;
   onSelect: (node: CharacterCanvasNodeId) => void;
   onSelectFrame: (node: CharacterCanvasNodeId, index: number) => void;
 };
@@ -226,7 +226,7 @@ function AnimationTreeItem({
 }: {
   animation: EditorCharacterAnimation;
   selectedNode: CharacterCanvasNodeId | null;
-  selectedFrames: Array<{ node: CharacterCanvasNodeId; index: number }>;
+  selectedFrames: Array<{ nodeId: CharacterCanvasNodeId; index: number }>;
   onSelect: (node: CharacterCanvasNodeId) => void;
   onSelectFrame: (node: CharacterCanvasNodeId, index: number) => void;
 }) {
@@ -279,7 +279,7 @@ function AnimationTreeItem({
           {frames.map((frame, index) => {
             const isSelected = selectedFrames.some(
               (selectedFrame) =>
-                selectedFrame.node === node && selectedFrame.index === index,
+                selectedFrame.nodeId === node && selectedFrame.index === index,
             );
 
             return (

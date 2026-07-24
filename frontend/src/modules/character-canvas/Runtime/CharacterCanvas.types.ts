@@ -1,15 +1,11 @@
 import type { Viewport } from "pixi-viewport";
 
 import type { EditorCharacterAnimation } from "@/types/editor-document";
+import type { CharacterCanvasModel } from "../CharacterCanvas.interface";
 import type { NodeId } from "../character-node";
 import type { CanvasPosition } from "../CharacterCanvas.constants";
 
-export type CharacterSelection = {
-  selectedNodes: NodeId[];
-  selectedFrames: Array<{ node: NodeId; index: number }>;
-};
-
-export type CharacterStageActions = {
+export type CharacterCanvasActions = {
   onSelect: (node: NodeId) => void;
   onSelectFrame: (node: NodeId, index: number) => void;
   onSelectFrames: (node: NodeId, indexes: number[]) => void;
@@ -18,13 +14,10 @@ export type CharacterStageActions = {
   onNodePositionChange: (node: NodeId, position: CanvasPosition) => void;
 };
 
-export type CharacterStageProps = CharacterSelection &
-  CharacterStageActions & {
-    animations: EditorCharacterAnimation[];
-    nodePositions?: Record<string, CanvasPosition>;
-  };
-
-export type CharacterCanvasProps = CharacterStageProps;
+export type CharacterCanvasRuntimeProps = {
+  model: CharacterCanvasModel;
+  actions: CharacterCanvasActions;
+};
 
 export type Bounds = CanvasPosition & { width: number; height: number };
 
@@ -49,7 +42,7 @@ export type CharacterSceneState = {
 
 export type CharacterStageContext = {
   viewport: Viewport;
-  actions: CharacterStageActions;
+  actions: CharacterCanvasActions;
   getAnimations: () => EditorCharacterAnimation[];
   getScene: () => CharacterSceneSnapshot;
   moveNode: (node: NodeId, position: CanvasPosition) => void;

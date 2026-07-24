@@ -1,60 +1,82 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
-  initializeAssetEditorSession,
+  createAssetEditorSessionStore,
+  dispatchAssetEditorCommand,
+  getAssetEditorSessionSnapshot,
   markAssetEditorSessionSaved,
-  redoAssetEditorSession,
-  undoAssetEditorSession,
-  useAssetEditorSessionStore,
+  resetAssetEditorSessionStore,
 } from "./asset-editor-session-store";
 
-beforeEach(() => {
-  initializeAssetEditorSession({ prompt: "Base prompt" });
-});
+const idleSaveState = { phase: "idle" } as const;
 
-describe("asset editor session draft", () => {
-  it("clones the initial document and clears prior history", () => {
+describe("asset editor session commands", () => {
+  it("creates an isolated clean snapshot", () => {
     const initialDocument = {
-      prompt: "New asset",
+      prompt: "Base prompt",
       character: {
         nodePositions: { prototype: { x: 20, y: 40 } },
       },
     };
+    const store = createAssetEditorSessionStore(initialDocument);
 
-    useAssetEditorSessionStore.getState().setPrompt("Temporary edit");
-    initializeAssetEditorSession(initialDocument);
     initialDocument.character.nodePositions.prototype.x = 999;
 
-    expect(useAssetEditorSessionStore.getState().document).toEqual({
-      prompt: "New asset",
-      character: {
-        nodePositions: { prototype: { x: 20, y: 40 } },
+    expect(getAssetEditorSessionSnapshot(store, idleSaveState)).toEqual({
+      document: {
+        prompt: "Base prompt",
+        character: {
+          nodePositions: { prototype: { x: 20, y: 40 } },
+        },
       },
+      dirty: false,
+      canUndo: false,
+      canRedo: false,
+      saveState: idleSaveState,
     });
-    expect(
-      useAssetEditorSessionStore.temporal.getState().pastStates,
-    ).toHaveLength(0);
   });
 
-  it("keeps prompt and canvas position edits in the same undo history", () => {
-    useAssetEditorSessionStore.getState().setPrompt("Add a blue scarf");
-    useAssetEditorSessionStore
-      .getState()
-      .setCharacterNodePosition("prototype", { x: 120, y: 160 });
+  it("applies document commands as one undo step each", () => {
+    const store = createAssetEditorSessionStore({ prompt: "Base prompt" });
 
-    undoAssetEditorSession();
-    expect(useAssetEditorSessionStore.getState().document).toEqual({
+    dispatchAssetEditorCommand(store, {
+      type: "prompt.set",
+      value: "Add a blue scarf",
+    });
+    dispatchAssetEditorCommand(store, {
+      type: "character.node-position.set",
+      nodeId: "prototype",
+      position: { x: 120, y: 160 },
+    });
+
+    expect(getAssetEditorSessionSnapshot(store, idleSaveState)).toMatchObject({
+      document: {
+        prompt: "Add a blue scarf",
+        character: {
+          nodePositions: { prototype: { x: 120, y: 160 } },
+        },
+      },
+      dirty: true,
+      canUndo: true,
+      canRedo: false,
+    });
+
+    dispatchAssetEditorCommand(store, { type: "history.undo" });
+    expect(store.getState().document).toEqual({
       prompt: "Add a blue scarf",
     });
 
-    undoAssetEditorSession();
-    expect(useAssetEditorSessionStore.getState().document).toEqual({
-      prompt: "Base prompt",
+    dispatchAssetEditorCommand(store, { type: "history.undo" });
+    expect(getAssetEditorSessionSnapshot(store, idleSaveState)).toMatchObject({
+      document: { prompt: "Base prompt" },
+      dirty: false,
+      canUndo: false,
+      canRedo: true,
     });
 
-    redoAssetEditorSession();
-    redoAssetEditorSession();
-    expect(useAssetEditorSessionStore.getState().document).toEqual({
+    dispatchAssetEditorCommand(store, { type: "history.redo" });
+    dispatchAssetEditorCommand(store, { type: "history.redo" });
+    expect(store.getState().document).toEqual({
       prompt: "Add a blue scarf",
       character: {
         nodePositions: { prototype: { x: 120, y: 160 } },
@@ -62,20 +84,39 @@ describe("asset editor session draft", () => {
     });
   });
 
-  it("keeps a cloned saved baseline outside undo and redo history", () => {
-    const savedDocument = { prompt: "Saved prompt" };
-
-    markAssetEditorSessionSaved(savedDocument);
-    savedDocument.prompt = "Mutated elsewhere";
-    useAssetEditorSessionStore.getState().setPrompt("Unsaved prompt");
-
-    expect(useAssetEditorSessionStore.getState().savedDocument).toEqual({
-      prompt: "Saved prompt",
+  it("resets the draft, saved baseline, and history together", () => {
+    const store = createAssetEditorSessionStore({ prompt: "Base prompt" });
+    dispatchAssetEditorCommand(store, {
+      type: "prompt.set",
+      value: "Temporary edit",
     });
 
-    undoAssetEditorSession();
-    expect(useAssetEditorSessionStore.getState().savedDocument).toEqual({
-      prompt: "Saved prompt",
+    resetAssetEditorSessionStore(store, { prompt: "Replacement document" });
+
+    expect(getAssetEditorSessionSnapshot(store, idleSaveState)).toEqual({
+      document: { prompt: "Replacement document" },
+      dirty: false,
+      canUndo: false,
+      canRedo: false,
+      saveState: idleSaveState,
+    });
+  });
+
+  it("marks a cloned save baseline without changing history", () => {
+    const store = createAssetEditorSessionStore({ prompt: "Base prompt" });
+    dispatchAssetEditorCommand(store, {
+      type: "prompt.set",
+      value: "Saved prompt",
+    });
+    const savedDocument = structuredClone(store.getState().document);
+
+    markAssetEditorSessionSaved(store, savedDocument);
+    savedDocument.prompt = "Mutated elsewhere";
+
+    expect(getAssetEditorSessionSnapshot(store, idleSaveState)).toMatchObject({
+      document: { prompt: "Saved prompt" },
+      dirty: false,
+      canUndo: true,
     });
   });
 });

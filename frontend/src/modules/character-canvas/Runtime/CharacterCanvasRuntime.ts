@@ -14,9 +14,9 @@ import {
   WORLD_WIDTH,
 } from "./CharacterStage.constants";
 import type {
+  CharacterCanvasRuntimeProps,
   CharacterSceneState,
   CharacterStageContext,
-  CharacterStageProps,
 } from "./CharacterCanvas.types";
 import { StageRuntime } from "./StageRuntime";
 
@@ -26,7 +26,7 @@ export class CharacterCanvasRuntime {
   private resizeObserver?: ResizeObserver;
   private renderer?: CharacterStageRenderer;
   private viewport?: Viewport;
-  private props: CharacterStageProps;
+  private props: CharacterCanvasRuntimeProps;
   private lastAnimationFrame = performance.now();
 
   private readonly state: CharacterSceneState = {
@@ -40,7 +40,7 @@ export class CharacterCanvasRuntime {
     marquee: null,
   };
 
-  constructor(props: CharacterStageProps) {
+  constructor(props: CharacterCanvasRuntimeProps) {
     this.props = props;
   }
 
@@ -70,17 +70,18 @@ export class CharacterCanvasRuntime {
     const context: CharacterStageContext = {
       viewport,
       actions: {
-        onSelect: (node) => this.props.onSelect(node),
-        onSelectFrame: (node, index) => this.props.onSelectFrame(node, index),
+        onSelect: (node) => this.props.actions.onSelect(node),
+        onSelectFrame: (node, index) =>
+          this.props.actions.onSelectFrame(node, index),
         onSelectFrames: (node, indexes) =>
-          this.props.onSelectFrames(node, indexes),
-        onSelectNodes: (nodes) => this.props.onSelectNodes(nodes),
-        onClearSelection: () => this.props.onClearSelection(),
+          this.props.actions.onSelectFrames(node, indexes),
+        onSelectNodes: (nodes) => this.props.actions.onSelectNodes(nodes),
+        onClearSelection: () => this.props.actions.onClearSelection(),
         onNodePositionChange: (node, position) =>
-          this.props.onNodePositionChange(node, position),
+          this.props.actions.onNodePositionChange(node, position),
       },
       getScene: () => this.state,
-      getAnimations: () => this.props.animations,
+      getAnimations: () => this.props.model.animations,
       moveNode: (node, position) => {
         this.state.positions[node] = position;
       },
@@ -110,17 +111,19 @@ export class CharacterCanvasRuntime {
     this.syncProps(this.props);
   }
 
-  syncProps(props: CharacterStageProps) {
+  syncProps(props: CharacterCanvasRuntimeProps) {
     this.props = props;
     this.state.positions = structuredClone(DEFAULT_CANVAS_POSITIONS) as Record<
       NodeId,
       { x: number; y: number }
     >;
-    for (const [node, position] of Object.entries(props.nodePositions ?? {})) {
+    for (const [node, position] of Object.entries(
+      props.model.nodePositions ?? {},
+    )) {
       this.state.positions[node as NodeId] = { ...position };
     }
-    for (const frame of props.selectedFrames)
-      this.state.expanded.add(frame.node);
+    for (const frame of props.model.selection.frames)
+      this.state.expanded.add(frame.nodeId);
     this.render();
   }
 
@@ -137,7 +140,7 @@ export class CharacterCanvasRuntime {
   }
 
   private render() {
-    this.renderer?.render(this.state, this.props);
+    this.renderer?.render(this.state, this.props.model);
   }
 
   private updateAnimation = () => {
@@ -149,7 +152,7 @@ export class CharacterCanvasRuntime {
       this.state.previewFrames.set(
         node,
         ((this.state.previewFrames.get(node) ?? 0) + 1) %
-          getFrameCount(node, this.props.animations),
+          getFrameCount(node, this.props.model.animations),
       );
     }
     this.render();

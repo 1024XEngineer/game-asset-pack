@@ -1,10 +1,14 @@
+import { useState } from "react";
+
 import {
   CharacterCanvas,
   getCharacterNodeLabel,
+  type CharacterCanvasEvent,
+  type CharacterCanvasNodeId,
+  type CharacterCanvasSelection,
 } from "@/modules/character-canvas";
 
 import { AssetTree } from "../AssetTree/AssetTree";
-import { useCharacterStageMachine } from "../Canvas/StateMachine/characterStageMachine";
 import { Inspector } from "../Inspector/Inspector";
 import type { EditorModeProps } from "./types";
 
@@ -18,12 +22,33 @@ export function CharacterEditorMode({
   onPromptChange,
   renderHeader,
 }: EditorModeProps) {
-  const stage = useCharacterStageMachine();
-  const selection = stage.selectedNodes.length
-    ? stage.selectedNodes
+  const [canvasSelection, setCanvasSelection] =
+    useState<CharacterCanvasSelection>({
+      nodeIds: [],
+      frames: [],
+    });
+  const selection = canvasSelection.nodeIds.length
+    ? canvasSelection.nodeIds
         .map((node) => getCharacterNodeLabel(node, characterAnimations))
         .join(", ")
     : "Nothing selected";
+  const selectNode = (nodeId: CharacterCanvasNodeId) => {
+    setCanvasSelection({ nodeIds: [nodeId], frames: [] });
+  };
+  const selectFrame = (nodeId: CharacterCanvasNodeId, index: number) => {
+    setCanvasSelection({
+      nodeIds: [nodeId],
+      frames: [{ nodeId, index }],
+    });
+  };
+  const handleCanvasEvent = (event: CharacterCanvasEvent) => {
+    if (event.type === "selection.changed") {
+      setCanvasSelection(event.selection);
+      return;
+    }
+
+    onCharacterPositionChange(event.nodeId, event.position);
+  };
 
   return (
     <>
@@ -31,26 +56,22 @@ export function CharacterEditorMode({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <AssetTree
           animations={characterAnimations}
-          selectedNode={stage.selectedNode}
-          selectedFrames={stage.selectedFrames}
-          onSelect={stage.selectNode}
-          onSelectFrame={stage.selectFrame}
+          selectedNode={canvasSelection.nodeIds[0] ?? null}
+          selectedFrames={canvasSelection.frames}
+          onSelect={selectNode}
+          onSelectFrame={selectFrame}
         />
         <CharacterCanvas
-          animations={characterAnimations}
-          selectedNodes={stage.selectedNodes}
-          selectedFrames={stage.selectedFrames}
-          nodePositions={characterNodePositions}
-          onSelect={stage.selectNode}
-          onSelectFrame={stage.selectFrame}
-          onSelectFrames={stage.selectFrames}
-          onSelectNodes={stage.selectNodes}
-          onClearSelection={stage.clearSelection}
-          onNodePositionChange={onCharacterPositionChange}
+          model={{
+            animations: characterAnimations,
+            nodePositions: characterNodePositions,
+            selection: canvasSelection,
+          }}
+          onEvent={handleCanvasEvent}
         />
         <Inspector
-          selectedNodes={stage.selectedNodes}
-          selectedFrames={stage.selectedFrames}
+          selectedNodes={canvasSelection.nodeIds}
+          selectedFrames={canvasSelection.frames}
           prompt={prompt}
           onPromptChange={onPromptChange}
           onAction={onAction}
