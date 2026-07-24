@@ -7,7 +7,7 @@ import {
 } from "@/api/project/project-asset.mock";
 import type { ProjectAsset } from "@/types/asset";
 import type { AssetKind } from "@/types/asset-kind";
-import type { AssetEditorDocument } from "@/types/editor-document";
+import type { RecordContent } from "@/types/record";
 
 export const assetApi = {
   listGroups: (projectId: string) => listMockAssetGroups(projectId),
@@ -17,9 +17,6 @@ export const assetApi = {
     copyMockAsset(projectId, assetId),
   delete: (projectId: string, assetId: string) =>
     deleteMockAsset(projectId, assetId),
-  saveRevision: (
-    projectId: string,
-    assetId: string,
-    editorDocument: AssetEditorDocument,
-  ) => saveMockAssetRevision(projectId, assetId, editorDocument),
+  saveRevision: (projectId: string, assetId: string, content: RecordContent) =>
+    saveMockAssetRevision(projectId, assetId, content),
 };

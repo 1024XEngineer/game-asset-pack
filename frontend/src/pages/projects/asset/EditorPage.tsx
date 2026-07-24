@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { EditorWorkspaceScreen } from "@/features/Editor/EditorWorkspaceScreen";
-import { useEditorDocumentQuery } from "@/api/editor/editor-document.query";
+import { useRecordQuery } from "@/api/record/record.query";
 
 export function EditorPage() {
   const { assetId, projectId } = useParams({
@@ -10,15 +10,15 @@ export function EditorPage() {
   const navigate = useNavigate({
     from: "/projects/$projectId/assets/$assetId",
   });
-  const documentQuery = useEditorDocumentQuery(projectId, assetId);
+  const recordQuery = useRecordQuery(projectId, assetId);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <EditorWorkspaceScreen
-        data={documentQuery.data}
-        error={documentQuery.error}
-        isLoading={documentQuery.isPending}
-        onRetry={() => void documentQuery.refetch()}
+        data={recordQuery.data}
+        error={recordQuery.error}
+        isLoading={recordQuery.isPending}
+        onRetry={() => void recordQuery.refetch()}
         onBack={() =>
           void navigate({
             to: "/projects",

@@ -1,10 +1,10 @@
 import type { ProjectAsset } from "@/types/asset";
 import type { AssetKind } from "@/types/asset-kind";
 import type {
-  AssetEditorDocument,
+  RecordContent,
   EditorCharacterAnimation,
   EditorSpriteSheetItem,
-} from "@/types/editor-document";
+} from "@/types/record";
 
 const defaultCharacterAnimations: EditorCharacterAnimation[] = [
   {
@@ -73,10 +73,10 @@ const objectItems: EditorSpriteSheetItem[] = [
   },
 ];
 
-export function createDefaultEditorDocument(
+export function createDefaultRecord(
   kind: AssetKind,
   asset: ProjectAsset,
-): AssetEditorDocument {
+): RecordContent {
   const base = { prompt: asset.description };
 
   if (kind === "character" || kind === "object") {
@@ -108,10 +108,10 @@ export function createDefaultEditorDocument(
   };
 }
 
-export function mergeEditorDocument(
-  fallback: AssetEditorDocument,
-  saved: AssetEditorDocument | undefined,
-): AssetEditorDocument {
+export function mergeRecord(
+  fallback: RecordContent,
+  saved: RecordContent | undefined,
+): RecordContent {
   if (!saved) return fallback;
 
   return {

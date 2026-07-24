@@ -1,5 +1,5 @@
 import type { AssetKind } from "@/types/asset-kind";
-import type { AssetRecord, AssetRecordStatus } from "@/types/asset-record";
+import type { AssetRecord, AssetRecordStatus } from "@/types/record";
 
 export type Asset = {
   id: string;

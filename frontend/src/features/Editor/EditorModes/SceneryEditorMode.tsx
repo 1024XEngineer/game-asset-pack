@@ -1,4 +1,4 @@
-import type { EditorSceneryLayer } from "@/types/editor-document";
+import type { EditorSceneryLayer } from "@/types/record";
 
 import { SceneryLayerTree } from "../AssetTree/SceneryLayerTree";
 import { SceneryStage } from "../Canvas/SceneryStage";

@@ -1,37 +1,30 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { assetApi } from "./asset.api";
-import { editorKeys } from "@/api/editor/editor.keys";
-import type {
-  AssetEditorDocument,
-  EditorDocumentData,
-} from "@/types/editor-document";
+import { recordKeys } from "@/api/record/record.keys";
+import type { RecordContent, RecordData } from "@/types/record";
 import { assetKeys } from "./keys";
 
 type SaveAssetRevisionInput = {
   projectId: string;
   assetId: string;
-  editorDocument: AssetEditorDocument;
+  content: RecordContent;
 };
 
 export function useSaveAssetRevisionMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      projectId,
-      assetId,
-      editorDocument,
-    }: SaveAssetRevisionInput) =>
-      assetApi.saveRevision(projectId, assetId, editorDocument),
-    onSuccess: async (assetGroups, { assetId, editorDocument, projectId }) => {
+    mutationFn: ({ projectId, assetId, content }: SaveAssetRevisionInput) =>
+      assetApi.saveRevision(projectId, assetId, content),
+    onSuccess: async (assetGroups, { assetId, content, projectId }) => {
       queryClient.setQueryData(assetKeys.library(projectId), assetGroups);
       const savedAsset = assetGroups
         .flatMap((group) => group.assets)
         .find((asset) => asset.id === assetId);
       queryClient.setQueryData(
-        editorKeys.document(projectId, assetId),
-        (current: EditorDocumentData | undefined) =>
+        recordKeys.detail(projectId, assetId),
+        (current: RecordData | undefined) =>
           current && savedAsset
             ? {
                 ...current,
@@ -40,12 +33,12 @@ export function useSaveAssetRevisionMutation() {
                   version: savedAsset.version,
                   history: structuredClone(savedAsset.history),
                 },
-                document: structuredClone(editorDocument),
+                content: structuredClone(content),
               }
             : current,
       );
       await queryClient.invalidateQueries({
-        queryKey: editorKeys.document(projectId, assetId),
+        queryKey: recordKeys.detail(projectId, assetId),
       });
     },
   });

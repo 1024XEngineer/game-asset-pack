@@ -1,5 +1,6 @@
 import type { AssetKind } from "@/types/asset-kind";
-import type { AssetRecord } from "@/types/asset-record";
+
+export type AssetRecordStatus = "ready" | "generating" | "failed";
 
 export type EditorCanvasPosition = {
   x: number;
@@ -44,7 +45,7 @@ export type EditorSpriteSheetItem = {
   tiles: EditorSpriteSheetTile[];
 };
 
-export type AssetEditorDocument = {
+export type RecordContent = {
   prompt: string;
   character?: {
     prototypeName?: string;
@@ -60,7 +61,17 @@ export type AssetEditorDocument = {
   };
 };
 
-export type EditorWorkspaceAsset = {
+export type AssetRecord = {
+  id: string;
+  version: string;
+  description: string;
+  savedAt?: string;
+  status: AssetRecordStatus;
+  isCurrent: boolean;
+  content?: RecordContent;
+};
+
+export type RecordWorkspaceAsset = {
   id: string;
   projectId: string;
   kind: AssetKind;
@@ -69,8 +80,8 @@ export type EditorWorkspaceAsset = {
   history: AssetRecord[];
 };
 
-export type EditorDocumentData = {
+export type RecordData = {
   projectName: string;
-  asset: EditorWorkspaceAsset;
-  document: AssetEditorDocument;
+  asset: RecordWorkspaceAsset;
+  content: RecordContent;
 };

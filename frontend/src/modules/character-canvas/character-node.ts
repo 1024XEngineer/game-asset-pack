@@ -1,4 +1,4 @@
-import type { EditorCharacterAnimation } from "@/types/editor-document";
+import type { EditorCharacterAnimation } from "@/types/record";
 
 export type CharacterCanvasNodeId =
   | "prototype"

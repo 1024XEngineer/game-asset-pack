@@ -1,4 +1,4 @@
-import type { AssetEditorDocument } from "@/types/editor-document";
+import type { RecordContent } from "@/types/record";
 
 import {
   markAssetEditorSessionSaved,
@@ -10,7 +10,7 @@ type SaveAssetEditorSessionInput = {
   store: AssetEditorSessionStore;
   identity: string;
   isActive: (identity: string) => boolean;
-  saveRevision: (document: AssetEditorDocument) => Promise<void>;
+  saveRevision: (document: RecordContent) => Promise<void>;
 };
 
 export async function saveAssetEditorSessionRevision({

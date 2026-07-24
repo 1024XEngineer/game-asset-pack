@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { EditorDocumentData } from "@/types/editor-document";
+import type { RecordData } from "@/types/record";
 
 import { EditorWorkspace } from "./EditorWorkspace";
 
@@ -10,7 +10,7 @@ export function EditorWorkspaceScreen({
   onBack,
   onRetry,
 }: {
-  data?: EditorDocumentData;
+  data?: RecordData;
   error: Error | null;
   isLoading: boolean;
   onBack: () => void;

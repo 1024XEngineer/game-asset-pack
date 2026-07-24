@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 
-import type { EditorSpriteSheetItem } from "@/types/editor-document";
+import type { EditorSpriteSheetItem } from "@/types/record";
 
 type SpriteSheetStageState = {
   selectedItems: string[];

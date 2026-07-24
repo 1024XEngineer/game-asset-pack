@@ -1,8 +1,8 @@
-import type { AssetRecord } from "@/types/asset-record";
+import type { AssetRecord } from "@/types/record";
 import type {
   EditorCanvasPosition,
   EditorCharacterAnimation,
-} from "@/types/editor-document";
+} from "@/types/record";
 
 export type EditorModeProps = {
   prompt: string;

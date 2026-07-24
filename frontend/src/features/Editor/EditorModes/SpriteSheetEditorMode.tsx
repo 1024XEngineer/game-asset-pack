@@ -1,4 +1,4 @@
-import type { AssetEditorDocument } from "@/types/editor-document";
+import type { RecordContent } from "@/types/record";
 
 import { StaticAssetTree } from "../AssetTree/StaticAssetTree";
 import { SpriteSheetStage } from "../Canvas/SpriteSheetStage";
@@ -14,7 +14,7 @@ export function SpriteSheetEditorMode({
   renderHeader,
   spriteSheet,
 }: EditorModeProps & {
-  spriteSheet: AssetEditorDocument["spriteSheet"];
+  spriteSheet: RecordContent["spriteSheet"];
 }) {
   const items = spriteSheet?.items ?? [];
   const stage = useSpriteSheetStageMachine(items);

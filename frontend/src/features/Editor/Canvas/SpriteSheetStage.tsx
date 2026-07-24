@@ -1,4 +1,4 @@
-import type { EditorSpriteSheetItem } from "@/types/editor-document";
+import type { EditorSpriteSheetItem } from "@/types/record";
 
 type SpriteSheetStageProps = {
   gridSize: number;

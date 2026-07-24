@@ -1,4 +1,4 @@
-import type { EditorCharacterAnimation } from "@/types/editor-document";
+import type { EditorCharacterAnimation } from "@/types/record";
 
 import type { CanvasPosition } from "./CharacterCanvas.constants";
 import type { CharacterCanvasNodeId } from "./character-node";

@@ -77,12 +77,12 @@ export function useAssetEditorSession({
         store,
         identity: submittedIdentity,
         isActive: (candidate) => activeIdentityRef.current === candidate,
-        saveRevision: (editorDocument) =>
+        saveRevision: (content) =>
           saveRevisionMutation
             .mutateAsync({
               projectId: target.projectId,
               assetId: target.assetId,
-              editorDocument,
+              content,
             })
             .then(() => undefined),
       });

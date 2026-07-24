@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type {
-  EditorCanvasPosition,
-  EditorDocumentData,
-} from "@/types/editor-document";
+import type { EditorCanvasPosition, RecordData } from "@/types/record";
 import { useAssetEditorSession } from "@/modules/asset-editor-session";
 import { useTimeout } from "@/hooks/use-timeout";
 
@@ -16,7 +13,7 @@ export function EditorWorkspace({
   data,
   onBack,
 }: {
-  data: EditorDocumentData;
+  data: RecordData;
   onBack: () => void;
 }) {
   const { asset, projectName } = data;
@@ -25,7 +22,7 @@ export function EditorWorkspace({
       projectId: asset.projectId,
       assetId: asset.id,
     },
-    initialDocument: data.document,
+    initialDocument: data.content,
   });
   const { snapshot } = session;
   const [notice, setNotice] = useState<string | null>(null);

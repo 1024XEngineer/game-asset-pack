@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { EditorSpriteSheetItem } from "@/types/editor-document";
+import type { EditorSpriteSheetItem } from "@/types/record";
 
 const itemIcons = {
   bed: BedDouble,

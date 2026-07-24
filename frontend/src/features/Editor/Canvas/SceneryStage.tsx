@@ -1,4 +1,4 @@
-import type { EditorSceneryLayer } from "@/types/editor-document";
+import type { EditorSceneryLayer } from "@/types/record";
 
 const layerBlendClasses: Record<EditorSceneryLayer["blendMode"], string> = {
   normal: "",

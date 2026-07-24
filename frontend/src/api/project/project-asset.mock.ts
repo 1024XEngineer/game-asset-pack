@@ -4,7 +4,7 @@ import type { AssetGroupsByProject } from "@/types/asset-library";
 import type { ProjectAsset } from "@/types/asset";
 import type { ProjectSummary } from "@/types/project";
 import type { AssetKind } from "@/types/asset-kind";
-import type { AssetEditorDocument } from "@/types/editor-document";
+import type { RecordContent } from "@/types/record";
 
 const PROJECTS_STORAGE_KEY = "game-asset-pack:projects";
 
@@ -148,7 +148,7 @@ export async function deleteMockAsset(projectId: string, assetId: string) {
 export async function saveMockAssetRevision(
   projectId: string,
   assetId: string,
-  editorDocument: AssetEditorDocument,
+  content: RecordContent,
 ) {
   const groups = assetsByProject[projectId] ?? [];
   const savedAt = new Date();
@@ -164,10 +164,10 @@ export async function saveMockAssetRevision(
         const record = {
           id: `record-${asset.id}-${crypto.randomUUID()}`,
           version,
-          description: editorDocument.prompt.trim() || asset.description,
+          description: content.prompt.trim() || asset.description,
           status: "ready" as const,
           isCurrent: true,
-          editorDocument: structuredClone(editorDocument),
+          content: structuredClone(content),
           savedAt: savedAt.toISOString(),
         };
 

@@ -3,23 +3,20 @@ import {
   listMockProjects,
 } from "@/api/project/project-asset.mock";
 import { DataApiError } from "@/api/api-error";
-import {
-  createDefaultEditorDocument,
-  mergeEditorDocument,
-} from "@/api/editor/editor-document.seed";
+import { createDefaultRecord, mergeRecord } from "@/api/record/record.seed";
 import { runMockRequest, type MockRequestOptions } from "@/api/mock-request";
-import type { EditorDocumentData } from "@/types/editor-document";
+import type { RecordData } from "@/types/record";
 
-export type GetEditorDocumentInput = {
+export type GetRecordInput = {
   projectId: string;
   assetId: string;
 };
 
-export function getMockEditorDocument(
-  input: GetEditorDocumentInput,
+export function getMockRecord(
+  input: GetRecordInput,
   options?: MockRequestOptions,
 ) {
-  return runMockRequest(async (): Promise<EditorDocumentData> => {
+  return runMockRequest(async (): Promise<RecordData> => {
     const [projects, groups] = await Promise.all([
       listMockProjects(),
       listMockAssetGroups(input.projectId),
@@ -40,7 +37,7 @@ export function getMockEditorDocument(
     }
 
     const currentRecord = asset.history.find((record) => record.isCurrent);
-    const fallback = createDefaultEditorDocument(group.kind, asset);
+    const fallback = createDefaultRecord(group.kind, asset);
 
     return {
       projectName: project.name,
@@ -52,7 +49,7 @@ export function getMockEditorDocument(
         version: asset.version,
         history: structuredClone(asset.history),
       },
-      document: mergeEditorDocument(fallback, currentRecord?.editorDocument),
+      content: mergeRecord(fallback, currentRecord?.content),
     };
   }, options);
 }

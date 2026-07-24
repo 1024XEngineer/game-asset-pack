@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 
-import type { EditorSceneryLayer } from "@/types/editor-document";
+import type { EditorSceneryLayer } from "@/types/record";
 
 type SceneryStageState = {
   selectedLayers: string[];
